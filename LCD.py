@@ -4,6 +4,9 @@ class LCD(object):
         self.counter = 0
         mem.put(0xff44, 0) # LCD Y pos
 
+    def __str__(self):
+        return "LCD\nLY: %d" % self.mem.get(0xff44)
+
     def step(self):
         self.counter += 1
         if self.counter >= 100:
