@@ -54,7 +54,8 @@ class LR35902(object):
         N = (F & NF) >> 6
         H = (F & HF) >> 5
         C = (F & CF) >> 4
-        return "PC: " + hex4(self.PC) + ", SP: " + hex4(self.SP) + "\n" \
+        return "CPU\nPC: " + hex4(self.PC) + ", SP: " + hex4(self.SP) \
+            + ", IME: " + str(self.IME) + "\n" \
             + "Flags, Z: %d, N: %d, H: %d, C: %d\n" % (Z, N, H, C) \
             + "A " + hex2(self.regs['A']) + "\n" \
             + "B %s, C %s\n" % (hex2(self.regs['B']), hex2(self.regs['C'])) \
@@ -79,7 +80,7 @@ class LR35902(object):
 
         op = self.mem.get(self.PC)
 
-        if op == 0x00:
+        if op == 0x00: # NOP
             self.PC += 1
         elif op == 0x01: # LD BC,d16
             low, high = self.mem.get_word(self.PC+1)
