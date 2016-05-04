@@ -15,47 +15,67 @@ mem.insertCart(sys.argv[1])
 
 disasm = dict()
 
-for i in xrange(1000):
-    addr = mem.get_rom_address(cpu.PC)
-    if cpu.PC < 0x8000 and addr not in disasm:
-        disasm[addr] = Disassembler.disassemble(cpu.PC, mem)
-    cpu.step()
-    lcd.step()
-
-print cpu
+disasm[0x100] = Disassembler.disassemble(0x100, mem)
 
 class App(object):
     def __init__(self, master):
-        options = dict(sticky=NSEW, padx=3, pady=4)
+        list_frame = Frame(master)
+        list_frame.grid(row=0,column=0,sticky=NSEW)
+        list_frame.grid_columnconfigure(0, weight=1)
+        list_frame.grid_rowconfigure(0, weight=1)
 
-        scrollbar = Scrollbar(master)
-        #scrollbar.pack(side=RIGHT, fill=Y)
+        scrollbar = Scrollbar(list_frame)
         scrollbar.grid(row=0, column=1, sticky=N+S+E)
 
-        listbox = Listbox(master,
-                          yscrollcommand=scrollbar.set,
-                          font=tkFont.Font(font = "TkFixedFont"),
-                          selectmode=SINGLE)
+        self.listbox = Listbox(list_frame,
+                               yscrollcommand=scrollbar.set,
+                               font=tkFont.Font(font = "TkFixedFont"),
+                               selectmode=SINGLE)
 
         self.address_to_index = {}
 
-        prev = 0xff
-        prev_instr = None
-        for key in sorted(disasm.keys()):
-            if prev_instr and (prev + len(prev_instr.bytes_) != key
-                               or prev_instr.bytes_[0] in [0xc3, 0xc9, 0xd9]):
-                listbox.insert(END, "...")
-            self.address_to_index[key] = listbox.size()
-            listbox.insert(END, "[0x%04x]   " % key + str(disasm[key]))
-            prev = key
-            prev_instr = disasm[key]
+        self.address_to_index[0x100] = self.listbox.size()
+        self.listbox.insert(END, "[0x0100]   " + str(disasm[0x100]))
 
-        #listbox.pack(side=LEFT, fill=BOTH)
-        listbox.grid(row=0, column=0, sticky=NSEW)
+        self.listbox.itemconfig(self.address_to_index[cpu.PC], bg="yellow")
 
-        scrollbar.config(command=listbox.yview)
+        self.listbox.grid(row=0, column=0, sticky=NSEW)
+
+        scrollbar.config(command=self.listbox.yview)
+
+        button_frame = Frame(master)
+        button_frame.grid(row=1, column=0, sticky=S)
+
+        step = Button(button_frame, text="Step", command=self.step)
+        step.pack(side=LEFT)
+
+        breakpoint = Button(button_frame, text="Breakpoint")
+        breakpoint.pack(side=LEFT)
+
+    def step(self):
+
+        self.listbox.itemconfig(self.address_to_index[cpu.PC], bg="white")
+
+        cpu.step()
+        lcd.step()
+        print "----------------------------------------"
+        print cpu
+        print "----------------------------------------"
+        print lcd
+
+        addr = mem.get_rom_address(cpu.PC)
+        if cpu.PC < 0x8000 and addr not in disasm:
+            disasm[addr] = Disassembler.disassemble(cpu.PC, mem)
+            self.address_to_index[addr] = self.listbox.size()
+            print "Insert item at 0x%04x" % addr
+            self.listbox.insert(END, "[0x%04x]   " % addr + str(disasm[addr]))
+            if disasm[addr].bytes_[0] in [0xc3, 0xc9, 0xd9]:
+                self.listbox.insert(END, "...")
+
+        self.listbox.itemconfig(self.address_to_index[cpu.PC], bg="yellow")
 
 root = Tk()
+root.title("RemarBoy")
 
 app = App(root)
 
