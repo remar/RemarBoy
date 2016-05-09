@@ -1,5 +1,5 @@
 from Tkinter import *
-import LR35902, LCD, MemoryMap, Disassembler
+import LR35902, LCD, MemoryMap, Disassembler, DisassemblyView
 import sys
 import tkFont
 
@@ -17,6 +17,8 @@ disasm = dict()
 
 disasm[0x100] = Disassembler.disassemble(0x100, mem)
 
+break_points = set()
+
 class App(object):
     def __init__(self, master):
         list_frame = Frame(master)
@@ -24,24 +26,9 @@ class App(object):
         list_frame.grid_columnconfigure(0, weight=1)
         list_frame.grid_rowconfigure(0, weight=1)
 
-        scrollbar = Scrollbar(list_frame)
-        scrollbar.grid(row=0, column=1, sticky=N+S+E)
-
-        self.listbox = Listbox(list_frame,
-                               yscrollcommand=scrollbar.set,
-                               font=tkFont.Font(font = "TkFixedFont"),
-                               selectmode=SINGLE)
-
-        self.address_to_index = {}
-
-        self.address_to_index[0x100] = self.listbox.size()
-        self.listbox.insert(END, "[0x0100]   " + str(disasm[0x100]))
-
-        self.listbox.itemconfig(self.address_to_index[cpu.PC], bg="yellow")
-
-        self.listbox.grid(row=0, column=0, sticky=NSEW)
-
-        scrollbar.config(command=self.listbox.yview)
+        self.disassembly_view = DisassemblyView.DisassemblyView(list_frame)
+        self.disassembly_view.insert(0x100, disasm[0x100])
+        self.disassembly_view.mark_pc(0x100)
 
         button_frame = Frame(master)
         button_frame.grid(row=1, column=0, sticky=S)
@@ -49,37 +36,49 @@ class App(object):
         step = Button(button_frame, text="Step", command=self.step)
         step.pack(side=LEFT)
 
-        breakpoint = Button(button_frame, text="Breakpoint")
+        breakpoint = Button(button_frame, text="Breakpoint",
+                            command=self.break_point)
         breakpoint.pack(side=LEFT)
 
+        run10000 = Button(button_frame, text="Run 10000",
+                          command=self.run10000)
+        run10000.pack(side=LEFT)
+
     def step(self):
-
-        self.listbox.itemconfig(self.address_to_index[cpu.PC], bg="white")
-
         cpu.step()
         lcd.step()
-        print "----------------------------------------"
-        print cpu
-        print "----------------------------------------"
-        print lcd
 
         addr = mem.get_rom_address(cpu.PC)
-        if cpu.PC < 0x8000 and addr not in disasm:
+        #if cpu.PC < 0x8000 and addr not in disasm:
+        if addr not in disasm:
             disasm[addr] = Disassembler.disassemble(cpu.PC, mem)
-            self.address_to_index[addr] = self.listbox.size()
-            print "Insert item at 0x%04x" % addr
-            self.listbox.insert(END, "[0x%04x]   " % addr + str(disasm[addr]))
-            if disasm[addr].bytes_[0] in [0xc3, 0xc9, 0xd9]:
-                self.listbox.insert(END, "...")
+            self.disassembly_view.insert(addr, disasm[addr])
 
-        self.listbox.itemconfig(self.address_to_index[cpu.PC], bg="yellow")
+        self.disassembly_view.mark_pc(cpu.PC)
+
+    def break_point(self):
+        addr = self.disassembly_view.get_selected()
+        if addr is not None:
+            print "Selected address: 0x%04x" % addr
+            if addr in break_points:
+                break_points.remove(addr)
+                self.disassembly_view.clear_break_point(addr)
+            else:
+                break_points.add(addr)
+                self.disassembly_view.set_break_point(addr)
+            print break_points
+
+    def run10000(self):
+        for x in xrange(10000):
+            self.step()
+            if cpu.PC in break_points:
+                break
+        self.disassembly_view.go_to_pc()
 
 root = Tk()
 root.title("RemarBoy")
 
 app = App(root)
-
-print app.address_to_index
 
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0, weight=1)
