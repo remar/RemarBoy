@@ -3,21 +3,30 @@ import tkFont
 
 class AddressToIndex(object):
     def __init__(self):
-        self.address_to_index = {}
-        self.BIG_OFFSET = 100000000
+        self.address_list = []
+        self.max_address = -1
 
     def __str__(self):
-        return str(self.address_to_index)
+        return ", ".join(["%04x" % x for x in self.address_list])
 
-    def put(self, address, index):
-        self.address_to_index[address] = index
-        self.address_to_index[index+self.BIG_OFFSET] = address
+    def put(self, address):
+        if address > self.max_address:
+            self.address_list.append(address)
+            self.max_address = address
+            return len(self.address_list) - 1
+        idx = 0
+        for a in self.address_list:
+            if a > address:
+                break
+            idx += 1
+        self.address_list.insert(idx, address)
+        return idx
 
     def get_by_address(self, address):
-        return self.address_to_index[address]
+        return self.address_list.index(address)
 
     def get_by_index(self, index):
-        return self.address_to_index[index+self.BIG_OFFSET]
+        return self.address_list[index]
 
 class DisassemblyView(object):
     def __init__(self, frame):
@@ -43,12 +52,10 @@ class DisassemblyView(object):
         self.prev_mark = PC
 
     def insert(self, address, assembly):
-        # TODO: Handle insertion in the middle
-        self.address_to_index.put(address, self.listbox.size())
-        print "Insert item at 0x%04x" % address
-        self.listbox.insert(END, "[0x%04x]   " % address + str(assembly))
-        if assembly.bytes_[0] in [0xc3, 0xc9, 0xd9]:
-            self.listbox.insert(END, "...")
+        index = self.address_to_index.put(address)
+        self.listbox.insert(index, "[0x%04x]   " % address + str(assembly))
+        #if assembly.bytes_[0] in [0xc3, 0xc9, 0xd9]:
+        #    self.listbox.insert(END, "...")
 
     def get_selected(self):
         items = map(int, self.listbox.curselection())

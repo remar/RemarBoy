@@ -27,6 +27,8 @@ class App(object):
         list_frame.grid_rowconfigure(0, weight=1)
 
         self.disassembly_view = DisassemblyView.DisassemblyView(list_frame)
+
+        # Something to start with
         self.disassembly_view.insert(0x100, disasm[0x100])
         self.disassembly_view.mark_pc(0x100)
 
@@ -49,17 +51,17 @@ class App(object):
         lcd.step()
 
         addr = mem.get_rom_address(cpu.PC)
-        #if cpu.PC < 0x8000 and addr not in disasm:
         if addr not in disasm:
             disasm[addr] = Disassembler.disassemble(cpu.PC, mem)
             self.disassembly_view.insert(addr, disasm[addr])
 
         self.disassembly_view.mark_pc(cpu.PC)
+        self.disassembly_view.go_to_pc()
 
     def break_point(self):
         addr = self.disassembly_view.get_selected()
         if addr is not None:
-            print "Selected address: 0x%04x" % addr
+            print "(De)select break point: 0x%04x" % addr
             if addr in break_points:
                 break_points.remove(addr)
                 self.disassembly_view.clear_break_point(addr)
