@@ -52,8 +52,10 @@ class App(object):
 
         addr = mem.get_rom_address(cpu.PC)
         if addr not in disasm:
-            disasm[addr] = Disassembler.disassemble(cpu.PC, mem)
-            self.disassembly_view.insert(addr, disasm[addr])
+            self._disassemble(addr)
+            if disasm[addr].bytes_[0] in [0x20,0x28,0x30,0x38,
+                                          0xc2,0xc4,0xca,0xd2,0xda]:
+                self._disassemble(addr, len(disasm[addr].bytes_))
 
         self.disassembly_view.mark_pc(cpu.PC)
         self.disassembly_view.go_to_pc()
@@ -76,6 +78,10 @@ class App(object):
             if cpu.PC in break_points:
                 break
         self.disassembly_view.go_to_pc()
+
+    def _disassemble(self, addr, offset=0):
+        disasm[addr+offset] = Disassembler.disassemble(cpu.PC+offset, mem)
+        self.disassembly_view.insert(addr+offset, disasm[addr+offset])
 
 root = Tk()
 root.title("RemarBoy")
