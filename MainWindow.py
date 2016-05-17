@@ -24,7 +24,7 @@ class MainWindow(object):
         button_frame = Frame(master)
         button_frame.grid(row=1, column=0, sticky=S)
 
-        step = Button(button_frame, text="Step", command=self.step)
+        step = Button(button_frame, text="Step", command=self.step_one)
         step.pack(side=LEFT)
 
         breakpoint = Button(button_frame, text="Breakpoint",
@@ -42,19 +42,19 @@ class MainWindow(object):
         self.disassembly_view.insert(0x100, self.disasm[0x100])
         self.disassembly_view.mark_pc(0x100)
 
-    def step(self):
-        self.cpu.step()
-        self.lcd.step()
+    def step_one(self):
+        self.step()
 
         addr = self.mem.get_rom_address(self.cpu.PC)
         if addr not in self.disasm:
-            self._disassemble(addr)
-            if self.disasm[addr].bytes_[0] in [0x20,0x28,0x30,0x38,
-                                               0xc2,0xc4,0xca,0xd2,0xda]:
-                self._disassemble(addr, len(self.disasm[addr].bytes_))
+            self._disassemble_at(addr)
 
         self.disassembly_view.mark_pc(self.cpu.PC)
         self.disassembly_view.go_to_pc()
+
+    def step(self):
+        self.cpu.step()
+        self.lcd.step()
 
     def break_point(self):
         addr = self.disassembly_view.get_selected()
@@ -70,14 +70,31 @@ class MainWindow(object):
 
     def run10000(self):
         start = time.clock()
+        visited = set()
         for x in xrange(10000):
             self.step()
             if self.cpu.PC in self.break_points:
                 break
+            visited.add(self.cpu.PC)
+
+        for addr in visited:
+            if addr not in self.disasm:
+                self._disassemble_at(addr)
+
+        self.disassembly_view.mark_pc(self.cpu.PC)
+        self.disassembly_view.go_to_pc()
+
         end = time.clock()
         print "Time:", (end - start)
         self.disassembly_view.go_to_pc()
+        print "Lines:", self.disassembly_view
+
+    def _disassemble_at(self, addr):
+        self._disassemble(addr)
+        if self.disasm[addr].bytes_[0] in [0x20,0x28,0x30,0x38,
+                                           0xc2,0xc4,0xca,0xd2,0xda]:
+            self._disassemble(addr, len(self.disasm[addr].bytes_))
 
     def _disassemble(self, addr, offset=0):
-        self.disasm[addr+offset] = Disassembler.disassemble(self.cpu.PC+offset, self.mem)
+        self.disasm[addr+offset] = Disassembler.disassemble(addr+offset, self.mem)
         self.disassembly_view.insert(addr+offset, self.disasm[addr+offset])

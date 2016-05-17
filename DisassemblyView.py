@@ -43,6 +43,9 @@ class DisassemblyView(object):
         self.listbox.grid(row=0, column=0, sticky=NSEW)
         scrollbar.config(command=self.listbox.yview)
 
+    def __str__(self):
+        return str(len(self.address_to_index.address_list))
+
     def mark_pc(self, PC):
         if self.prev_mark in self.break_points:
             self._mark_break(self.prev_mark)
