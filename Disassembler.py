@@ -7,6 +7,9 @@ class Instruction(object):
         return "%-15s (%s)" % (self.symbolic,
                                ", ".join(hex2(x) for x in self.bytes_))
 
+    def to_json(self):
+        return {"sym":self.symbolic, "bytes":self.bytes_}
+
 regmap = {0:"B", 1:"C", 2:"D", 3:"E", 4:"H", 5:"L", 6:"(HL)", 7:"A"}
 
 multi_codes = {

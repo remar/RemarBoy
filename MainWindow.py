@@ -1,7 +1,7 @@
 from Tkinter import *
-import DisassemblyView
+import DisassemblyView, SaveState
 import LR35902, LCD, MemoryMap, Disassembler
-import time
+import time, atexit
 
 class MainWindow(object):
     def __init__(self, master):
@@ -38,9 +38,19 @@ class MainWindow(object):
     def insert_cart(self, filename):
         self.master.title("RemarBoy - " + filename.split("/")[-1])
         self.mem.insertCart(filename)
+
+        self.save_state = SaveState.SaveState(filename)
+        print "Save state avail:", self.save_state.exists()
+
+        atexit.register(self.save)
+
         self.disasm[0x100] = Disassembler.disassemble(0x100, self.mem)
         self.disassembly_view.insert(0x100, self.disasm[0x100])
         self.disassembly_view.mark_pc(0x100)
+
+    def save(self):
+        print "Saving state..."
+        self.save_state.write(self.disasm)
 
     def step_one(self):
         self.step()
@@ -73,9 +83,9 @@ class MainWindow(object):
         visited = set()
         for x in xrange(10000):
             self.step()
+            visited.add(self.cpu.PC)
             if self.cpu.PC in self.break_points:
                 break
-            visited.add(self.cpu.PC)
 
         for addr in visited:
             if addr not in self.disasm:
