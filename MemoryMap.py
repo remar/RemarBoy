@@ -20,12 +20,10 @@
 #	$FF80-$FFFE 	Zero Page - 127 bytes
 #       $FFFF 	        Interrupt Enable Flag
 
-# First implementation without bank switching (MBC)
-
 class MemoryMap(object):
     def __init__(self):
-        self.rom = None          # $0000-$7FFF
-        self.ram = {0xff44: 148} # $8000-$FFFF
+        self.rom = None  # $0000-$7FFF
+        self.ram = {}    # $8000-$FFFF
         self.bank_lower = 1
         self.bank_higher = 0
         self.rom_ram_select = 0
@@ -73,7 +71,8 @@ class MemoryMap(object):
                 "rom_ram_select":self.rom_ram_select}
 
     def from_json(self, obj):
-        self.ram = obj["ram"]
+        for address, value in obj["ram"].iteritems():
+            self.ram[int(address)] = value
         self.bank_lower = obj["bank_lower"]
         self.bank_higher = obj["bank_higher"]
         self.rom_ram_select = obj["rom_ram_select"]

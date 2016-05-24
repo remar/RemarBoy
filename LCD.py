@@ -1,3 +1,5 @@
+# 160x144 pixels
+
 class LCD(object):
     def __init__(self, mem):
         self.mem = mem

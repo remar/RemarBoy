@@ -1,5 +1,6 @@
 from Tkinter import *
-import DisassemblyView, SaveState
+import DisassemblyView, VramView
+import SaveState
 import LR35902, LCD, MemoryMap, Disassembler
 import time, atexit
 
@@ -20,6 +21,11 @@ class MainWindow(object):
         list_frame.grid_rowconfigure(0, weight=1)
 
         self.disassembly_view = DisassemblyView.DisassemblyView(list_frame)
+
+        vram_frame = Frame(master)
+        vram_frame.grid(row=0, column=1, sticky=NE)
+
+        self.vram_view = VramView.VramView(vram_frame, self.mem)
 
         button_frame = Frame(master)
         button_frame.grid(row=1, column=0, sticky=S)
@@ -45,6 +51,7 @@ class MainWindow(object):
 
         if self.save_state.exists():
             self.load()
+            self.vram_view.render()
         else:
             self.disasm[0x100] = Disassembler.disassemble(0x100, self.mem)
             self.disassembly_view.insert(0x100, self.disasm[0x100])
@@ -115,8 +122,8 @@ class MainWindow(object):
         self._disassemble(addr)
         if self.disasm[addr].bytes_[0] in [0x20,0x28,0x30,0x38,
                                            0xc2,0xc4,0xca,0xd2,0xda]:
-            self._disassemble(addr, len(self.disasm[addr].bytes_))
+            self._disassemble(addr + len(self.disasm[addr].bytes_))
 
-    def _disassemble(self, addr, offset=0):
-        self.disasm[addr+offset] = Disassembler.disassemble(addr+offset, self.mem)
-        self.disassembly_view.insert(addr+offset, self.disasm[addr+offset])
+    def _disassemble(self, addr):
+        self.disasm[addr] = Disassembler.disassemble(addr, self.mem)
+        self.disassembly_view.insert(addr, self.disasm[addr])
