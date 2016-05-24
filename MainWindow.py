@@ -50,7 +50,7 @@ class MainWindow(object):
 
     def save(self):
         print "Saving state..."
-        self.save_state.write(self.disasm)
+        self.save_state.write(self.disasm, self.cpu)
 
     def step_one(self):
         self.step()

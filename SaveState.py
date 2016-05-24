@@ -8,10 +8,13 @@ class SaveState(object):
     def exists(self):
         return os.path.exists(self.save_state_filename)
 
-    def write(self, disasm):
+    def write(self, disasm, cpu):
         f = open(self.save_state_filename, "w")
 
-        obj = {"disasm":self._disasm_to_json(disasm)}
+        obj = {
+            "disasm":self._disasm_to_json(disasm),
+            "cpu":cpu.to_json()
+        }
 
         json.dump(obj, f)
 

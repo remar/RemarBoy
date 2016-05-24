@@ -48,6 +48,15 @@ class LR35902(object):
 
         self.mem = memoryMap
 
+    def to_json(self):
+        return {
+            "PC":self.PC,
+            "SP":self.SP,
+            "IME":1 if self.IME else 0,
+            "ic":self.interrupt_counter,
+            "regs":self.regs
+        }
+
     def __str__(self):
         F = self.regs['F']
         Z = (F & ZF) >> 7
