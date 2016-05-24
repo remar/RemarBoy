@@ -24,4 +24,3 @@ class VramView(object):
                                      (tilex*8+(7-pixel), tiley*8+line))
                         low >>= 1
                         high >>= 1
-        self.img.put("#ff0000", (WIDTH/2, HEIGHT/2))
