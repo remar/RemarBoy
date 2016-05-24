@@ -57,6 +57,13 @@ class LR35902(object):
             "regs":self.regs
         }
 
+    def from_json(self, obj):
+        self.PC = obj["PC"]
+        self.SP = obj["SP"]
+        self.IME = obj["IME"] == 1
+        self.interrupt_counter = obj["ic"]
+        self.regs = obj["regs"]
+
     def __str__(self):
         F = self.regs['F']
         Z = (F & ZF) >> 7

@@ -40,17 +40,29 @@ class MainWindow(object):
         self.mem.insertCart(filename)
 
         self.save_state = SaveState.SaveState(filename)
-        print "Save state avail:", self.save_state.exists()
 
         atexit.register(self.save)
 
-        self.disasm[0x100] = Disassembler.disassemble(0x100, self.mem)
-        self.disassembly_view.insert(0x100, self.disasm[0x100])
-        self.disassembly_view.mark_pc(0x100)
+        if self.save_state.exists():
+            self.load()
+        else:
+            self.disasm[0x100] = Disassembler.disassemble(0x100, self.mem)
+            self.disassembly_view.insert(0x100, self.disasm[0x100])
+        self.disassembly_view.mark_pc(self.cpu.PC)
+        self.disassembly_view.go_to_pc()
 
     def save(self):
-        print "Saving state..."
-        self.save_state.write(self.disasm, self.cpu)
+        print "Saving state " + self.save_state.get_file_name()
+        self.save_state.write(self.disasm, self.cpu, self.mem)
+
+    def load(self):
+        print "Loading state " + self.save_state.get_file_name()
+        state = self.save_state.read()
+        self.disasm = self.save_state.disasm_from_json(state["disasm"])
+        self.cpu.from_json(state["cpu"])
+        self.mem.from_json(state["mem"])
+        for address, instruction in self.disasm.iteritems():
+            self.disassembly_view.insert(address, instruction)
 
     def step_one(self):
         self.step()

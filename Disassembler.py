@@ -1,5 +1,5 @@
 class Instruction(object):
-    def __init__(self, symbolic, bytes_):
+    def __init__(self, symbolic=None, bytes_=None):
         self.symbolic = symbolic
         self.bytes_ = bytes_
 
@@ -9,6 +9,11 @@ class Instruction(object):
 
     def to_json(self):
         return {"sym":self.symbolic, "bytes":self.bytes_}
+
+    def from_json(self, obj):
+        self.symbolic = obj["sym"]
+        self.bytes_ = obj["bytes"]
+        return self
 
 regmap = {0:"B", 1:"C", 2:"D", 3:"E", 4:"H", 5:"L", 6:"(HL)", 7:"A"}
 

@@ -65,3 +65,15 @@ class MemoryMap(object):
             self.rom_ram_select = value & 0x01
         else:
             raise Exception, "Out of bounds writing to %x" % address
+
+    def to_json(self):
+        return {"ram":self.ram,
+                "bank_lower":self.bank_lower,
+                "bank_higher":self.bank_higher,
+                "rom_ram_select":self.rom_ram_select}
+
+    def from_json(self, obj):
+        self.ram = obj["ram"]
+        self.bank_lower = obj["bank_lower"]
+        self.bank_higher = obj["bank_higher"]
+        self.rom_ram_select = obj["rom_ram_select"]
