@@ -41,6 +41,10 @@ class MainWindow(object):
                           command=self.run10000)
         run10000.pack(side=LEFT)
 
+        run1000000 = Button(button_frame, text="Run 1000000",
+                            command=self.run1000000)
+        run1000000.pack(side=LEFT)
+
     def insert_cart(self, filename):
         self.master.title("RemarBoy - " + filename.split("/")[-1])
         self.mem.insertCart(filename)
@@ -97,10 +101,10 @@ class MainWindow(object):
                 self.disassembly_view.set_break_point(addr)
             print self.break_points
 
-    def run10000(self):
+    def run_n_times(self, n):
         start = time.clock()
         visited = set()
-        for x in xrange(10000):
+        for x in xrange(n):
             self.step()
             visited.add(self.cpu.PC)
             if self.cpu.PC in self.break_points:
@@ -117,6 +121,12 @@ class MainWindow(object):
         print "Time:", (end - start)
         self.disassembly_view.go_to_pc()
         print "Lines:", self.disassembly_view
+
+    def run10000(self):
+        self.run_n_times(10000)
+
+    def run1000000(self):
+        self.run_n_times(1000000)
 
     def _disassemble_at(self, addr):
         self._disassemble(addr)
