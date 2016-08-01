@@ -1,0 +1,26 @@
+RemarBoy - Interactive Game Boy Rom Analyzer and Game Builder
+-------------------------------------------------------------
+
+The very broad idea is to make a system that can take a Game Boy rom
+apart and then put it together again.
+
+It should be taken apart in logical parts such as code, graphics, and
+sound. The analysis will have to be performed interactively with the
+help of a "smart" emulator.
+
+The next step would be to assemble a rom from the various parts. In
+between it would of course be possible to modify the parts to create
+some kind of "rom hack", although this will be a complete rebuild.
+
+I'm thinking that I can use Eclipse as a base and create plugins to
+perform various tasks in rom-creation. We'll see.
+
+A couple of the steps that might be part of this development process:
+
+1. Make a very competent disassembler (with integrated emulator)
+2. Make this disassembler able to pick out the graphics and sound parts
+3. Store the disassembly in a way that will allow a program to reassemble
+   the various parts
+4. Create editors for code, graphics, and sound
+5. ?
+6. Profit!

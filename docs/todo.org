@@ -1,0 +1,21 @@
+* RemarBoy
+** Bugs
+** Features
+*** Emulator
+**** Instructions
+***** 8-bit Transfer and Input/Output
+***** 16-bit Transfer
+***** 8-bit Arithmetic and Logical Operations
+***** 16-bit Arithmetic Operations
+***** Rotate and Shift
+***** Bit Operations
+***** Jumps
+***** Call and Return
+***** General-Purpose Arithmetic Operations and CPU Control Instructions
+**** MBC
+**** Graphics
+**** Sound
+*** Disassembler
+**** Disassemble instructions
+**** Identify graphics
+**** Identify sounds (is this possible to automate?)
