@@ -5,7 +5,7 @@ public class CPU {
 
 	private Memory mem;
 
-	private int PC;
+	public int PC;
 	private int SP;
 	private int A, F;
 	private int B, C;
@@ -19,7 +19,7 @@ public class CPU {
 
 	private int cycles = 0;
 
-	private boolean IME = true;
+	private boolean IME = false;
 
 	public CPU(Memory mem) {
 		this.mem = mem;
@@ -29,7 +29,7 @@ public class CPU {
 	}
 
 	public void step() {
-		byte op = mem.getByte(PC++);
+		byte op = mem.getOp(PC++);
 
 		if(debug) {
 			System.out.println("-- OP: " + Util.formatByte(op));
@@ -47,6 +47,12 @@ public class CPU {
 		case 6: // 0x06, LD B,n
 			B = mem.getByte(PC++);
 			cycles += 2;
+			break;
+		case 12: // 0x0C, INC C
+			C++;
+			C &= 0xff;
+			F = (F & CF) | (C == 0 ? ZF : 0) | (C == 0x10 ? HF : 0);
+			cycles += 1;
 			break;
 		case 13: // 0x0D, DEC C
 			C = (C - 1) & 0xff;
@@ -73,6 +79,10 @@ public class CPU {
 			H = (word & 0xff00) >> 8;
 			L = word & 0xff;
 			cycles += 3;
+			break;
+		case 42: // 0x2A, LD B,D
+			B = D;
+			cycles += 1;
 			break;
 		case 49: // 0x31, LD SP,nn
 			SP = mem.getWord(PC);
@@ -109,6 +119,10 @@ public class CPU {
 			int offset = (mem.getByte(PC++) & 0xff);
 			mem.putByte(0xff00 + offset, A);
 			cycles += 3;
+			break;
+		case -30: // 0xE2, LD (0xff00 + C),A
+			mem.putByte(0xff00 + (C & 0xff), A);
+			cycles += 2;
 			break;
 		case -22: // 0xEA, LD (nn),A
 			int address = mem.getWord(PC);

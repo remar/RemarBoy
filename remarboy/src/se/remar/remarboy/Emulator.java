@@ -1,5 +1,7 @@
 package se.remar.remarboy;
 
+import java.util.Set;
+
 public class Emulator {
 	private Memory mem;
 	private CPU cpu;
@@ -14,11 +16,15 @@ public class Emulator {
 	}
 
 	public void insertCart(String path) {
-		mem.insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
+		mem.insertCart(path);
 	}
 
 	public Memory getMemory() {
 		return mem;
+	}
+
+	public Set<Integer> getVisited() {
+		return mem.getVisited();
 	}
 
 	public String toString() {

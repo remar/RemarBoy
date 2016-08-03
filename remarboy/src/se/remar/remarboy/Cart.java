@@ -15,6 +15,10 @@ public class Cart {
 		return rom[i];
 	}
 
+	public int size() {
+		return rom.length;
+	}
+
 	private void loadRom(String path) {
 		try {
 			RandomAccessFile f = new RandomAccessFile(path, "r");
