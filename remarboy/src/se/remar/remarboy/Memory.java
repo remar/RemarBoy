@@ -63,4 +63,12 @@ public class Memory {
 		}
 		return visited;
 	}
+
+	public byte[] getBytes(int address, int length) {
+		byte[] bytes = new byte[length];
+		for(int i = 0;i < length;i++) {
+			bytes[i] = getByte(address + i);
+		}
+		return bytes;
+	}
 }
