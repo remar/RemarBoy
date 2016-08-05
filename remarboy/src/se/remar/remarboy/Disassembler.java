@@ -14,7 +14,7 @@ public class Disassembler {
 		boolean debug = false;
 
 		long t = System.currentTimeMillis();
-		for(int i = 0;i < 10;i++) {
+		for(int i = 0;i < 200000;i++) {
 			if(debug) {
 				System.out.println("---- STEP " + i + " ----");
 			}
@@ -72,21 +72,28 @@ public class Disassembler {
 		// B . . . . . . . . . . . . . . . .
 		// C . . . x . . . . . . . . . . . .
 		// D . . . . . . . . . . . . . . . .
-		// E . . . . . . . . . . . . . . . .
-		// F . . . . . . . . . . . . . . . .
+		// E x . . . . . . . . . . . . . . .
+		// F x . . . . . . . . . . . . . x .
 		Map<Integer, String> codes = new HashMap<Integer, String>();
+
 		codes.put(0x00, "NOP");
-		codes.put(0xc3, "JP $nn");
+		codes.put(0xc3, "JP 0xnn");
+		codes.put(0xe0, "LD (0xFFn),A");
+		codes.put(0xea, "LD (0xnn),A");
+		codes.put(0xf0, "LD A,(0xFFn)");
+		codes.put(0xf3, "DI");
+		codes.put(0xfe, "CP 0xn");
+
 		byte op = mem.getByte(address);
 
 		if((op & 0xe7) == 0x20) { // JR conditional,n
 			String neg = (op & 0x08) == 0x08 ? "":"N";
 			String flag = (op & 0x10) == 0x10 ? "C":"Z";
 			byte n = mem.getByte(address + 1);
-			return new Instruction("JR "+neg+flag+",$"+Util.formatByte(n), op, n);
+			return new Instruction("JR "+neg+flag+",0x"+Util.formatByte(n), op, n);
 		} else if((op & 0xcf) == 0x01) { // LD rr,nn
 			int nn = mem.getWord(address + 1);
-			return new Instruction("LD " + getWideRegName((op & 0x30) >> 4) + ",$"+Util.formatWord(nn), mem.getBytes(address, 3));
+			return new Instruction("LD " + getWideRegName((op & 0x30) >> 4) + ",0x"+Util.formatWord(nn), mem.getBytes(address, 3));
 		} else if((op & 0xcf) == 0x02) { // LD (rr+-),A
 			return new Instruction("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A", op);
 		} else if((op & 0xc7) == 0x05) { // DEC r
@@ -94,7 +101,9 @@ public class Disassembler {
 		} else if((op & 0xc7) == 0x06) { // LD r,n
 			byte n = mem.getByte(address + 1);
 			return new Instruction("LD " + getRegName((op & 0x38) >> 3)
-					+ ",$" + Util.formatByte(n), op, n);
+					+ ",0x" + Util.formatByte(n), op, n);
+		} else if((op & 0xcf) == 0x0a) { // LD A,(rr+-)
+			return new Instruction("LD A," + getIndirectRegName((op & 0x30) >> 4), op);
 		} else if((op & 0xc0) == 0x40 && (op & 0xff) != 0x76) { // LD r,r', LD (HL),r, and LD r,(HL)
 			String target = getRegName((op & 0x38) >> 3);
 			String source = getRegName(op & 0x07);

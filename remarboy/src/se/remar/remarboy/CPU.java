@@ -98,9 +98,13 @@ public class CPU {
 			L = word & 0xff;
 			cycles += 3;
 			break;
-		case 42: // 0x2A, LD B,D
-			B = D;
-			cycles += 1;
+		case 42: // 0x2A, LD A,(HL+)
+			int HL = H * 256 + L;
+			A = mem.getByte(HL);
+			HL++;
+			H = (HL & 0xff00) >> 8;
+			L = (HL & 0x00ff);
+			cycles += 2;
 			break;
 		case 49: // 0x31, LD SP,nn
 			SP = mem.getWord(PC);
@@ -108,7 +112,7 @@ public class CPU {
 			cycles += 3;
 			break;
 		case 50: // 0x32, LD (HL-),A
-			int HL = H * 256 + L;
+			HL = H * 256 + L;
 			mem.putByte(HL, A);
 			HL = (HL - 1) & 0xffff;
 			H = (HL & 0xff00) >> 8;
@@ -132,6 +136,8 @@ public class CPU {
 		case -61: // 0xC3, JP nn
 			PC = mem.getWord(PC);
 			cycles += 4;
+			break;
+		case -51: // 0xCD, CALL nn
 			break;
 		case -32: // 0xE0, LD (0xff00 + n),A
 			int offset = (mem.getByte(PC++) & 0xff);

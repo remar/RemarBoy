@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Cart {
-	private byte[] rom;
+	protected byte[] rom;
+
+	public Cart() {
+	}
 
 	public Cart(String path) {
 		loadRom(path);

@@ -25,7 +25,11 @@ public class Memory {
 	private static final byte VISITED = 1;
 
 	public void insertCart(String path) {
-		cart = new Cart(path);
+		addCart(new Cart(path));
+	}
+
+	public void addCart(Cart cart) {
+		this.cart = cart;
 		metarom = new byte[cart.size()];
 	}
 
