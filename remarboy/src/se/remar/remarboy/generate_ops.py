@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from shutil import copyfile
 
 def generate_inc_r(op):
@@ -35,11 +37,12 @@ def nl():
 
 def generate_opcodes():
     ops = []
-    for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
-        ops.extend(generate_dec_r(op))
 
     for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
         ops.extend(generate_inc_r(op))
+
+    for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
+        ops.extend(generate_dec_r(op))
 
     return ops
         
