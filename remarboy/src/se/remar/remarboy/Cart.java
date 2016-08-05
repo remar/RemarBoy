@@ -5,33 +5,33 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Cart {
-	protected byte[] rom;
+    protected byte[] rom;
 
-	public Cart() {
-	}
+    public Cart() {
+    }
 
-	public Cart(String path) {
-		loadRom(path);
-	}
+    public Cart(String path) {
+        loadRom(path);
+    }
 
-	public byte get(int i) {
-		return rom[i];
-	}
+    public byte get(int i) {
+        return rom[i];
+    }
 
-	public int size() {
-		return rom.length;
-	}
+    public int size() {
+        return rom.length;
+    }
 
-	private void loadRom(String path) {
-		try {
-			RandomAccessFile f = new RandomAccessFile(path, "r");
-			rom = new byte[(int)f.length()];
-			f.readFully(rom);
-			f.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    private void loadRom(String path) {
+        try {
+            RandomAccessFile f = new RandomAccessFile(path, "r");
+            rom = new byte[(int)f.length()];
+            f.readFully(rom);
+            f.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,3 +1,4 @@
 *.pyc
 *~
 remarboy/bin
+remarboy/.settings
