@@ -37,10 +37,10 @@ public class CPU {
         }
 
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x . . . . x x . . . . . x x x . 0
-        // 1 . . . . . . . . . . . . . . . . 1
-        // 2 x x . . . . . . . . x . . . . . 2
-        // 3 . x x . . . x . . . . . . . x . 3
+        // 0 x . . . g g x . . . . . g g x . 0
+        // 1 . . . . g g . . . . . . g g . . 1
+        // 2 x x . . g g . . . . x . g g . . 2
+        // 3 . x x . . . x . . . . . g g x . 3
         // 4 . . . . . . . . . . . . . . . . 4
         // 5 . . . . . . . . . . . . . . . . 5
         // 6 . . . . . . . . . . . . . . . . 6
@@ -56,30 +56,16 @@ public class CPU {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
         switch(op) {
+
 // --------- BEGIN GENERATED CODE ---------
 // --------- END GENERATED CODE ---------
+
         case 0: // 0x00, NOP
-            cycles += 1;
-            break;
-        case 5: // 0x05, DEC B
-            B = (B - 1) & 0xff;
-            F = (F & CF) | (B == 0 ? ZF : 0) | NF | ((B & 0xf) == 0xf ? HF : 0);
             cycles += 1;
             break;
         case 6: // 0x06, LD B,n
             B = mem.getByte(PC++);
             cycles += 2;
-            break;
-        case 12: // 0x0C, INC C
-            C++;
-            C &= 0xff;
-            F = (F & CF) | (C == 0 ? ZF : 0) | (C == 0x10 ? HF : 0);
-            cycles += 1;
-            break;
-        case 13: // 0x0D, DEC C
-            C = (C - 1) & 0xff;
-            F = (F & CF) | (C == 0 ? ZF : 0) | NF | ((C & 0xf) == 0xf ? HF : 0);
-            cycles += 1;
             break;
         case 14: // 0x0E, LD C,n
             C = mem.getByte(PC++);
