@@ -32,14 +32,18 @@ public class CPU {
     public void step() {
         byte op = mem.getOp(PC++);
 
+        int BC;
+        int DE;
+        int HL;
+
         if(debug) {
             System.out.println("-- OP: " + Util.formatByte(op));
         }
 
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x g . . g g x . . . . . g g x . 0
-        // 1 . g . . g g . . . . . . g g . . 1
-        // 2 x g . . g g . . . . x . g g . . 2
+        // 0 x g . . g g x . . . . g g g x . 0
+        // 1 . g . . g g . . . . . g g g . . 1
+        // 2 x g . . g g . . . . x g g g . . 2
         // 3 . x x . . . x . . . . . g g x . 3
         // 4 . . . . . . . . . . . . . . . . 4
         // 5 . . . . . . . . . . . . . . . . 5
@@ -82,7 +86,7 @@ public class CPU {
             }
             break;
         case 42: // 0x2A, LD A,(HL+)
-            int HL = (H & 0xff) * 0x100 + (L & 0xff);
+            HL = (H & 0xff) * 0x100 + (L & 0xff);
             A = mem.getByte(HL);
             HL++;
             H = (HL & 0xff00) >> 8;

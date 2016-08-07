@@ -9,8 +9,17 @@ def generate_ld_rr_nn(op):
         indent(3), r1, " = mem.getByte(PC++);", nl()
     ] + make_cycles_and_break(3)
 
-def get_wide_reg(r):
-    return {0:("B", "C"), 1:("D", "E"), 2:("H", "L")}[r]
+def generate_dec_rr(op):
+    r1, r2 = get_wide_reg((op & 0x30) // 16)
+    def r1r2(s):
+        return s.replace("r1", r1).replace("r2", r2)
+
+    return make_case(op, "DEC " + r1 + r2) + [
+        indent(3), r1r2("r1r2 = (r1 & 0xff) * 0x100 + (r2 & 0xff);"), nl(),
+        indent(3), r1r2("r1r2 = (r1r2 - 1) & 0xffff;"), nl(),
+        indent(3), r1r2("r1 = (r1r2 & 0xff00) >> 8;"), nl(),
+        indent(3), r1r2("r2 = r1r2 & 0x00ff;"), nl()
+    ] + make_cycles_and_break(2)
 
 def generate_inc_r(op):
     reg = get_reg((op & 0x38) // 8)
@@ -27,6 +36,9 @@ def generate_dec_r(op):
 
 def get_reg(r):
     return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 7:"A"}[r]
+
+def get_wide_reg(r):
+    return {0:("B", "C"), 1:("D", "E"), 2:("H", "L")}[r]
 
 def make_case(op, title):
     return [indent(2), "case ", make_op(op), ": // 0x", format(op, "02x"),
@@ -57,6 +69,9 @@ def generate_opcodes():
     for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
         ops.extend(generate_dec_r(op))
 
+    for op in [0x0b, 0x1b, 0x2b]:
+        ops.extend(generate_dec_rr(op))
+
     return ops
 
 def main():
@@ -78,6 +93,6 @@ def main():
     f.close()
 
 def test():
-    print("".join(generate_ld_rr_nn(0x01)))
+    print("".join(generate_opcodes()))
 
 main()
