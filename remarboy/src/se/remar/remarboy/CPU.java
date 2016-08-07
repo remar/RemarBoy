@@ -150,6 +150,11 @@ public class CPU {
             mem.putByte(0xff00 + (C & 0xff), A);
             cycles += 2;
             break;
+        case -26: // 0xE6, AND n
+            A = (A & 0xff) & (mem.getByte(PC++) & 0xff);
+            F = (A == 0 ? ZF : 0) | HF;
+            cycles += 2;
+            break;
         case -22: // 0xEA, LD (nn),A
             int address = mem.getWord(PC);
             PC += 2;
