@@ -37,9 +37,9 @@ public class CPU {
         }
 
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x . . . g g x . . . . . g g x . 0
-        // 1 . . . . g g . . . . . . g g . . 1
-        // 2 x x . . g g . . . . x . g g . . 2
+        // 0 x g . . g g x . . . . . g g x . 0
+        // 1 . g . . g g . . . . . . g g . . 1
+        // 2 x g . . g g . . . . x . g g . . 2
         // 3 . x x . . . x . . . . . g g x . 3
         // 4 . . . . . . . . . . . . . . . . 4
         // 5 . . . . . . . . . . . . . . . . 5
@@ -81,15 +81,8 @@ public class CPU {
                 cycles += 2;
             }
             break;
-        case 33: // 0x21, LD HL,nn
-            int word = mem.getWord(PC);
-            PC += 2;
-            H = (word & 0xff00) >> 8;
-            L = word & 0xff;
-            cycles += 3;
-            break;
         case 42: // 0x2A, LD A,(HL+)
-            int HL = H * 256 + L;
+            int HL = (H & 0xff) * 0x100 + (L & 0xff);
             A = mem.getByte(HL);
             HL++;
             H = (HL & 0xff00) >> 8;
@@ -102,7 +95,7 @@ public class CPU {
             cycles += 3;
             break;
         case 50: // 0x32, LD (HL-),A
-            HL = H * 256 + L;
+            HL = (H & 0xff) * 0x100 + (L & 0xff);
             mem.putByte(HL, A);
             HL = (HL - 1) & 0xffff;
             H = (HL & 0xff00) >> 8;

@@ -54,7 +54,7 @@ public class Memory {
         if(address >= 0x8000) { // Ignore other writes for now
             ram[address - 0x8000] = (byte) (data & 0xff);
         } else {
-            System.out.println("Caught write to address " + Util.formatWord(address) + ", data: " + Util.formatByte(data));
+            System.out.println(String.format("Caught write to address 0x%x", address) + ", data: " + Util.formatByte(data));
         }
     }
 

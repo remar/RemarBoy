@@ -19,6 +19,15 @@ public class CPUTest extends TestCase {
         cpu = null;
     }
 
+    // LD BC, 0x01 /////////////////////////////////////////////////
+    public void testLDBC() {
+        cart.putBytes(0x100, 0x01, 0x40, 0x20);
+        cpu.step();
+        assertEquals(0x20, cpu.B);
+        assertEquals(0x40, cpu.C);
+        assertEquals(0x103, cpu.PC);
+    }
+
     // DEC B, 0x05 /////////////////////////////////////////////////
     public void testDecB() {
         decBTest(0xff, 0xfe, 0x40);

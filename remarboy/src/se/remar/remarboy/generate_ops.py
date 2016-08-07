@@ -2,6 +2,16 @@
 
 from shutil import copyfile
 
+def generate_ld_rr_nn(op):
+    r1, r2 = get_wide_reg((op & 0x30) // 16)
+    return make_case(op, "LD " + r1 + r2 + ",nn") + [
+        indent(3), r2, " = mem.getByte(PC++);", nl(),
+        indent(3), r1, " = mem.getByte(PC++);", nl()
+    ] + make_cycles_and_break(3)
+
+def get_wide_reg(r):
+    return {0:("B", "C"), 1:("D", "E"), 2:("H", "L")}[r]
+
 def generate_inc_r(op):
     reg = get_reg((op & 0x38) // 8)
     return make_case(op, "INC " + reg) + [
@@ -38,6 +48,9 @@ def nl():
 def generate_opcodes():
     ops = []
 
+    for op in [0x01, 0x11, 0x21]:
+        ops.extend(generate_ld_rr_nn(op))
+
     for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
         ops.extend(generate_inc_r(op))
 
@@ -45,18 +58,26 @@ def generate_opcodes():
         ops.extend(generate_dec_r(op))
 
     return ops
-        
-copyfile("CPU.java", "CPU.java.bak")
 
-f = open("CPU.java", "r")
-cpu = f.read().split("\n")
-f.close()
+def main():
+    copyfile("CPU.java", "CPU.java.bak")
 
-begin = cpu.index("// --------- BEGIN GENERATED CODE ---------")
-end = cpu.index("// --------- END GENERATED CODE ---------")
+    f = open("CPU.java", "r")
+    cpu = f.read().split("\n")
+    f.close()
 
-f = open("CPU.java", "w")
-f.write("\n".join(cpu[0:begin+1]) + "\n")
-f.write("".join(generate_opcodes()))
-f.write("\n".join(cpu[end:]))
-f.close()
+    begin = cpu.index("// --------- BEGIN GENERATED CODE ---------")
+    end = cpu.index("// --------- END GENERATED CODE ---------")
+
+    opcodes = generate_opcodes()
+
+    f = open("CPU.java", "w")
+    f.write("\n".join(cpu[0:begin+1]) + "\n")
+    f.write("".join(opcodes))
+    f.write("\n".join(cpu[end:]))
+    f.close()
+
+def test():
+    print("".join(generate_ld_rr_nn(0x01)))
+
+main()
