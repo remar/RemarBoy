@@ -52,8 +52,8 @@ public class CPU {
         // 8 . . . . . . . . . . . . . . . . 8
         // 9 . . . . . . . . . . . . . . . . 9
         // A . . . . . . . . . . . . . . . x A
-        // B . . . . . . . . . . . . . . . . B
-        // C . . . x . . . . . . . . . x . . C
+        // B g g g g g g g g . . . . . . . . B
+        // C . . . x . . . . . x . . . x . . C
         // D . . . . . . . . . . . . . . . . D
         // E x . x . . . . . . . x . . . . . E
         // F x . . x . . . . . . . . . . x . F
@@ -122,6 +122,11 @@ public class CPU {
             break;
         case -61: // 0xC3, JP nn
             PC = mem.getWord(PC);
+            cycles += 4;
+            break;
+        case -55: // 0xC9, RET
+            PC = mem.getWord(SP);
+            SP += 2;
             cycles += 4;
             break;
         case -51: // 0xCD, CALL nn

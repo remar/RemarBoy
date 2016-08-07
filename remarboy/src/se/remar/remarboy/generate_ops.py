@@ -48,11 +48,24 @@ def generate_ld_r_r(op):
             indent(3), dest, " = ", src, ";", nl()
         ] + make_cycles_and_break(1)
 
+def generate_or(op):
+    r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
+    r_name = get_reg(op & 0x07)
+    cycles = 2 if (op & 0x07) == 0x06 else 1
+    return make_case(op, "OR " + r_name) + ([
+        indent(3), "A = (A & 0xff) | (" + r + " & 0xff);",
+        nl() ] if r != "A" else []) + [
+            indent(3), "F = A == 0 ? ZF : 0;", nl()
+        ] + make_cycles_and_break(cycles)
+
+def get_hl():
+    return "mem.getByte("+make_word("H", "L")+")"
+
 def make_word(h, l):
     return "(" + h + " & 0xff) * 0x100 + (" + l + " & 0xff)"
 
 def get_reg(r):
-    return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 7:"A"}[r]
+    return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 6:"(HL)", 7:"A"}[r]
 
 def get_wide_reg(r):
     return {0:("B", "C"), 1:("D", "E"), 2:("H", "L")}[r]
@@ -95,6 +108,9 @@ def generate_opcodes():
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
+    for op in range(0xb0, 0xb8):
+        ops.extend(generate_or(op))
+
     return ops
 
 def main():
@@ -116,7 +132,6 @@ def main():
     f.close()
 
 def test():
-#    print("".join(generate_ld_r_r(0x56)))
-    print("".join(generate_opcodes()))
+    print("".join(generate_or(0xb6)))
 
 main()
