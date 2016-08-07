@@ -34,6 +34,23 @@ def generate_dec_r(op):
             indent(3), "r = (r - 1) & 0xff;".replace("r",reg), nl(),
             indent(3), "F = (F & CF) | (r == 0 ? ZF : 0) | NF | ((r & 0xf) == 0xf ? HF : 0);".replace("r",reg), nl()] + make_cycles_and_break(1)
 
+def generate_ld_r_r(op):
+    dest = get_reg((op & 0x38) // 8)
+    src = get_reg(op & 0x07) if (op & 0x07) != 0x06 else "(HL)"
+    if src == "(HL)":
+        return make_case(op, "LD " + dest + "," + src) + [
+            indent(3), dest, " = mem.getByte(", make_word("H", "L"), ");", nl()
+        ] + make_cycles_and_break(2)
+    elif dest == src:
+        return make_case(op, "LD " + dest + "," + src) + make_cycles_and_break(1)
+    else:
+        return make_case(op, "LD " + dest + "," + src) + [
+            indent(3), dest, " = ", src, ";", nl()
+        ] + make_cycles_and_break(1)
+
+def make_word(h, l):
+    return "(" + h + " & 0xff) * 0x100 + (" + l + " & 0xff)"
+
 def get_reg(r):
     return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 7:"A"}[r]
 
@@ -72,6 +89,12 @@ def generate_opcodes():
     for op in [0x0b, 0x1b, 0x2b]:
         ops.extend(generate_dec_rr(op))
 
+    for op in range(0x40, 0x70):
+        ops.extend(generate_ld_r_r(op))
+
+    for op in range(0x78, 0x80):
+        ops.extend(generate_ld_r_r(op))
+
     return ops
 
 def main():
@@ -93,6 +116,7 @@ def main():
     f.close()
 
 def test():
+#    print("".join(generate_ld_r_r(0x56)))
     print("".join(generate_opcodes()))
 
 main()
