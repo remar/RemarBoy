@@ -93,6 +93,11 @@ public class CPU {
             L = (HL & 0x00ff);
             cycles += 2;
             break;
+        case 47: // 0x2F, CPL
+            A = ~(A & 0xff);
+            F = (F & (ZF | CF)) | NF | HF;
+            cycles += 1;
+            break;
         case 49: // 0x31, LD SP,nn
             SP = mem.getWord(PC);
             PC += 2;
@@ -158,6 +163,10 @@ public class CPU {
             break;
         case -13: // 0xF3, DI
             IME = false;
+            cycles += 1;
+            break;
+        case -5: // 0xFB, EI
+            IME = true;
             cycles += 1;
             break;
         case -2: // 0xFE, CP n
