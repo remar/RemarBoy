@@ -36,6 +36,8 @@ public class CPU {
         int DE;
         int HL;
 
+        byte temp;
+
         if(debug) {
             System.out.println("-- OP: " + Util.formatByte(op));
         }
@@ -133,6 +135,18 @@ public class CPU {
             PC = mem.getWord(SP);
             SP += 2;
             cycles += 4;
+            break;
+        case -53: // 0xCB, CB prefix, 256 more opcodes!
+            op = mem.getOp(PC++);
+            switch(op) {
+// --------- BEGIN GENERATED CB CODE ---------
+// --------- END GENERATED CB CODE ---------
+            case 0:
+                break;
+            default:
+                System.out.println(this);
+                throw new RuntimeException("Not implemented CB: " + op + " (" + Util.formatByte(op) + ")");
+            }
             break;
         case -51: // 0xCD, CALL nn
             mem.putByte(SP-1, ((PC+2) & 0xff00) >> 8);

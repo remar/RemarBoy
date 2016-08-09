@@ -50,6 +50,14 @@ public class CPUTest extends TestCase {
         assertEquals(expectedF, cpu.F);
     }
 
+    // CB, SWAP A, [0xCB, 0x37]
+    public void testCbSwapA() {
+        cpu.A = 0x3f;
+        cart.putBytes(0x100, 0xcb, 0x37); // CB, SWAP A => expect A = 0xf3
+        cpu.step();
+        assertEquals(0xf3, cpu.A);
+    }
+
     public void testCall() {
         cart.putBytes(0x100, 0xcd, 0x40, 0x20);
         cpu.step();

@@ -2,6 +2,8 @@
 
 from shutil import copyfile
 
+# "Normal" op codes
+
 def generate_ld_rr_nn(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "LD " + r1 + r2 + ",nn") + [
@@ -58,6 +60,26 @@ def generate_or(op):
             indent(3), "F = A == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
 
+# CB op codes
+def generate_swap(op):
+    def swap(s):
+        return "((s & 0x0f) << 4) | ((s & 0xf0) >> 4)".replace("s", s)
+
+    if op & 0x07 == 0x06:
+        # (HL)
+        return make_cb_case(op, "SWAP (HL)") + [
+            indent(4), "HL = ", make_word("H", "L"), ";", nl(),
+            indent(4), "temp = mem.getByte(HL);", nl(),
+            indent(4), "mem.putByte(HL, "+swap("temp")+");", nl()
+        ] + make_cb_cycles_and_break(4)
+    else:
+        r = get_reg(op & 0x07)
+        return make_cb_case(op, "SWAP " + r) + [
+            indent(4), ("r = "+swap("r")+";")
+            .replace("r", r), nl(),
+            indent(4), "F = (r == 0 ? ZF : 0);".replace("r", r), nl()
+        ] + make_cb_cycles_and_break(2)
+
 def get_hl():
     return "mem.getByte("+make_word("H", "L")+")"
 
@@ -74,9 +96,17 @@ def make_case(op, title):
     return [indent(2), "case ", make_op(op), ": // 0x", format(op, "02x"),
             ", ", title, nl()]
 
+def make_cb_case(op, title):
+    return [indent(3), "case ", make_op(op), ": // 0x", format(op, "02x"),
+            ", ", title, nl()]
+
 def make_cycles_and_break(cycles):
     return [indent(3), "cycles += "+str(cycles)+";", nl(),
             indent(3), "break;", nl()]
+
+def make_cb_cycles_and_break(cycles):
+    return [indent(4), "cycles += "+str(cycles)+";", nl(),
+            indent(4), "break;", nl()]
 
 def make_op(op):
     return str(op if op < 128 else (-256 + op))
@@ -113,6 +143,14 @@ def generate_opcodes():
 
     return ops
 
+def generate_cb_opcodes():
+    ops = []
+
+    for op in range(0x30, 0x38):
+        ops.extend(generate_swap(op))
+
+    return ops
+
 def main():
     copyfile("CPU.java", "CPU.java.bak")
 
@@ -123,15 +161,21 @@ def main():
     begin = cpu.index("// --------- BEGIN GENERATED CODE ---------")
     end = cpu.index("// --------- END GENERATED CODE ---------")
 
+    begin_cb = cpu.index("// --------- BEGIN GENERATED CB CODE ---------")
+    end_cb = cpu.index("// --------- END GENERATED CB CODE ---------")
+
     opcodes = generate_opcodes()
+    cb_opcodes = generate_cb_opcodes()
 
     f = open("CPU.java", "w")
     f.write("\n".join(cpu[0:begin+1]) + "\n")
     f.write("".join(opcodes))
-    f.write("\n".join(cpu[end:]))
+    f.write("\n".join(cpu[end:begin_cb+1]) + "\n")
+    f.write("".join(cb_opcodes))
+    f.write("\n".join(cpu[end_cb:]))
     f.close()
 
 def test():
-    print("".join(generate_or(0xb6)))
+    print("".join(generate_cb_opcodes()))
 
 main()
