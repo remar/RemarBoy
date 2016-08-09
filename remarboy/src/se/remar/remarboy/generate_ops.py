@@ -80,6 +80,15 @@ def generate_or(op):
             indent(3), "F = A == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
 
+def generate_rst(op):
+    dest = (op & 0x38) // 8
+    return make_case(op, "RST " + str(dest) + " (0x" + format(dest*8, "02x") + ")") + [
+        indent(3), "mem.putByte(SP-1, (PC & 0xff00) >> 8);", nl(),
+        indent(3), "mem.putByte(SP-2, PC & 0x00ff);", nl(),
+        indent(3), "SP -= 2;", nl(),
+        indent(3), "PC = 0x", format(dest*8, "02x"), ";", nl()
+    ] + make_cycles_and_break(4)
+
 # CB op codes
 def generate_swap(op):
     def swap(s):
@@ -167,6 +176,9 @@ def generate_opcodes():
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
 
+    for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
+        ops.extend(generate_rst(op))
+
     return ops
 
 def generate_cb_opcodes():
@@ -202,6 +214,6 @@ def main():
     f.close()
 
 def test():
-    print("".join(generate_and(0xa6)))
+    print("".join(generate_rst(0xef)))
 
 main()
