@@ -50,6 +50,16 @@ def generate_ld_r_r(op):
             indent(3), dest, " = ", src, ";", nl()
         ] + make_cycles_and_break(1)
 
+def generate_xor(op):
+    r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
+    r_name = get_reg(op & 0x07)
+    cycles = 2 if (op & 0x07) == 0x06 else 1
+    return make_case(op, "XOR " + r_name) + [
+        indent(3),
+        "A = (A & 0xff) ^ (" + r + " & 0xff);" if r != "A" else "A = 0;", nl(),
+        indent(3), "F = (A == 0 ? ZF : 0);", nl()
+    ] + make_cycles_and_break(cycles)
+
 def generate_or(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
     r_name = get_reg(op & 0x07)
@@ -138,6 +148,9 @@ def generate_opcodes():
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
+    for op in range(0xa8, 0xb0):
+        ops.extend(generate_xor(op))
+
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
 
@@ -176,6 +189,6 @@ def main():
     f.close()
 
 def test():
-    print("".join(generate_cb_opcodes()))
+    print("".join(generate_xor(0xae)))
 
 main()

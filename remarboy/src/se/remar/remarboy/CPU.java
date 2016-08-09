@@ -53,7 +53,7 @@ public class CPU {
         // 7 . . . . . . . . g g g g g g g g 7
         // 8 . . . . . . . . . . . . . . . . 8
         // 9 . . . . . . . . . . . . . . . . 9
-        // A . . . . . . . . . . . . . . . x A
+        // A . . . . . . . . g g g g g g g g A
         // B g g g g g g g g . . . . . . . . B
         // C . . . x . . . . . x . . . x . . C
         // D . . . . . . . . . . . . . . . . D
@@ -120,11 +120,6 @@ public class CPU {
             break;
         case 62: // 0x3E, LD A,n
             A = mem.getByte(PC++);
-            cycles += 1;
-            break;
-        case -81: // 0xAF, XOR A
-            A = 0;
-            F = (A == 0 ? ZF : 0);
             cycles += 1;
             break;
         case -61: // 0xC3, JP nn
