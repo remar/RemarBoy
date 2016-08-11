@@ -50,6 +50,19 @@ def generate_ld_r_r(op):
             indent(3), dest, " = ", src, ";", nl()
         ] + make_cycles_and_break(1)
 
+def generate_add(op):
+    r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
+    r_name = get_reg(op & 0x07)
+    cycles = 2 if (op & 0x07) == 0x06 else 1
+    return make_case(op, "ADD " + r_name) + [
+        indent(3), "operand = (" + r + " & 0xff);", nl(),
+        indent(3), "halfcarry = (A & 0x0f) + (operand & 0x0f) > 0x0f;", nl(),
+        indent(3), "A = (A & 0xff) + operand;", nl(),
+        indent(3), "carry = (A & 0x100) != 0;", nl(),
+        indent(3), "A &= 0xff;", nl(),
+        indent(3), "F = (A == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);", nl()
+    ] + make_cycles_and_break(cycles)
+
 def generate_and(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
     r_name = get_reg(op & 0x07)
@@ -79,6 +92,13 @@ def generate_or(op):
         nl() ] if r != "A" else []) + [
             indent(3), "F = A == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
+
+def generate_pop(op):
+    r1, r2 = get_wide_reg((op & 0x30) // 16)
+    return make_case(op, "POP " + r1 + r2) + [
+        indent(3), r2, " = mem.getByte(SP++);", nl(),
+        indent(3), r1, " = mem.getByte(SP++);", nl()
+    ] + make_cycles_and_break(3)
 
 def generate_rst(op):
     dest = (op & 0x38) // 8
@@ -119,7 +139,7 @@ def get_reg(r):
     return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 6:"(HL)", 7:"A"}[r]
 
 def get_wide_reg(r):
-    return {0:("B", "C"), 1:("D", "E"), 2:("H", "L")}[r]
+    return {0:("B", "C"), 1:("D", "E"), 2:("H", "L"), 3:("A", "F")}[r]
 
 def make_case(op, title):
     return [indent(2), "case ", make_op(op), ": // 0x", format(op, "02x"),
@@ -167,6 +187,9 @@ def generate_opcodes():
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
+    for op in range(0x80, 0x88):
+        ops.extend(generate_add(op))
+
     for op in range(0xa0, 0xa8):
         ops.extend(generate_and(op))
 
@@ -175,6 +198,9 @@ def generate_opcodes():
 
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
+
+    for op in [0xc1, 0xd1, 0xe1, 0xf1]:
+        ops.extend(generate_pop(op))
 
     for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
         ops.extend(generate_rst(op))
@@ -214,6 +240,6 @@ def main():
     f.close()
 
 def test():
-    print("".join(generate_rst(0xef)))
+    print("".join(generate_pop(0xe1)))
 
 main()
