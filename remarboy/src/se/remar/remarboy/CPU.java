@@ -46,10 +46,10 @@ public class CPU {
         }
 
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x g . . g g x . . . . g g g x . 0
-        // 1 . g . . g g . . . . . g g g . . 1
-        // 2 x g . . g g . . . . x g g g . . 2
-        // 3 . x x . . . x . . . . . g g x . 3
+        // 0 x g . . g g g . . . . g g g g . 0
+        // 1 . g . . g g g . . . . g g g g . 1
+        // 2 x g . . g g g . . . x g g g g . 2
+        // 3 . x x . . . g . . . . . g g g . 3
         // 4 g g g g g g g g g g g g g g g g 4
         // 5 g g g g g g g g g g g g g g g g 5
         // 6 g g g g g g g g g g g g g g g g 6
@@ -71,14 +71,6 @@ public class CPU {
 
         case 0: // 0x00, NOP
             cycles += 1;
-            break;
-        case 6: // 0x06, LD B,n
-            B = mem.getByte(PC++);
-            cycles += 2;
-            break;
-        case 14: // 0x0E, LD C,n
-            C = mem.getByte(PC++);
-            cycles += 2;
             break;
         case 32: // 0x20, JR NZ,n
             if((F & ZF) != ZF) {
@@ -115,15 +107,6 @@ public class CPU {
             H = (HL & 0xff00) >> 8;
             L = (HL & 0x00ff);
             cycles += 2;
-            break;
-        case 54: // 0x36, LD (HL),n
-            int n = mem.getByte(PC++);
-            mem.putByte((H & 0xff) * 0x100 + (L & 0xff), n);
-            cycles += 3;
-            break;
-        case 62: // 0x3E, LD A,n
-            A = mem.getByte(PC++);
-            cycles += 1;
             break;
         case -61: // 0xC3, JP nn
             PC = mem.getWord(PC);
@@ -207,7 +190,7 @@ public class CPU {
             cycles += 1;
             break;
         case -2: // 0xFE, CP n
-            n = (mem.getByte(PC++) & 0xff);
+            int n = (mem.getByte(PC++) & 0xff);
             F = (A == n ? ZF : 0) | NF | ((A & 0xf) < (n & 0xf) ? HF : 0) | (A < n ? CF : 0);
             cycles += 2;
             break;

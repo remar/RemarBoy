@@ -11,6 +11,18 @@ def generate_ld_rr_nn(op):
         indent(3), r1, " = mem.getByte(PC++);", nl()
     ] + make_cycles_and_break(3)
 
+def generate_ld_r_n(op):
+    r = get_reg((op & 0x38) // 8)
+    if(r == "(HL)"):
+        return make_case(op, "LD (HL),n") + [
+            indent(3), "mem.putByte("
+            + make_word("H", "L") + ", mem.getByte(PC++));", nl()
+        ] + make_cycles_and_break(3)
+    else:
+        return make_case(op, "LD " + r + ",n") + [
+            indent(3), r, " = mem.getByte(PC++);", nl()
+        ] + make_cycles_and_break(2)
+
 def generate_dec_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     def r1r2(s):
@@ -172,6 +184,9 @@ def generate_opcodes():
     for op in [0x01, 0x11, 0x21]:
         ops.extend(generate_ld_rr_nn(op))
 
+    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
+        ops.extend(generate_ld_r_n(op))
+
     for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
         ops.extend(generate_inc_r(op))
 
@@ -240,6 +255,6 @@ def main():
     f.close()
 
 def test():
-    print("".join(generate_pop(0xe1)))
+    print("".join(generate_ld_r_n(0x16)))
 
 main()
