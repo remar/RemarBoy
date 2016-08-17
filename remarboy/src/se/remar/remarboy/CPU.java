@@ -46,10 +46,10 @@ public class CPU {
         }
 
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x g . . g g g . . . . g g g g . 0
-        // 1 . g . . g g g . . . . g g g g . 1
-        // 2 x g . . g g g . . . x g g g g . 2
-        // 3 . x x . . . g . . . . . g g g . 3
+        // 0 x g . . g g g . . g . g g g g . 0
+        // 1 . g . . g g g . . g . g g g g . 1
+        // 2 x g . . g g g . . g x g g g g . 2
+        // 3 . x x . . . g . . g . . g g g . 3
         // 4 g g g g g g g g g g g g g g g g 4
         // 5 g g g g g g g g g g g g g g g g 5
         // 6 g g g g g g g g g g g g g g g g 6
@@ -59,9 +59,9 @@ public class CPU {
         // A g g g g g g g g g g g g g g g g A
         // B g g g g g g g g . . . . . . . . B
         // C . g . x . . . g . x . . . x . g C
-        // D . g . . . . . g . . . . . . . g D
-        // E x g x . . . . g . . x . . . . g E
-        // F x g . x . . . g . . . . . . x g F
+        // D . g .   . . . g . . .   .   . g D
+        // E x g x     . . g . . x       . g E
+        // F x g . x   . . g . . . .     x g F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
         switch(op) {

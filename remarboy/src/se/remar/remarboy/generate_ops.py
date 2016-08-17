@@ -23,6 +23,45 @@ def generate_ld_r_n(op):
             indent(3), r, " = mem.getByte(PC++);", nl()
         ] + make_cycles_and_break(2)
 
+def generate_add_hl_rr(op):
+    def inner(rr):
+        def gethl():
+            return indent(3) + "HL = " + make_word("H", "L") + ";" + nl()
+        def hc(rr):
+            return (indent(3) + "halfcarry = (HL & 0x0f00) + (" + rr
+                    + " & 0x0f00) > 0x0f00;" + nl())
+        def carry(rr):
+            return (indent(3) + "carry = (HL + " + rr + ") > 0xffff;" + nl())
+        flags = (indent(3)
+                 + "F = (F & ZF) | (halfcarry ? HF : 0) | (carry ? CF : 0);"
+                 + nl())
+        if rr == 3: # SP
+            return [gethl(),
+                    hc("SP"),
+                    carry("SP"),
+                    indent(3), "HL = (HL + SP) & 0xffff;", nl(),
+                    flags]
+        elif rr == 2: # HL
+            return [gethl(),
+                    hc("HL"),
+                    carry("HL"),
+                    indent(3), "HL = (HL + HL) & 0xffff;", nl(),
+                    flags]
+        else: # BC or DE
+            return [
+                gethl(),
+                indent(3), r1, r2, " = ", make_word(r1, r2), ";", nl(),
+                hc(r1+r2),
+                carry(r1+r2),
+                indent(3), "HL = (HL + ",r1,r2,") & 0xffff;", nl(),
+                flags
+            ]
+    rr = (op & 0x30) // 16
+    r1, r2 = get_wide_reg((op & 0x30) // 16)
+    rr_name = "SP" if rr == 3 else (r1 + r2)
+    return (make_case(op, "ADD HL," + rr_name) + inner(rr)
+            + make_cycles_and_break(2))
+
 def generate_dec_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     def r1r2(s):
@@ -184,14 +223,17 @@ def generate_opcodes():
     for op in [0x01, 0x11, 0x21]:
         ops.extend(generate_ld_rr_nn(op))
 
-    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
-        ops.extend(generate_ld_r_n(op))
-
     for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
         ops.extend(generate_inc_r(op))
 
     for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
         ops.extend(generate_dec_r(op))
+
+    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
+        ops.extend(generate_ld_r_n(op))
+
+    for op in [0x09, 0x19, 0x29, 0x39]:
+        ops.extend(generate_add_hl_rr(op))
 
     for op in [0x0b, 0x1b, 0x2b]:
         ops.extend(generate_dec_rr(op))
@@ -255,6 +297,7 @@ def main():
     f.close()
 
 def test():
-    print("".join(generate_ld_r_n(0x16)))
+    for op in [0x09, 0x19, 0x29, 0x39]:
+        print("".join(generate_add_hl_rr(op)))
 
 main()
