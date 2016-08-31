@@ -163,6 +163,14 @@ def generate_pop(op):
         indent(3), r1, " = mem.getByte(SP++);", nl()
     ] + make_cycles_and_break(3)
 
+def generate_push_rr(op):
+    r1, r2 = get_wide_reg((op & 0x30) // 16)
+    return make_case(op, "PUSH " + r1 + r2) + [
+        indent(3), "mem.putByte(SP-1, ", r1, ");", nl(),
+        indent(3), "mem.putByte(SP-2, ", r2, ");", nl(),
+        indent(3), "SP -= 2;", nl()
+    ] + make_cycles_and_break(4)
+
 def generate_rst(op):
     dest = (op & 0x38) // 8
     return make_case(op, "RST " + str(dest) + " (0x" + format(dest*8, "02x") + ")") + [
@@ -274,6 +282,9 @@ def generate_opcodes():
     for op in [0xc1, 0xd1, 0xe1, 0xf1]:
         ops.extend(generate_pop(op))
 
+    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
+        ops.extend(generate_push_rr(op))
+
     for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
         ops.extend(generate_rst(op))
 
@@ -312,7 +323,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x03, 0x13, 0x23]:
-        print("".join(generate_inc_rr(op)))
+    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
+        print("".join(generate_push_rr(op)))
 
 main()
