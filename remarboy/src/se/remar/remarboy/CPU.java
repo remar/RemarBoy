@@ -170,6 +170,10 @@ public class CPU {
             F = (A == 0 ? ZF : 0) | HF;
             cycles += 2;
             break;
+        case -23: // 0xE9, JP (HL)
+            PC = (H & 0xff) * 0x100 + (L & 0xff);
+            cycles += 1;
+            break;
         case -22: // 0xEA, LD (nn),A
             int address = mem.getWord(PC);
             PC += 2;
