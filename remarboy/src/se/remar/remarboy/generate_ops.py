@@ -163,6 +163,23 @@ def generate_pop(op):
         indent(3), r1, " = mem.getByte(SP++);", nl()
     ] + make_cycles_and_break(3)
 
+def generate_jp_cond(op):
+    def flag(op):
+        return "CF" if op & 0x10 == 0x10 else "ZF"
+    def cond(op):
+        return "==" if op & 0x08 == 0x08 else "!="
+    m = {0xc2: "NZ", 0xca: "Z", 0xd2: "NC", 0xda: "C"}
+    return make_case(op, "JP "+m[op]+",nn") + [
+        indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
+        flag(op), ") {", nl(),
+        indent(4), "PC = mem.getWord(PC);", nl(),
+        indent(4), "cycles += 4;", nl(),
+        indent(3), "} else {", nl(),
+        indent(4), "PC += 2;", nl(),
+        indent(4), "cycles += 3;", nl(),
+        indent(3), "}", nl()
+    ]
+
 def generate_push_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "PUSH " + r1 + r2) + [
@@ -282,6 +299,9 @@ def generate_opcodes():
     for op in [0xc1, 0xd1, 0xe1, 0xf1]:
         ops.extend(generate_pop(op))
 
+    for op in [0xc2, 0xca, 0xd2, 0xda]:
+        ops.extend(generate_jp_cond(op))
+
     for op in [0xc5, 0xd5, 0xe5, 0xf5]:
         ops.extend(generate_push_rr(op))
 
@@ -323,7 +343,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
-        print("".join(generate_push_rr(op)))
+    for op in [0xc2, 0xca, 0xd2, 0xda]:
+        print("".join(generate_jp_cond(op)))
 
 main()
