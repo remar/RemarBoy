@@ -38,6 +38,7 @@ public class CPU {
 
         byte temp;
         int operand;
+        int c;
         boolean carry;
         boolean halfcarry;
 
@@ -54,7 +55,7 @@ public class CPU {
         // 5 g g g g g g g g g g g g g g g g 5
         // 6 g g g g g g g g g g g g g g g g 6
         // 7 . . . . . . . . g g g g g g g g 7
-        // 8 g g g g g g g g . . . . . . . . 8
+        // 8 g g g g g g g g g g g g g g g g 8
         // 9 . . . . . . . . . . . . . . . . 9
         // A g g g g g g g g g g g g g g g g A
         // B g g g g g g g g . . . . . . . . B
