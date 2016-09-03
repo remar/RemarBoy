@@ -94,7 +94,7 @@ public class Disassembler {
             return new Instruction("JR "+neg+flag+",0x"+Util.formatByte(n), op, n);
         } else if((op & 0xcf) == 0x01) { // LD rr,nn
             int nn = mem.getWord(address + 1);
-            return new Instruction("LD " + getWideRegName((op & 0x30) >> 4) + ",0x"+Util.formatWord(nn), mem.getBytes(address, 3));
+            return new Instruction("LD " + getWideRegNameSP((op & 0x30) >> 4) + ",0x"+Util.formatWord(nn), mem.getBytes(address, 3));
         } else if((op & 0xcf) == 0x02) { // LD (rr+-),A
             return new Instruction("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A", op);
         } else if((op & 0xc7) == 0x05) { // DEC r
@@ -112,6 +112,8 @@ public class Disassembler {
         } else if((op & 0xff) >= 0x80 && (op & 0xff) <= 0xbf) { // ADD, ADC, SUB, SBC, AND, XOR, OR, CP
             String[] mne = {"ADD","ADC","SUB","SBC","AND","XOR","OR","CP"};
             return new Instruction(mne[((op & 0xff) - 0x80)/8] + " " + getRegName(op & 0x07), op);
+        } else if((op & 0xcf) == 0xc1) {
+            return new Instruction("POP " + getWideRegNameAF((op & 0x30) >> 4), op);
         } else {
             String mnemonic = codes.get(op & 0xff);
             if(mnemonic == null) {
@@ -136,7 +138,12 @@ public class Disassembler {
         return regs[reg];
     }
 
-    private String getWideRegName(int widereg) {
+    private String getWideRegNameAF(int widereg) {
+        final String[] wideregs = {"BC", "DE", "HL", "AF"};
+        return wideregs[widereg];
+    }
+
+    private String getWideRegNameSP(int widereg) {
         final String[] wideregs = {"BC", "DE", "HL", "SP"};
         return wideregs[widereg];
     }
