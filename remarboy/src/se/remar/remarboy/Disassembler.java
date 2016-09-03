@@ -58,22 +58,23 @@ public class Disassembler {
 
     public Instruction disassemble(int address, Memory mem) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x x x . . x x . . . . . . x x .
-        // 1 . x x . . x x . . . . . . x x .
-        // 2 x x x . . x x . x . . . . x x .
-        // 3 x x x . . x x . x . . . . x x .
-        // 4 x x x x x x x x x x x x x x x x
-        // 5 x x x x x x x x x x x x x x x x
-        // 6 x x x x x x x x x x x x x x x x
-        // 7 x x x x x x . x x x x x x x x x
-        // 8 . . . . . . . . . . . . . . . .
-        // 9 . . . . . . . . . . . . . . . .
-        // A . . . . . . . . x x x x x x x x
-        // B . . . . . . . . . . . . . . . .
-        // C . . . x . . . . . . . . . . . .
-        // D . . . . . . . . . . . . . . . .
-        // E x . . . . . . . . . . . . . . .
-        // F x . . . . . . . . . . . . . x .
+        // 0 x x x . . x x . . . . . . x x . 0
+        // 1 . x x . . x x . . . . . . x x . 1
+        // 2 x x x . . x x . x . . . . x x . 2
+        // 3 x x x . . x x . x . . . . x x . 3
+        // 4 x x x x x x x x x x x x x x x x 4
+        // 5 x x x x x x x x x x x x x x x x 5
+        // 6 x x x x x x x x x x x x x x x x 6
+        // 7 x x x x x x . x x x x x x x x x 7
+        // 8 x x x x x x x x x x x x x x x x 8
+        // 9 x x x x x x x x x x x x x x x x 9
+        // A x x x x x x x x x x x x x x x x A
+        // B x x x x x x x x x x x x x x x x B
+        // C . . . x . . . . . . . . . . . . C
+        // D . . . . . . . . . . . . . . . . D
+        // E x . . . . . . . . . . . . . . . E
+        // F x . . . . . . . . . . . . . x . F
+        //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         Map<Integer, String> codes = new HashMap<Integer, String>();
 
         codes.put(0x00, "NOP");
@@ -108,8 +109,9 @@ public class Disassembler {
             String target = getRegName((op & 0x38) >> 3);
             String source = getRegName(op & 0x07);
             return new Instruction("LD "+target+","+source, op);
-        } else if((op & 0xf8) == 0xa8) { // XOR r
-            return new Instruction("XOR " + getRegName(op & 0x7), op);
+        } else if((op & 0xff) >= 0x80 && (op & 0xff) <= 0xbf) { // ADD, ADC, SUB, SBC, AND, XOR, OR, CP
+            String[] mne = {"ADD","ADC","SUB","SBC","AND","XOR","OR","CP"};
+            return new Instruction(mne[((op & 0xff) - 0x80)/8] + " " + getRegName(op & 0x07), op);
         } else {
             String mnemonic = codes.get(op & 0xff);
             if(mnemonic == null) {
