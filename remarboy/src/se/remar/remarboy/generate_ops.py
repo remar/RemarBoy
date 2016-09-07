@@ -71,8 +71,10 @@ def generate_add_hl_rr(op):
     rr = (op & 0x30) // 16
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     rr_name = "SP" if rr == 3 else (r1 + r2)
-    return (make_case(op, "ADD HL," + rr_name) + inner(rr)
-            + make_cycles_and_break(2))
+    return (make_case(op, "ADD HL," + rr_name) + inner(rr) + [
+        indent(3), "H = (HL & 0xff00) >> 8;", nl(),
+        indent(3), "L = (HL & 0x00ff);", nl()
+    ] + make_cycles_and_break(2))
 
 def generate_dec_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
@@ -360,7 +362,7 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x88, 0x90):
-        print("".join(generate_adc(op)))
+    for op in [0x09, 0x19, 0x29, 0x39]:
+        print("".join(generate_add_hl_rr(op)))
 
 main()
