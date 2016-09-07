@@ -58,10 +58,10 @@ public class Disassembler {
 
     public Instruction disassemble(int address, Memory mem) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x x x . . x x . . x . . . x x . 0
-        // 1 . x x . . x x . . x . . . x x . 1
-        // 2 x x x . . x x . x x . . . x x . 2
-        // 3 x x x . . x x . x x . . . x x . 3
+        // 0 x x x x . x x . . x . . . x x . 0
+        // 1 . x x x . x x . . x . . . x x . 1
+        // 2 x x x x . x x . x x . . . x x . 2
+        // 3 x x x x . x x . x x . . . x x . 3
         // 4 x x x x x x x x x x x x x x x x 4
         // 5 x x x x x x x x x x x x x x x x 5
         // 6 x x x x x x x x x x x x x x x x 6
@@ -97,13 +97,15 @@ public class Disassembler {
             return new Instruction("LD " + getWideRegNameSP((op & 0x30) >> 4) + ",0x"+Util.formatWord(nn), mem.getBytes(address, 3));
         } else if((op & 0xcf) == 0x02) { // LD (rr+-),A
             return new Instruction("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A", op);
+        } else if((op & 0xcf) == 0x03) { // INC rr
+            return new Instruction("INC " + getWideRegNameSP((op & 0x30) >> 4), op);
         } else if((op & 0xc7) == 0x05) { // DEC r
             return new Instruction("DEC " + getRegName((op & 0x38) >> 3), op);
         } else if((op & 0xc7) == 0x06) { // LD r,n
             byte n = mem.getByte(address + 1);
             return new Instruction("LD " + getRegName((op & 0x38) >> 3)
                     + ",0x" + Util.formatByte(n), op, n);
-        } else if((op & 0xcf) == 0x09) {
+        } else if((op & 0xcf) == 0x09) { // ADD HL,rr
             return new Instruction("ADD HL," + getWideRegNameSP((op & 0x30) >> 4), op);
         } else if((op & 0xcf) == 0x0a) { // LD A,(rr+-)
             return new Instruction("LD A," + getIndirectRegName((op & 0x30) >> 4), op);
