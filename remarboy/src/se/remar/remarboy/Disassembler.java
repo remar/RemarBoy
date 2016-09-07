@@ -58,10 +58,10 @@ public class Disassembler {
 
     public Instruction disassemble(int address, Memory mem) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x x x . . x x . . . . . . x x . 0
-        // 1 . x x . . x x . . . . . . x x . 1
-        // 2 x x x . . x x . x . . . . x x . 2
-        // 3 x x x . . x x . x . . . . x x . 3
+        // 0 x x x . . x x . . x . . . x x . 0
+        // 1 . x x . . x x . . x . . . x x . 1
+        // 2 x x x . . x x . x x . . . x x . 2
+        // 3 x x x . . x x . x x . . . x x . 3
         // 4 x x x x x x x x x x x x x x x x 4
         // 5 x x x x x x x x x x x x x x x x 5
         // 6 x x x x x x x x x x x x x x x x 6
@@ -70,10 +70,10 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . . . x . . . . . . . . . . . . C
-        // D . . . . . . . . . . . . . . . . D
-        // E x . . . . . . . . . . . . . . . E
-        // F x . . . . . . . . . . . . . x . F
+        // C . x . x . . . . . . . . . . . . C
+        // D . x . . . . . . . . . . . . . . D
+        // E x x . . . . . . . . . . . . . . E
+        // F x x . . . . . . . . . . . . x . F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         Map<Integer, String> codes = new HashMap<Integer, String>();
 
@@ -103,6 +103,8 @@ public class Disassembler {
             byte n = mem.getByte(address + 1);
             return new Instruction("LD " + getRegName((op & 0x38) >> 3)
                     + ",0x" + Util.formatByte(n), op, n);
+        } else if((op & 0xcf) == 0x09) {
+            return new Instruction("ADD HL," + getWideRegNameSP((op & 0x30) >> 4), op);
         } else if((op & 0xcf) == 0x0a) { // LD A,(rr+-)
             return new Instruction("LD A," + getIndirectRegName((op & 0x30) >> 4), op);
         } else if((op & 0xc0) == 0x40 && (op & 0xff) != 0x76) { // LD r,r', LD (HL),r, and LD r,(HL)
