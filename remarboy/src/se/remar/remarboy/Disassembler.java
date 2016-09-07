@@ -70,10 +70,10 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . x . x . . . . . . . . . . . . C
-        // D . x . . . . . . . . . . . . . . D
-        // E x x . . . . . . . . . . . . . . E
-        // F x x . . . . . . . . . . . . x . F
+        // C . x . x . x . . . . . . . . . . C
+        // D . x . . . x . . . . . . . . . . D
+        // E x x . . . x . . . . . . . . . . E
+        // F x x . . . x . . . . . . . . x . F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         Map<Integer, String> codes = new HashMap<Integer, String>();
 
@@ -116,8 +116,10 @@ public class Disassembler {
         } else if((op & 0xff) >= 0x80 && (op & 0xff) <= 0xbf) { // ADD, ADC, SUB, SBC, AND, XOR, OR, CP
             String[] mne = {"ADD","ADC","SUB","SBC","AND","XOR","OR","CP"};
             return new Instruction(mne[((op & 0xff) - 0x80)/8] + " " + getRegName(op & 0x07), op);
-        } else if((op & 0xcf) == 0xc1) {
+        } else if((op & 0xcf) == 0xc1) { // POP rr
             return new Instruction("POP " + getWideRegNameAF((op & 0x30) >> 4), op);
+        } else if((op & 0xcf) == 0xc5) { // PUSH rr
+            return new Instruction("PUSH " + getWideRegNameAF((op & 0x30) >> 4), op);
         } else {
             String mnemonic = codes.get(op & 0xff);
             if(mnemonic == null) {
