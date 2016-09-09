@@ -70,15 +70,16 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . x . x . x . x . . . . . x . x C
-        // D . x . . . x . x . . . . . . . x D
-        // E x x x . . x . x . x x . . . . x E
-        // F x x . x . x . x . . . x . . x x F
+        // C . x . x . x . x . x . . . x . x C
+        // D . x .   . x . x . . .   .   . x D
+        // E x x x     x . x . x x       . x E
+        // F x x . x   x . x . . . x     x x F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         Map<Integer, String> codes = new HashMap<Integer, String>();
 
         codes.put(0x00, "NOP");
         codes.put(0xc3, "JP 0xnn");
+        codes.put(0xc9, "RET");
         codes.put(0xcd, "CALL 0xnn");
         codes.put(0xe0, "LD (0xFFn),A");
         codes.put(0xe9, "JP (HL)");
