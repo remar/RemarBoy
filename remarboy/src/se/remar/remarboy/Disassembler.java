@@ -58,10 +58,10 @@ public class Disassembler {
 
     public Instruction disassemble(int address, Memory mem) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x x x x x x x . . x . . x x x . 0
-        // 1 . x x x x x x . . x . . x x x . 1
-        // 2 x x x x x x x . x x . . x x x . 2
-        // 3 x x x x x x x . x x . . x x x . 3
+        // 0 x x x x x x x . . x . x x x x . 0
+        // 1 . x x x x x x . . x . x x x x . 1
+        // 2 x x x x x x x . x x . x x x x . 2
+        // 3 x x x x x x x . x x . x x x x . 3
         // 4 x x x x x x x x x x x x x x x x 4
         // 5 x x x x x x x x x x x x x x x x 5
         // 6 x x x x x x x x x x x x x x x x 6
@@ -115,6 +115,8 @@ public class Disassembler {
             return new Instruction("ADD HL," + getWideRegNameSP((op & 0x30) >> 4), op);
         } else if((op & 0xcf) == 0x0a) { // LD A,(rr+-)
             return new Instruction("LD A," + getIndirectRegName((op & 0x30) >> 4), op);
+        } else if((op & 0xcf) == 0x0b) { // DEC rr
+            return new Instruction("DEC " + getWideRegNameSP((op & 0x30) >> 4), op);
         } else if((op & 0xc0) == 0x40 && (op & 0xff) != 0x76) { // LD r,r', LD (HL),r, and LD r,(HL)
             String target = getRegName((op & 0x38) >> 3);
             String source = getRegName(op & 0x07);
@@ -126,7 +128,7 @@ public class Disassembler {
             return new Instruction("POP " + getWideRegNameAF((op & 0x30) >> 4), op);
         } else if((op & 0xcf) == 0xc5) { // PUSH rr
             return new Instruction("PUSH " + getWideRegNameAF((op & 0x30) >> 4), op);
-        } else if((op & 0xc7) == 0xc7) {
+        } else if((op & 0xc7) == 0xc7) { // RST n
             int dest = ((op & 0x28) >> 3);
             return new Instruction("RST " + dest + " (0x" + Util.formatByte(dest * 8) + ")", op);
         } else {
