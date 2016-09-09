@@ -72,7 +72,7 @@ public class Disassembler {
         // B x x x x x x x x x x x x x x x x B
         // C . x . x . x . x . x . x . x . x C
         // D . x .   . x . x . . .   .   . x D
-        // E x x x     x . x . x x       . x E
+        // E x x x     x x x . x x       . x E
         // F x x . x   x . x . . . x     x x F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         Map<Integer, String> codes = new HashMap<Integer, String>();
@@ -85,6 +85,7 @@ public class Disassembler {
         codes.put(0xe0, "LD (0xFFn),A");
         codes.put(0xe9, "JP (HL)");
         codes.put(0xe2, "LD (0xFF00 + C),A");
+        codes.put(0xe6, "AND 0xn");
         codes.put(0xea, "LD (0xnn),A");
         codes.put(0xf0, "LD A,(0xFFn)");
         codes.put(0xf3, "DI");
