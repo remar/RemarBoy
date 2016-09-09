@@ -70,7 +70,7 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . x . x . x . . . . . . . . . . C
+        // C . x . x . x . . . . . . . x . . C
         // D . x . . . x . . . . . . . . . . D
         // E x x x . . x . . . x x . . . . . E
         // F x x . x . x . . . . . . . . x . F
@@ -79,6 +79,7 @@ public class Disassembler {
 
         codes.put(0x00, "NOP");
         codes.put(0xc3, "JP 0xnn");
+        codes.put(0xcd, "CALL 0xnn");
         codes.put(0xe0, "LD (0xFFn),A");
         codes.put(0xe9, "JP (HL)");
         codes.put(0xe2, "LD (0xff00 + C),A");
