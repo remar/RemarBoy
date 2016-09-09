@@ -119,7 +119,7 @@ public class CPU {
             cycles += 4;
             break;
         case -53: // 0xCB, CB prefix, 256 more opcodes!
-            op = mem.getOp(PC++);
+            op = mem.getByte(PC++);
 
             //   0 1 2 3 4 5 6 7 8 9 A B C D E F
             // 0 . . . . . . . . . . . . . . . . 0
@@ -130,10 +130,10 @@ public class CPU {
             // 5 . . . . . . . . . . . . . . . . 5
             // 6 . . . . . . . . . . . . . . . . 6
             // 7 . . . . . . . . . . . . . . . . 7
-            // 8 . . . . . . . . . . . . . . . . 8
-            // 9 . . . . . . . . . . . . . . . . 9
-            // A . . . . . . . . . . . . . . . . A
-            // B . . . . . . . . . . . . . . . . B
+            // 8 g g g g g g g g g g g g g g g g 8
+            // 9 g g g g g g g g g g g g g g g g 9
+            // A g g g g g g g g g g g g g g g g A
+            // B g g g g g g g g g g g g g g g g B
             // C . . . . . . . . . . . . . . . . C
             // D . . . . . . . . . . . . . . . . D
             // E . . . . . . . . . . . . . . . . E
