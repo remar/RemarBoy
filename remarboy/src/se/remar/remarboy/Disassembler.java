@@ -70,7 +70,7 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . x . x . x . x . x . . . x . x C
+        // C . x . x . x . x . x . x . x . x C
         // D . x .   . x . x . . .   .   . x D
         // E x x x     x . x . x x       . x E
         // F x x . x   x . x . . . x     x x F
@@ -132,6 +132,8 @@ public class Disassembler {
         } else if((op & 0xc7) == 0xc7) { // RST n
             int dest = ((op & 0x28) >> 3);
             return new Instruction("RST " + dest + " (0x" + Util.formatByte(dest * 8) + ")", op);
+        } else if((op & 0xff) == 0xcb) { // CB prefix
+            return disassembleCB(mem.getByte(address + 1));
         } else {
             String mnemonic = codes.get(op & 0xff);
             if(mnemonic == null) {
@@ -149,6 +151,37 @@ public class Disassembler {
             }
             return new Instruction(mnemonic, mem.getBytes(address, length));
         }
+    }
+
+    private Instruction disassembleCB(byte op) {
+        //   0 1 2 3 4 5 6 7 8 9 A B C D E F
+        // 0 . . . . . . . . . . . . . . . . 0
+        // 1 . . . . . . . . . . . . . . . . 1
+        // 2 . . . . . . . . . . . . . . . . 2
+        // 3 . . . . . . . . . . . . . . . . 3
+        // 4 . . . . . . . . . . . . . . . . 4
+        // 5 . . . . . . . . . . . . . . . . 5
+        // 6 . . . . . . . . . . . . . . . . 6
+        // 7 . . . . . . . . . . . . . . . . 7
+        // 8 x x x x x x x x x x x x x x x x 8
+        // 9 x x x x x x x x x x x x x x x x 9
+        // A x x x x x x x x x x x x x x x x A
+        // B x x x x x x x x x x x x x x x x B
+        // C . . . . . . . . . . . . . . . . C
+        // D . . . . . . . . . . . . . . . . D
+        // E . . . . . . . . . . . . . . . . E
+        // F . . . . . . . . . . . . . . . . F
+        //   0 1 2 3 4 5 6 7 8 9 A B C D E F
+        if((op & 0xff) >= 0x80 && (op & 0xff) < 0xc0) { // RES r
+            int bit = ((op & 0xff) - 0x80) / 8;
+            return new Instruction("RES " + bit + "," + getRegName(op & 0x07), makeCbBytes(op));
+        } else {
+            throw new RuntimeException("Unable to disassemble CB " + op + " (" + Util.formatByte(op) + ")");
+        }
+    }
+
+    private byte[] makeCbBytes(byte op) {
+        return new byte[] {-53 /* -53 == 0xcb */, op};
     }
 
     private String getRegName(int reg) {
