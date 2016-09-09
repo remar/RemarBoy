@@ -70,10 +70,10 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . x . x . x . . . . . . . x . . C
-        // D . x . . . x . . . . . . . . . . D
-        // E x x x . . x . . . x x . . . . . E
-        // F x x . x . x . . . . . x . . x . F
+        // C . x . x . x . x . . . . . x . x C
+        // D . x . . . x . x . . . . . . . x D
+        // E x x x . . x . x . x x . . . . x E
+        // F x x . x . x . x . . . x . . x x F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         Map<Integer, String> codes = new HashMap<Integer, String>();
 
@@ -126,6 +126,9 @@ public class Disassembler {
             return new Instruction("POP " + getWideRegNameAF((op & 0x30) >> 4), op);
         } else if((op & 0xcf) == 0xc5) { // PUSH rr
             return new Instruction("PUSH " + getWideRegNameAF((op & 0x30) >> 4), op);
+        } else if((op & 0xc7) == 0xc7) {
+            int dest = ((op & 0x28) >> 3);
+            return new Instruction("RST " + dest + " (0x" + Util.formatByte(dest * 8) + ")", op);
         } else {
             String mnemonic = codes.get(op & 0xff);
             if(mnemonic == null) {
