@@ -157,10 +157,10 @@ public class Disassembler {
 
     private Instruction disassembleCB(byte op) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 . . . . . . . . . . . . . . . . 0
-        // 1 . . . . . . . . . . . . . . . . 1
-        // 2 . . . . . . . . . . . . . . . . 2
-        // 3 . . . . . . . . . . . . . . . . 3
+        // 0 x x x x x x x x x x x x x x x x 0
+        // 1 x x x x x x x x x x x x x x x x 1
+        // 2 x x x x x x x x x x x x x x x x 2
+        // 3 x x x x x x x x x x x x x x x x 3
         // 4 . . . . . . . . . . . . . . . . 4
         // 5 . . . . . . . . . . . . . . . . 5
         // 6 . . . . . . . . . . . . . . . . 6
@@ -174,7 +174,11 @@ public class Disassembler {
         // E . . . . . . . . . . . . . . . . E
         // F . . . . . . . . . . . . . . . . F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        if((op & 0xff) >= 0x80 && (op & 0xff) < 0xc0) { // RES r
+        if((op & 0xff) >= 0x00 && (op & 0xff) < 0x40) { // RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL
+            String[] mnemonics = {"RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP", "SRL"};
+            int mne = (op & 0xff) / 8;
+            return new Instruction(mnemonics[mne] + " " + getRegName(op & 0x07), makeCbBytes(op));
+        } else if((op & 0xff) >= 0x80 && (op & 0xff) < 0xc0) { // RES r
             int bit = ((op & 0xff) - 0x80) / 8;
             return new Instruction("RES " + bit + "," + getRegName(op & 0x07), makeCbBytes(op));
         } else {
