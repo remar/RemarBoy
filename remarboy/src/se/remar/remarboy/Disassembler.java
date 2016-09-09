@@ -58,10 +58,10 @@ public class Disassembler {
 
     public Instruction disassemble(int address, Memory mem) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x x x x . x x . . x . . . x x . 0
-        // 1 . x x x . x x . . x . . . x x . 1
-        // 2 x x x x . x x . x x . . . x x . 2
-        // 3 x x x x . x x . x x . . . x x . 3
+        // 0 x x x x x x x . . x . . x x x . 0
+        // 1 . x x x x x x . . x . . x x x . 1
+        // 2 x x x x x x x . x x . . x x x . 2
+        // 3 x x x x x x x . x x . . x x x . 3
         // 4 x x x x x x x x x x x x x x x x 4
         // 5 x x x x x x x x x x x x x x x x 5
         // 6 x x x x x x x x x x x x x x x x 6
@@ -101,6 +101,8 @@ public class Disassembler {
             return new Instruction("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A", op);
         } else if((op & 0xcf) == 0x03) { // INC rr
             return new Instruction("INC " + getWideRegNameSP((op & 0x30) >> 4), op);
+        } else if((op & 0xc7) == 0x04) { // INC r
+            return new Instruction("INC " + getRegName((op & 0x38) >> 3), op);
         } else if((op & 0xc7) == 0x05) { // DEC r
             return new Instruction("DEC " + getRegName((op & 0x38) >> 3), op);
         } else if((op & 0xc7) == 0x06) { // LD r,n
