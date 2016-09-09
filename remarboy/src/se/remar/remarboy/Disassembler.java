@@ -84,7 +84,7 @@ public class Disassembler {
         codes.put(0xcd, "CALL 0xnn");
         codes.put(0xe0, "LD (0xFFn),A");
         codes.put(0xe9, "JP (HL)");
-        codes.put(0xe2, "LD (0xff00 + C),A");
+        codes.put(0xe2, "LD (0xFF00 + C),A");
         codes.put(0xea, "LD (0xnn),A");
         codes.put(0xf0, "LD A,(0xFFn)");
         codes.put(0xf3, "DI");
