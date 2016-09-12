@@ -71,16 +71,16 @@ public class CPU {
 // --------- END GENERATED CODE ---------
 
         case 0: // 0x00, NOP
-            cycles += 1;
+            mem.cycles = 1;
             break;
         case 32: // 0x20, JR NZ,n
             if((F & ZF) != ZF) {
                 byte offset = mem.getByte(PC++);
                 PC += offset;
-                cycles += 3;
+                mem.cycles = 3;
             } else {
                 PC++;
-                cycles += 2;
+                mem.cycles = 2;
             }
             break;
         case 42: // 0x2A, LD A,(HL+)
@@ -89,17 +89,17 @@ public class CPU {
             HL++;
             H = (HL & 0xff00) >> 8;
             L = (HL & 0x00ff);
-            cycles += 2;
+            mem.cycles = 2;
             break;
         case 47: // 0x2F, CPL
             A = ~(A & 0xff);
             F = (F & (ZF | CF)) | NF | HF;
-            cycles += 1;
+            mem.cycles = 1;
             break;
         case 49: // 0x31, LD SP,nn
             SP = mem.getWord(PC);
             PC += 2;
-            cycles += 3;
+            mem.cycles = 3;
             break;
         case 50: // 0x32, LD (HL-),A
             HL = (H & 0xff) * 0x100 + (L & 0xff);
@@ -107,16 +107,16 @@ public class CPU {
             HL = (HL - 1) & 0xffff;
             H = (HL & 0xff00) >> 8;
             L = (HL & 0x00ff);
-            cycles += 2;
+            mem.cycles = 2;
             break;
         case -61: // 0xC3, JP nn
             PC = mem.getWord(PC);
-            cycles += 4;
+            mem.cycles = 4;
             break;
         case -55: // 0xC9, RET
             PC = mem.getWord(SP);
             SP += 2;
-            cycles += 4;
+            mem.cycles = 4;
             break;
         case -53: // 0xCB, CB prefix, 256 more opcodes!
             op = mem.getByte(PC++);
@@ -155,52 +155,51 @@ public class CPU {
             mem.putByte(SP-2, (PC+2) & 0x00ff);
             SP -= 2;
             PC = mem.getWord(PC);
-            cycles += 6;
+            mem.cycles = 6;
             break;
         case -32: // 0xE0, LD (0xff00 + n),A
             int offset = (mem.getByte(PC++) & 0xff);
             mem.putByte(0xff00 + offset, A);
-            cycles += 3;
+            mem.cycles = 3;
             break;
         case -30: // 0xE2, LD (0xff00 + C),A
             mem.putByte(0xff00 + (C & 0xff), A);
-            cycles += 2;
+            mem.cycles = 2;
             break;
         case -26: // 0xE6, AND n
             A = (A & 0xff) & (mem.getByte(PC++) & 0xff);
             F = (A == 0 ? ZF : 0) | HF;
-            cycles += 2;
+            mem.cycles = 2;
             break;
         case -23: // 0xE9, JP (HL)
             PC = (H & 0xff) * 0x100 + (L & 0xff);
-            cycles += 1;
+            mem.cycles = 1;
             break;
         case -22: // 0xEA, LD (nn),A
             int address = mem.getWord(PC);
             PC += 2;
             mem.putByte(address, A);
-            cycles += 4;
+            mem.cycles = 4;
             break;
         case -16: // 0xF0, LD A,(0xff00 + n)
             offset = (mem.getByte(PC++) & 0xff);
             A = (mem.getByte(0xff00 + offset) & 0xff);
-            cycles += 3;
+            mem.cycles = 3;
             break;
         case -13: // 0xF3, DI
             IME = false;
-            cycles += 1;
+            mem.cycles = 1;
             break;
         case -5: // 0xFB, EI
             IME = true;
-            cycles += 1;
+            mem.cycles = 1;
             break;
         case -2: // 0xFE, CP n
             int n = (mem.getByte(PC++) & 0xff);
             F = (A == n ? ZF : 0) | NF | ((A & 0xf) < (n & 0xf) ? HF : 0) | (A < n ? CF : 0);
-            cycles += 2;
+            mem.cycles = 2;
             break;
         default:
-            System.out.println(this);
             throw new RuntimeException("Not implemented: " + op + " (" + Util.formatByte(op) + ")");
         }
     }

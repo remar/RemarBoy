@@ -189,10 +189,10 @@ def generate_jp_cond(op):
         indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
         flag(op), ") {", nl(),
         indent(4), "PC = mem.getWord(PC);", nl(),
-        indent(4), "cycles += 4;", nl(),
+        indent(4), "mem.cycles = 4;", nl(),
         indent(3), "} else {", nl(),
         indent(4), "PC += 2;", nl(),
-        indent(4), "cycles += 3;", nl(),
+        indent(4), "mem.cycles = 3;", nl(),
         indent(3), "}", nl()
     ]
 
@@ -269,11 +269,11 @@ def make_cb_case(op, title):
             ", ", title, nl()]
 
 def make_cycles_and_break(cycles):
-    return [indent(3), "cycles += "+str(cycles)+";", nl(),
+    return [indent(3), "mem.cycles = "+str(cycles)+";", nl(),
             indent(3), "break;", nl()]
 
 def make_cb_cycles_and_break(cycles):
-    return [indent(4), "cycles += "+str(cycles)+";", nl(),
+    return [indent(4), "mem.cycles = "+str(cycles)+";", nl(),
             indent(4), "break;", nl()]
 
 def make_op(op):

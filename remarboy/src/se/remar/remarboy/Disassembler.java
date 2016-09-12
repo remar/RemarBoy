@@ -34,8 +34,6 @@ public class Disassembler {
     public Disassembler() {
         emulator = new Emulator();
         emulator.insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
-        // Hardcode LY to 0x94... for Tetris...
-        emulator.getMemory().putByte(0xff44, 0x94);
     }
 
     public void step() {

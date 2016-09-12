@@ -15,6 +15,8 @@ import java.util.Set;
 // 0xFFFF           Interrupt Enable
 
 public class Memory {
+    public int cycles;
+
     private Cart cart;
 
     private byte[] ram = new byte[0x8000];
