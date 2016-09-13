@@ -30,6 +30,26 @@ public class CPU {
     }
 
     public void step() {
+        if(IME) {
+            byte IF = mem.getByte(0xFF0F); // Interrupt Request
+            byte IE = mem.getByte(0xFFFF); // Interrupt Enable
+            int i = 0x01;
+            int j = 0;
+            while(i < 0x20) {
+                if((IF & i) != 0 && (IE & i) != 0) {
+                    IME = false;
+                    mem.putByte(0xFF0F, IF & ~i); // Reset Interrupt Request bit
+                    mem.putByte(SP-1, (PC & 0xff00) >> 8);
+                    mem.putByte(SP-2, PC & 0x00ff);
+                    SP -= 2;
+                    PC = 0x0040 + j * 0x08; // Jump to interrupt routine
+                    return;
+                }
+                i <<= 1;
+                j++;
+            }
+        }
+
         byte op = mem.getOp(PC++);
 
         int BC;
