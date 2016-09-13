@@ -68,7 +68,7 @@ public class Disassembler {
         // 9 x x x x x x x x x x x x x x x x 9
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
-        // C . x . x . x . x x x x x . x . x C
+        // C x x . x . x . x x x x x . x . x C
         // D . x .   . x . x . x .   .   . x D
         // E x x x     x x x . x x       . x E
         // F x x . x   x . x . . x x     x x F
@@ -77,6 +77,7 @@ public class Disassembler {
 
         codes.put(0x00, "NOP");
         codes.put(0x2f, "CPL");
+        codes.put(0xc0, "RET NZ");
         codes.put(0xc3, "JP 0xnn");
         codes.put(0xc8, "RET Z");
         codes.put(0xc9, "RET");
