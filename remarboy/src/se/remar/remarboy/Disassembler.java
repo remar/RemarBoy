@@ -56,10 +56,10 @@ public class Disassembler {
 
     public Instruction disassemble(int address, Memory mem) {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x x x x x x x . . x . x x x x . 0
-        // 1 . x x x x x x . . x . x x x x . 1
-        // 2 x x x x x x x . x x . x x x x x 2
-        // 3 x x x x x x x . x x . x x x x . 3
+        // 0 x x x x x x x . . x x x x x x . 0
+        // 1 . x x x x x x . x x x x x x x . 1
+        // 2 x x x x x x x . x x x x x x x x 2
+        // 3 x x x x x x x . x x x x x x x . 3
         // 4 x x x x x x x x x x x x x x x x 4
         // 5 x x x x x x x x x x x x x x x x 5
         // 6 x x x x x x x x x x x x x x x x 6
@@ -76,6 +76,7 @@ public class Disassembler {
         Map<Integer, String> codes = new HashMap<Integer, String>();
 
         codes.put(0x00, "NOP");
+        codes.put(0x18, "JR 0xn");
         codes.put(0x2f, "CPL");
         codes.put(0xc0, "RET NZ");
         codes.put(0xc3, "JP 0xnn");
