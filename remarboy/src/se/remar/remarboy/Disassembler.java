@@ -69,7 +69,7 @@ public class Disassembler {
         // A x x x x x x x x x x x x x x x x A
         // B x x x x x x x x x x x x x x x x B
         // C . x . x . x . x . x . x . x . x C
-        // D . x .   . x . x . . .   .   . x D
+        // D . x .   . x . x . x .   .   . x D
         // E x x x     x x x . x x       . x E
         // F x x . x   x . x . . x x     x x F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -80,6 +80,7 @@ public class Disassembler {
         codes.put(0xc3, "JP 0xnn");
         codes.put(0xc9, "RET");
         codes.put(0xcd, "CALL 0xnn");
+        codes.put(0xd9, "RETI");
         codes.put(0xe0, "LD (0xFFn),A");
         codes.put(0xe9, "JP (HL)");
         codes.put(0xe2, "LD (0xFF00 + C),A");
