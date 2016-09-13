@@ -70,7 +70,7 @@ public class CPU {
         // 0 x g . g g g g . . g . g g g g . 0
         // 1 . g . g g g g . . g . g g g g . 1
         // 2 g g . g g g g . g g x g g g g . 2
-        // 3 g x x . . . g . g g . . g g g . 3
+        // 3 g x x . x . g . g g . . g g g . 3
         // 4 g g g g g g g g g g g g g g g g 4
         // 5 g g g g g g g g g g g g g g g g 5
         // 6 g g g g g g g g g g g g g g g g 6
@@ -118,6 +118,13 @@ public class CPU {
             H = (HL & 0xff00) >> 8;
             L = (HL & 0x00ff);
             mem.cycles = 2;
+            break;
+        case 52: // 0x34, INC (HL)
+            HL = (H & 0xff) * 0x100 + (L & 0xff);
+            operand = mem.getByte(HL) - 1;
+            F = (F & CF) | (operand == 0 ? ZF : 0) | ((operand & 0x0f) == 0x0f ? HF : 0);
+            mem.putByte(HL, operand);
+            mem.cycles = 3;
             break;
         case -61: // 0xC3, JP nn
             PC = mem.getWord(PC);
