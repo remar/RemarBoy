@@ -29,6 +29,28 @@ def generate_ld_rr_nn(op):
         indent(3), r1, " = mem.getByte(PC++);", nl()
     ] + make_cycles_and_break(3)
 
+def generate_ld_indexed(op):
+    def get_r1r2(n):
+        return [("B", "C"), ("D", "E"), ("H", "L"), ("H", "L")][n]
+    r1, r2 = get_r1r2((op & 0x30) // 16)
+    s = "" if (op & 0x20) == 0 else ("+" if (op & 0x10 == 0) else "-")
+    mne = "("+r1+r2+s+"),A" if (op & 0x0a) == 0x02 else "A,("+r1+r2+s+")"
+    return make_case(op, "LD " + mne) + [
+        indent(3), r1, r2, " = ", make_word(r1, r2), ";", nl()
+    ] + (
+        [
+            indent(3), "A = mem.getByte(", r1, r2, ");", nl()
+        ] if (op & 0x08) == 0x08 else [
+            indent(3), "mem.putByte(", r1, r2, ", A);", nl()
+        ]
+    ) + (
+        [] if s == "" else [
+            indent(3), "HL = (HL ",s," 1) & 0xffff;", nl(),
+            indent(3), "H = (HL & 0xff00) >> 8;", nl(),
+            indent(3), "L = (HL & 0x00ff);", nl()
+        ]
+    ) + make_cycles_and_break(2)
+
 def generate_inc_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     def r1r2(s):
@@ -331,6 +353,9 @@ def generate_opcodes():
     for op in [0x01, 0x11, 0x21]:
         ops.extend(generate_ld_rr_nn(op))
 
+    for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
+        ops.extend(generate_ld_indexed(op))
+
     for op in [0x03, 0x13, 0x23]:
         ops.extend(generate_inc_rr(op))
 
@@ -423,7 +448,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0xc0, 0xc8, 0xd0, 0xd8]:
-        print("".join(generate_ret_cond(op)))
+    for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
+        print("".join(generate_ld_indexed(op)))
 
 main()

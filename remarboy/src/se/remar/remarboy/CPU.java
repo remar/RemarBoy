@@ -67,10 +67,10 @@ public class CPU {
         }
 
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-        // 0 x g . g g g g . . g . g g g g . 0
-        // 1 . g . g g g g . . g . g g g g . 1
-        // 2 g g . g g g g . g g x g g g g . 2
-        // 3 g x x . x . g . g g . . g g g . 3
+        // 0 x g g g g g g . . g g g g g g . 0
+        // 1 . g g g g g g . . g g g g g g . 1
+        // 2 g g g g g g g . g g g g g g g . 2
+        // 3 g x g . x . g . g g g . g g g . 3
         // 4 g g g g g g g g g g g g g g g g 4
         // 5 g g g g g g g g g g g g g g g g 5
         // 6 g g g g g g g g g g g g g g g g 6
@@ -80,7 +80,7 @@ public class CPU {
         // A g g g g g g g g g g g g g g g g A
         // B g g g g g g g g . . . . . . . . B
         // C g g g x . g . g g x g . . x . g C
-        // D g g g   . g . g g . g   .   . g D
+        // D g g g   . g . g g x g   .   . g D
         // E x g x     g . g . x x       . g E
         // F x g . x   g . g . . x .     x g F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -93,14 +93,6 @@ public class CPU {
         case 0: // 0x00, NOP
             mem.cycles = 1;
             break;
-        case 42: // 0x2A, LD A,(HL+)
-            HL = (H & 0xff) * 0x100 + (L & 0xff);
-            A = mem.getByte(HL);
-            HL++;
-            H = (HL & 0xff00) >> 8;
-            L = (HL & 0x00ff);
-            mem.cycles = 2;
-            break;
         case 47: // 0x2F, CPL
             A = ~(A & 0xff);
             F = (F & (ZF | CF)) | NF | HF;
@@ -110,14 +102,6 @@ public class CPU {
             SP = mem.getWord(PC);
             PC += 2;
             mem.cycles = 3;
-            break;
-        case 50: // 0x32, LD (HL-),A
-            HL = (H & 0xff) * 0x100 + (L & 0xff);
-            mem.putByte(HL, A);
-            HL = (HL - 1) & 0xffff;
-            H = (HL & 0xff00) >> 8;
-            L = (HL & 0x00ff);
-            mem.cycles = 2;
             break;
         case 52: // 0x34, INC (HL)
             HL = (H & 0xff) * 0x100 + (L & 0xff);
@@ -173,6 +157,12 @@ public class CPU {
             SP -= 2;
             PC = mem.getWord(PC);
             mem.cycles = 6;
+            break;
+        case -39: // 0xD9, RETI
+            IME = true;
+            PC = mem.getWord(SP);
+            SP += 2;
+            mem.cycles = 4;
             break;
         case -32: // 0xE0, LD (0xff00 + n),A
             int offset = (mem.getByte(PC++) & 0xff);
