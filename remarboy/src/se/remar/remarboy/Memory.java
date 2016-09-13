@@ -32,10 +32,12 @@ public class Memory {
 
     public void addCart(Cart cart) {
         this.cart = cart;
-        metarom = new byte[cart.size()];
+        // TODO: Metarom will have to be more competent than this when dealing with MBCs...
+        metarom = new byte[Math.max(cart.size(), 65536)];
     }
 
     public byte getOp(int address) {
+        // TODO: Keep rom and ram separate in metarom (yes, code will be placed in ram from rom...)
         metarom[address] = VISITED;
         return getByte(address);
     }
