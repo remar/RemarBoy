@@ -4,6 +4,24 @@ from shutil import copyfile
 
 # "Normal" op codes
 
+def generate_jr_cond(op):
+    def flag(op):
+        return "CF" if op & 0x10 == 0x10 else "ZF"
+    def cond(op):
+        return "==" if op & 0x08 == 0x08 else "!="
+    m = {0x20: "NZ", 0x28: "Z", 0x30: "NC", 0x38: "C"}
+    return make_case(op, "JR "+m[op]+",n") + [
+        indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
+        flag(op), ") {", nl(),
+        indent(4), "PC += mem.getByte(PC) + 1;", nl(),
+        indent(4), "mem.cycles = 3;", nl(),
+        indent(3), "} else {", nl(),
+        indent(4), "PC++;", nl(),
+        indent(4), "mem.cycles = 2;", nl(),
+        indent(3), "}", nl(),
+        indent(3), "break;", nl()
+    ]
+
 def generate_ld_rr_nn(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "LD " + r1 + r2 + ",nn") + [
@@ -193,7 +211,8 @@ def generate_jp_cond(op):
         indent(3), "} else {", nl(),
         indent(4), "PC += 2;", nl(),
         indent(4), "mem.cycles = 3;", nl(),
-        indent(3), "}", nl()
+        indent(3), "}", nl(),
+        indent(3), "break;", nl()
     ]
 
 def generate_push_rr(op):
@@ -288,6 +307,9 @@ def nl():
 def generate_opcodes():
     ops = []
 
+    for op in [0x20, 0x28, 0x30, 0x38]:
+        ops.extend(generate_jr_cond(op))
+
     for op in [0x01, 0x11, 0x21]:
         ops.extend(generate_ld_rr_nn(op))
 
@@ -380,7 +402,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x87, 0x88, 0x90, 0xa6]:
-        print("".join(generate_res(op)))
+    for op in [0x20, 0x28, 0x30, 0x38]:
+        print("".join(generate_jr_cond(op)))
 
 main()

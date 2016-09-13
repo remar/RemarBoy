@@ -69,8 +69,8 @@ public class CPU {
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F
         // 0 x g . g g g g . . g . g g g g . 0
         // 1 . g . g g g g . . g . g g g g . 1
-        // 2 x g . g g g g . . g x g g g g . 2
-        // 3 . x x . . . g . . g . . g g g . 3
+        // 2 g g . g g g g . g g x g g g g . 2
+        // 3 g x x . . . g . g g . . g g g . 3
         // 4 g g g g g g g g g g g g g g g g 4
         // 5 g g g g g g g g g g g g g g g g 5
         // 6 g g g g g g g g g g g g g g g g 6
@@ -92,16 +92,6 @@ public class CPU {
 
         case 0: // 0x00, NOP
             mem.cycles = 1;
-            break;
-        case 32: // 0x20, JR NZ,n
-            if((F & ZF) != ZF) {
-                byte offset = mem.getByte(PC++);
-                PC += offset;
-                mem.cycles = 3;
-            } else {
-                PC++;
-                mem.cycles = 2;
-            }
             break;
         case 42: // 0x2A, LD A,(HL+)
             HL = (H & 0xff) * 0x100 + (L & 0xff);
