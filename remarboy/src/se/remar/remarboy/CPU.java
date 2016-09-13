@@ -79,8 +79,8 @@ public class CPU {
         // 9 . . . . . . . . . . . . . . . . 9
         // A g g g g g g g g g g g g g g g g A
         // B g g g g g g g g . . . . . . . . B
-        // C . g g x . g . g . x g . . x . g C
-        // D . g g   . g . g . . g   .   . g D
+        // C g g g x . g . g g x g . . x . g C
+        // D g g g   . g . g g . g   .   . g D
         // E x g x     g . g . x x       . g E
         // F x g . x   g . g . . . .     x g F
         //   0 1 2 3 4 5 6 7 8 9 A B C D E F

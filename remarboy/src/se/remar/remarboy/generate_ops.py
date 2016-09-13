@@ -190,6 +190,24 @@ def generate_or(op):
             indent(3), "F = A == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
 
+def generate_ret_cond(op):
+    def flag(op):
+        return "CF" if op & 0x10 == 0x10 else "ZF"
+    def cond(op):
+        return "==" if op & 0x08 == 0x08 else "!="
+    m = {0xc0: "NZ", 0xc8: "Z", 0xd0: "NC", 0xd8: "C"}
+    return make_case(op, "RET "+m[op]) + [
+        indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
+        flag(op), ") {", nl(),
+        indent(4), "PC = mem.getWord(SP);", nl(),
+        indent(4), "SP += 2;", nl(),
+        indent(4), "mem.cycles = 5;", nl(),
+        indent(3), "} else {", nl(),
+        indent(4), "mem.cycles = 3;", nl(),
+        indent(3), "}", nl(),
+        indent(3), "break;", nl()
+    ]
+
 def generate_pop(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "POP " + r1 + r2) + [
@@ -352,6 +370,9 @@ def generate_opcodes():
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
 
+    for op in [0xc0, 0xc8, 0xd0, 0xd8]:
+        ops.extend(generate_ret_cond(op))
+
     for op in [0xc1, 0xd1, 0xe1, 0xf1]:
         ops.extend(generate_pop(op))
 
@@ -402,7 +423,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x20, 0x28, 0x30, 0x38]:
-        print("".join(generate_jr_cond(op)))
+    for op in [0xc0, 0xc8, 0xd0, 0xd8]:
+        print("".join(generate_ret_cond(op)))
 
 main()
