@@ -3,6 +3,9 @@
 #include <sys/stat.h>
 #include <iostream>
 #include <fstream>
+#include <cstring>
+
+#include "Constants.h"
 
 Cart::Cart(std::string path) {
   size = getFileSize(path);
@@ -12,6 +15,11 @@ Cart::Cart(std::string path) {
   std::ifstream infile(path.c_str());
 
   infile.read((char *)data, size);
+}
+
+void
+Cart::writeToMemory(unsigned char *memory, int bank) {
+  memcpy(memory, &data[bank * BANK_SIZE], BANK_SIZE);
 }
 
 long

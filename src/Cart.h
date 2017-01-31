@@ -6,6 +6,7 @@
 class Cart {
 public:
   Cart(std::string path);
+  void writeToMemory(unsigned char* memory, int bank);
 
 private:
   unsigned char *data;

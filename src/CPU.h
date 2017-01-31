@@ -5,7 +5,7 @@
 
 class CPU {
 private:
-  const Memory& memory;
+  const Memory* memory;
 
   unsigned short PC;
   unsigned short SP;
@@ -16,7 +16,7 @@ private:
   unsigned char H, L;
 
 public:
-  CPU(const Memory& memory);
+  CPU(const Memory* memory);
   void step();
 };
 

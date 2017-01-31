@@ -11,6 +11,16 @@
 // 0xFF80-0xFFFE    Working & Stack RAM (127 bytes)
 // 0xFFFF           Interrupt Enable
 
+#include <iostream>
+#include "Constants.h"
+
+void
+Memory::insertCart(std::string path) {
+  cart = new Cart(path);
+  cart->writeToMemory(mem, 0);
+  cart->writeToMemory(&mem[BANK_SIZE], 1);
+}
+
 unsigned char
 Memory::getByte(unsigned short address) {
   return mem[address];
@@ -22,3 +32,11 @@ Memory::putByte(unsigned short address, unsigned char byte) {
     mem[address] = byte;
   }
 }
+
+
+#if 0
+int main() {
+  Memory mem;
+  mem.insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
+}
+#endif
