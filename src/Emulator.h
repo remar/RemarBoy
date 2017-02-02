@@ -9,6 +9,7 @@ class Emulator {
 public:
   Emulator();
   void insertCart(std::string path);
+  void step();
 
 private:
   CPU *cpu;
