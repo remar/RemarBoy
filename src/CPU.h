@@ -15,6 +15,8 @@ private:
   unsigned char D, E;
   unsigned char H, L;
 
+  unsigned short AF, BC, DE, HL;
+
 public:
   CPU(Memory* memory);
   void step();

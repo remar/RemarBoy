@@ -45,9 +45,9 @@ def generate_ld_indexed(op):
         ]
     ) + (
         [] if s == "" else [
-            indent(3), "HL = (HL ",s," 1) & 0xffff;", nl(),
-            indent(3), "H = (HL & 0xff00) >> 8;", nl(),
-            indent(3), "L = (HL & 0x00ff);", nl()
+            indent(3), "HL",s,s,";", nl(),
+            indent(3), "H = HL >> 8;", nl(),
+            indent(3), "L = HL & 0xff;", nl()
         ]
     ) + make_cycles_and_break(2)
 
@@ -350,6 +350,9 @@ def generate_opcodes():
     for op in [0x01, 0x11, 0x21]:
         ops.extend(generate_ld_rr_nn(op))
 
+    for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
+        ops.extend(generate_ld_indexed(op))
+
     for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
         ops.extend(generate_ld_r_n(op))
 
@@ -458,7 +461,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
-        print("".join(generate_ld_r_n(op)))
+    for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
+        print("".join(generate_ld_indexed(op)))
 
 main()
