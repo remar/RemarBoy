@@ -197,9 +197,9 @@ def generate_xor(op):
     r_name = get_reg(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "XOR " + r_name) + [
-        indent(3),
+        indent(2),
         "A ^= " + r + ";" if r != "A" else "A = 0;", nl(),
-        indent(3), "F = (A ? 0 : ZF);", nl()
+        indent(2), "F = (A ? 0 : ZF);", nl()
     ] + make_cycles_and_break(cycles)
 #        "A = (A & 0xff) ^ (" + r + " & 0xff);" if r != "A" else "A = 0;", nl(),
 
@@ -322,7 +322,7 @@ def get_wide_reg(r):
     return {0:("B", "C"), 1:("D", "E"), 2:("H", "L"), 3:("A", "F")}[r]
 
 def make_case(op, title):
-    return [indent(2), "case ", make_op(op), ": // ", title, nl()]
+    return [indent(1), "case ", make_op(op), ": // ", title, nl()]
 
 def make_cb_case(op, title):
     return [indent(3), "case ", make_op(op), ": // 0x", format(op, "02x"),
