@@ -41,7 +41,7 @@ def generate_ld_indexed(op):
         [
             indent(3), "A = mem->getByte(", r1, r2, ");", nl()
         ] if (op & 0x08) == 0x08 else [
-            indent(3), "mem.putByte(", r1, r2, ", A);", nl()
+            indent(3), "mem->putByte(", r1, r2, ", A);", nl()
         ]
     ) + (
         [] if s == "" else [
@@ -67,7 +67,7 @@ def generate_ld_r_n(op):
     r = get_reg((op & 0x38) // 8)
     if(r == "(HL)"):
         return make_case(op, "LD (HL),n") + [
-            indent(3), "mem.putByte("
+            indent(3), "mem->putByte("
             + make_word("H", "L") + ", mem->getByte(PC++));", nl()
         ] + make_cycles_and_break(3)
     else:
@@ -258,16 +258,16 @@ def generate_jp_cond(op):
 def generate_push_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "PUSH " + r1 + r2) + [
-        indent(3), "mem.putByte(SP-1, ", r1, ");", nl(),
-        indent(3), "mem.putByte(SP-2, ", r2, ");", nl(),
+        indent(3), "mem->putByte(SP-1, ", r1, ");", nl(),
+        indent(3), "mem->putByte(SP-2, ", r2, ");", nl(),
         indent(3), "SP -= 2;", nl()
     ] + make_cycles_and_break(4)
 
 def generate_rst(op):
     dest = (op & 0x38) // 8
     return make_case(op, "RST " + str(dest) + " (0x" + format(dest*8, "02x") + ")") + [
-        indent(3), "mem.putByte(SP-1, (PC & 0xff00) >> 8);", nl(),
-        indent(3), "mem.putByte(SP-2, PC & 0x00ff);", nl(),
+        indent(3), "mem->putByte(SP-1, (PC & 0xff00) >> 8);", nl(),
+        indent(3), "mem->putByte(SP-2, PC & 0x00ff);", nl(),
         indent(3), "SP -= 2;", nl(),
         indent(3), "PC = 0x", format(dest*8, "02x"), ";", nl()
     ] + make_cycles_and_break(4)
@@ -282,7 +282,7 @@ def generate_swap(op):
         return make_cb_case(op, "SWAP (HL)") + [
             indent(4), "HL = ", make_word("H", "L"), ";", nl(),
             indent(4), "temp = mem->getByte(HL);", nl(),
-            indent(4), "mem.putByte(HL, "+swap("temp")+");", nl()
+            indent(4), "mem->putByte(HL, "+swap("temp")+");", nl()
         ] + make_cb_cycles_and_break(4)
     else:
         r = get_reg(op & 0x07)
@@ -298,7 +298,7 @@ def generate_res(op):
     if(op & 0x07 == 0x06): # (HL)
         return make_cb_case(op, "RES " + str(bit) + ",(HL)") + [
             indent(4), "HL = ", make_word("H", "L"), ";", nl(),
-            indent(4), "mem.putByte(HL, mem->getByte(HL) & 0x",
+            indent(4), "mem->putByte(HL, mem->getByte(HL) & 0x",
             format((0xff - (1 << bit)), "02x"), ");", nl()
         ] + make_cb_cycles_and_break(4)
     else:
@@ -350,6 +350,9 @@ def generate_opcodes():
     for op in [0x01, 0x11, 0x21]:
         ops.extend(generate_ld_rr_nn(op))
 
+    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
+        ops.extend(generate_ld_r_n(op))
+
     for op in range(0xa8, 0xb0):
         ops.extend(generate_xor(op))
 
@@ -372,9 +375,6 @@ def ops_not_included_yet():
 
     for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
         ops.extend(generate_dec_r(op))
-
-    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
-        ops.extend(generate_ld_r_n(op))
 
     for op in [0x09, 0x19, 0x29, 0x39]:
         ops.extend(generate_add_hl_rr(op))
@@ -458,7 +458,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x01, 0x11, 0x21]:
-        print("".join(generate_ld_rr_nn(op)))
+    for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
+        print("".join(generate_ld_r_n(op)))
 
 main()
