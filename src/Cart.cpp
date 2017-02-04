@@ -22,7 +22,7 @@ Cart::writeToMemory(unsigned char *memory, int bank) {
   memcpy(memory, &data[bank * BANK_SIZE], BANK_SIZE);
 }
 
-long
+int
 Cart::getSize() {
   return size;
 }
