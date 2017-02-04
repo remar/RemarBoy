@@ -11,18 +11,33 @@
 // 0xFF80-0xFFFE    Working & Stack RAM (127 bytes)
 // 0xFFFF           Interrupt Enable
 
-#include <iostream>
 #include "Constants.h"
+
+const unsigned char VISITED = 0x01;
+
+Memory::Memory() : metarom(0) {}
 
 void
 Memory::insertCart(std::string path) {
   cart = new Cart(path);
   cart->writeToMemory(mem, 0);
   cart->writeToMemory(&mem[BANK_SIZE], 1);
+
+  setupMetarom();
 }
 
 unsigned char
 Memory::getByte(unsigned short address) {
+  return mem[address];
+}
+
+unsigned long
+Memory::getWord(unsigned short address) {
+  return mem[address] + (mem[address+1] << 8);
+}
+
+unsigned char
+Memory::getOp(unsigned short address) {
   return mem[address];
 }
 
@@ -33,10 +48,14 @@ Memory::putByte(unsigned short address, unsigned char byte) {
   }
 }
 
+void
+Memory::setupMetarom() {
+  if(metarom != 0) {
+    delete[] metarom;
+  }
 
-#if 0
-int main() {
-  Memory mem;
-  mem.insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
+  metarom = new unsigned char[cart->getSize()];
+  for(int i = 0;i < cart->getSize();i++) {
+    metarom[i] = 0;
+  }
 }
-#endif

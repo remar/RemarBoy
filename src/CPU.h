@@ -5,7 +5,7 @@
 
 class CPU {
 private:
-  Memory* memory;
+  Memory* mem;
 
   unsigned short PC;
   unsigned short SP;

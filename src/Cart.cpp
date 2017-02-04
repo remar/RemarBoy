@@ -23,6 +23,11 @@ Cart::writeToMemory(unsigned char *memory, int bank) {
 }
 
 long
+Cart::getSize() {
+  return size;
+}
+
+long
 Cart::getFileSize(std::string path) {
   struct stat stat_buf;
   int rc = stat(path.c_str(), &stat_buf);
