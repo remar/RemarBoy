@@ -138,7 +138,7 @@ def generate_inc_r(op):
 def generate_dec_r(op):
     reg = get_reg((op & 0x38) // 8)
     return make_case(op, "DEC " + reg) + [
-            indent(3), "r = (r - 1) & 0xff;".replace("r",reg), nl(),
+            indent(3), reg, "--;", nl(),
             indent(3), "F = (F & CF) | (r == 0 ? ZF : 0) | NF | ((r & 0xf) == 0xf ? HF : 0);".replace("r",reg), nl()] + make_cycles_and_break(1)
 
 def generate_ld_r_r(op):
@@ -353,6 +353,9 @@ def generate_opcodes():
     for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
         ops.extend(generate_ld_indexed(op))
 
+    for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
+        ops.extend(generate_dec_r(op))
+
     for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
         ops.extend(generate_ld_r_n(op))
 
@@ -461,7 +464,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
-        print("".join(generate_ld_indexed(op)))
+    for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
+        print("".join(generate_dec_r(op)))
 
 main()
