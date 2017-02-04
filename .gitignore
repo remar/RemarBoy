@@ -2,4 +2,5 @@
 *~
 remarboy/bin
 remarboy/.settings
-*.cpp.bak
+*.o
+CPU.cpp
