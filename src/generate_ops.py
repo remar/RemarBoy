@@ -11,15 +11,15 @@ def generate_jr_cond(op):
         return "==" if op & 0x08 == 0x08 else "!="
     m = {0x20: "NZ", 0x28: "Z", 0x30: "NC", 0x38: "C"}
     return make_case(op, "JR "+m[op]+",n") + [
-        indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
+        indent(2), "if((F & ", flag(op), ") ", cond(op), " ",
         flag(op), ") {", nl(),
-        indent(4), "PC += mem->getByte(PC) + 1;", nl(),
-        indent(4), "mem.cycles = 3;", nl(),
-        indent(3), "} else {", nl(),
-        indent(4), "PC++;", nl(),
-        indent(4), "mem.cycles = 2;", nl(),
-        indent(3), "}", nl(),
-        indent(3), "break;", nl()
+        indent(3), "PC += (signed char)mem->getByte(PC) + 1;", nl(),
+        indent(3), "mem->cycles = 3;", nl(),
+        indent(2), "} else {", nl(),
+        indent(3), "PC++;", nl(),
+        indent(3), "mem->cycles = 2;", nl(),
+        indent(2), "}", nl(),
+        indent(2), "break;", nl()
     ]
 
 def generate_ld_rr_nn(op):
@@ -223,9 +223,9 @@ def generate_ret_cond(op):
         flag(op), ") {", nl(),
         indent(4), "PC = mem->getWord(SP);", nl(),
         indent(4), "SP += 2;", nl(),
-        indent(4), "mem.cycles = 5;", nl(),
+        indent(4), "mem->cycles = 5;", nl(),
         indent(3), "} else {", nl(),
-        indent(4), "mem.cycles = 3;", nl(),
+        indent(4), "mem->cycles = 3;", nl(),
         indent(3), "}", nl(),
         indent(3), "break;", nl()
     ]
@@ -247,10 +247,10 @@ def generate_jp_cond(op):
         indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
         flag(op), ") {", nl(),
         indent(4), "PC = mem->getWord(PC);", nl(),
-        indent(4), "mem.cycles = 4;", nl(),
+        indent(4), "mem->cycles = 4;", nl(),
         indent(3), "} else {", nl(),
         indent(4), "PC += 2;", nl(),
-        indent(4), "mem.cycles = 3;", nl(),
+        indent(4), "mem->cycles = 3;", nl(),
         indent(3), "}", nl(),
         indent(3), "break;", nl()
     ]
@@ -332,7 +332,7 @@ def make_cycles_and_break(cycles):
             indent(3), "break;", nl()]
 
 def make_cb_cycles_and_break(cycles):
-    return [indent(4), "mem.cycles = "+str(cycles)+";", nl(),
+    return [indent(4), "mem->cycles = "+str(cycles)+";", nl(),
             indent(4), "break;", nl()]
 
 def make_op(op):
@@ -359,6 +359,9 @@ def generate_opcodes():
     for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
         ops.extend(generate_ld_r_n(op))
 
+    for op in [0x20, 0x28, 0x30, 0x38]:
+        ops.extend(generate_jr_cond(op))
+
     for op in range(0xa8, 0xb0):
         ops.extend(generate_xor(op))
 
@@ -367,20 +370,11 @@ def generate_opcodes():
 def ops_not_included_yet():
     ops = []
 
-    for op in [0x20, 0x28, 0x30, 0x38]:
-        ops.extend(generate_jr_cond(op))
-
-    for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
-        ops.extend(generate_ld_indexed(op))
-
     for op in [0x03, 0x13, 0x23]:
         ops.extend(generate_inc_rr(op))
 
     for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
         ops.extend(generate_inc_r(op))
-
-    for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
-        ops.extend(generate_dec_r(op))
 
     for op in [0x09, 0x19, 0x29, 0x39]:
         ops.extend(generate_add_hl_rr(op))
@@ -464,7 +458,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
-        print("".join(generate_dec_r(op)))
+    for op in [0x20, 0x28, 0x30, 0x38]:
+        print("".join(generate_jr_cond(op)))
 
 main()

@@ -18,8 +18,8 @@ CPU::CPU(Memory* memory) : mem(memory) {
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 // 0 x g g . . g g . . . g . . g g . 0
 // 1 . g g . . g g . . . g . . g g . 1
-// 2 . g g . . g g . . . g . . g g . 2
-// 3 . . g . . . g . . . g . . g g . 3
+// 2 g g g . . g g . g . g . . g g . 2
+// 3 g . g . . . g . g . g . . g g . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
 // 6 . . . . . . . . . . . . . . . . 6
@@ -36,6 +36,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 
 void
 CPU::step() {
+  // std::cout << std::hex << PC << std::endl;
   unsigned char op = mem->getOp(PC++);
   switch(op) {
   case 0x00: // NOP
