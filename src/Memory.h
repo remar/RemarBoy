@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include <string>
+#include <list>
 #include "Cart.h"
 
 class Memory {
@@ -14,6 +15,7 @@ public:
   unsigned long getWord(unsigned short address);
   unsigned char getOp(unsigned short address);
   void putByte(unsigned short address, unsigned char byte);
+  std::list<int> getVisited();
 
 private:
   void setupMetarom();

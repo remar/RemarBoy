@@ -14,3 +14,8 @@ void
 Emulator::step() {
   cpu->step();
 }
+
+std::list<int>
+Emulator::getVisited() {
+  return memory->getVisited();
+}

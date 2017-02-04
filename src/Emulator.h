@@ -4,12 +4,14 @@
 #include "CPU.h"
 #include "Memory.h"
 #include <string>
+#include <list>
 
 class Emulator {
 public:
   Emulator();
   void insertCart(std::string path);
   void step();
+  std::list<int> getVisited();
 
 private:
   CPU *cpu;
