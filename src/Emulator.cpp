@@ -1,7 +1,6 @@
 #include "Emulator.h"
 
-Emulator::Emulator() {
-  memory = new Memory();
+Emulator::Emulator(Memory *memory) : memory(memory) {
   cpu = new CPU(memory);
 }
 
@@ -15,7 +14,7 @@ Emulator::step() {
   cpu->step();
 }
 
-std::list<int>
-Emulator::getVisited() {
-  return memory->getVisited();
+void
+Emulator::printState() {
+  cpu->printState();
 }

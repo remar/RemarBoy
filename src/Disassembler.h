@@ -1,17 +1,16 @@
 #ifndef DISASSEMBLER_H
 #define DISASSEMBLER_H
 
-#include "Emulator.h"
 #include <string>
+#include "Memory.h"
 
 class Disassembler {
 public:
-  void insertCart(std::string path);
-  void step();
-  void disassembleVisited();
+  Disassembler(Memory *memory);
+  std::string disassemble(unsigned short address);
 
 private:
-  Emulator emulator;
+  Memory *memory;
 };
 
 #endif

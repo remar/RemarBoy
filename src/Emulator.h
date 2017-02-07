@@ -8,10 +8,10 @@
 
 class Emulator {
 public:
-  Emulator();
+  Emulator(Memory *memory);
   void insertCart(std::string path);
   void step();
-  std::list<int> getVisited();
+  void printState();
 
 private:
   CPU *cpu;

@@ -4,7 +4,17 @@
 #include "Memory.h"
 
 class CPU {
+public:
+  CPU(Memory* memory);
+  void step();
+  void printState();
+
 private:
+  void printByteReg(std::string name, unsigned char value);
+  void printWordReg(std::string name, unsigned short value);
+  void printRegPair(std::string name1, unsigned char value1,
+		    std::string name2, unsigned char value2);
+
   Memory* mem;
 
   unsigned short PC;
@@ -17,9 +27,6 @@ private:
 
   unsigned short AF, BC, DE, HL;
 
-public:
-  CPU(Memory* memory);
-  void step();
 };
 
 #endif
