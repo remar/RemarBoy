@@ -29,7 +29,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 9 . . . . . . . . . . . . . . . . 9
 // A . . . . . . . . g g g g g g g g A
 // B g g g g g g g g . . . . . . . . B
-// C . . . x . . . . . . . . . x . . C
+// C . . . x . . . . . x . . . x . . C
 // D . . .   . . . . . . .   .   . . D
 // E x . x     . . . . . x       . . E
 // F x . . x   . . . . . . .     x . F
@@ -54,6 +54,12 @@ CPU::step() {
 
   case 0xC3: // JP nn
     PC = mem->getWord(PC);
+    mem->cycles = 4;
+    break;
+
+  case 0xC9: // RET
+    PC = mem->getWord(SP);
+    SP += 2;
     mem->cycles = 4;
     break;
 
