@@ -29,7 +29,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 9 . . . . . . . . . . . . . . . . 9
 // A . . . . . . . . g g g g g g g g A
 // B . . . . . . . . . . . . . . . . B
-// C . . . x . . . . . . . . . . . . C
+// C . . . x . . . . . . . . . x . . C
 // D . . .   . . . . . . .   .   . . D
 // E x . x     . . . . . x       . . E
 // F x . . x   . . . . . . .     x . F
@@ -55,6 +55,15 @@ CPU::step() {
   case 0xC3: // JP nn
     PC = mem->getWord(PC);
     mem->cycles = 4;
+    break;
+
+  case 0xCD: // CALL nn
+    PC += 2;
+    mem->putByte(SP-1, (PC & 0xff00) >> 8);
+    mem->putByte(SP-2, PC & 0x00ff);
+    SP -= 2;
+    PC = mem->getWord(PC - 2);
+    mem->cycles = 6;
     break;
 
   case 0xE0: // LD (0xff00 + n),A
