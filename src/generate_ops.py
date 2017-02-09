@@ -366,6 +366,9 @@ def generate_opcodes():
     for op in [0x20, 0x28, 0x30, 0x38]:
         ops.extend(generate_jr_cond(op))
 
+    for op in range(0x40, 0x70):
+        ops.extend(generate_ld_r_r(op))
+
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
@@ -385,9 +388,6 @@ def ops_not_included_yet():
 
     for op in [0x09, 0x19, 0x29, 0x39]:
         ops.extend(generate_add_hl_rr(op))
-
-    for op in range(0x40, 0x70):
-        ops.extend(generate_ld_r_r(op))
 
     for op in range(0x80, 0x88):
         ops.extend(generate_add(op))
@@ -461,7 +461,7 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x30, 0x38):
-        print("".join(generate_swap(op)))
+    for op in range(0x40, 0x70):
+        print("".join(generate_ld_r_r(op)))
 
 main()
