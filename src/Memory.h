@@ -12,7 +12,7 @@ public:
   Memory();
   void insertCart(std::string path);
   unsigned char getByte(unsigned short address);
-  unsigned long getWord(unsigned short address);
+  unsigned short getWord(unsigned short address);
   unsigned char getOp(unsigned short address);
   void putByte(unsigned short address, unsigned char byte);
   std::list<int> getVisited();

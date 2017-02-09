@@ -31,7 +31,7 @@ Memory::getByte(unsigned short address) {
   return mem[address];
 }
 
-unsigned long
+unsigned short
 Memory::getWord(unsigned short address) {
   return mem[address] + (mem[address+1] << 8);
 }
