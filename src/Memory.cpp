@@ -39,7 +39,9 @@ Memory::getWord(unsigned short address) {
 unsigned char
 Memory::getOp(unsigned short address) {
   // TODO: Need more sophistication to deal with bank switching
-  metarom[address] = VISITED;
+  if(address < 0x8000) {
+    metarom[address] = VISITED;
+  }
 
   return mem[address];
 }
