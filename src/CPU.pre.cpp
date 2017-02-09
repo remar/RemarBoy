@@ -32,7 +32,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // C . . . x . . . . . . . . . . . . C
 // D . . .   . . . . . . .   .   . . D
 // E x . .     . . . . . .       . . E
-// F . . . x   . . . . . . .     . . F
+// F x . . x   . . . . . . .     . . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 void
@@ -51,6 +51,11 @@ CPU::step() {
 
   case 0xE0: // LD (0xff00 + n),A
     mem->putByte(0xff00 + mem->getByte(PC++), A);
+    mem->cycles = 3;
+    break;
+
+  case 0xF0: // LD A,(0xff00 + n)
+    A = mem->getByte(0xff00 + mem->getByte(PC++));
     mem->cycles = 3;
     break;
 
