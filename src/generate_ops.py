@@ -185,10 +185,9 @@ def generate_and(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
     r_name = get_reg(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
-    return make_case(op, "AND " + r_name) + [
-        indent(3),
-        "A = (A & 0xff) & (" + r + " & 0xff);" if r != "A" else "", nl(),
-        indent(3), "F = (A == 0 ? ZF : 0) | HF;", nl()
+    return make_case(op, "AND " + r_name) + (
+        [indent(2), "A &= " + r + ";", nl()] if r != "A" else []
+    ) + [indent(2), "F = (A == 0 ? ZF : 0) | HF;", nl()
     ] + make_cycles_and_break(cycles)
 
 def generate_xor(op):
@@ -372,6 +371,9 @@ def generate_opcodes():
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
+    for op in range(0xa0, 0xa8):
+        ops.extend(generate_and(op))
+
     for op in range(0xa8, 0xb0):
         ops.extend(generate_xor(op))
 
@@ -394,12 +396,6 @@ def ops_not_included_yet():
 
     for op in range(0x88, 0x90):
         ops.extend(generate_adc(op))
-
-    for op in range(0xa0, 0xa8):
-        ops.extend(generate_and(op))
-
-    for op in range(0xa8, 0xb0):
-        ops.extend(generate_xor(op))
 
     for op in [0xc0, 0xc8, 0xd0, 0xd8]:
         ops.extend(generate_ret_cond(op))
@@ -461,7 +457,7 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x40, 0x70):
-        print("".join(generate_ld_r_r(op)))
+    for op in range(0xa0, 0xa8):
+        print("".join(generate_and(op)))
 
 main()
