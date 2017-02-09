@@ -32,13 +32,15 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // C . . . x . . . . . . . . . . . . C
 // D . . .   . . . . . . .   .   . . D
 // E x . .     . . . . . .       . . E
-// F x . . x   . . . . . . .     . . F
+// F x . . x   . . . . . . .     x . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 void
 CPU::step() {
   // std::cout << std::hex << PC << std::endl;
   unsigned char op = mem->getOp(PC++);
+  unsigned char n;
+
   switch(op) {
   case 0x00: // NOP
     mem->cycles = 1;
@@ -62,6 +64,12 @@ CPU::step() {
   case 0xF3: // DI
     IME = false;
     mem->cycles = 1;
+    break;
+
+  case 0xFE: // CP n
+    n = mem->getByte(PC++);
+    F = (A == n ? ZF : 0) | NF | ((A & 0xf) < (n & 0xf) ? HF : 0) | (A < n ? CF : 0);
+    mem->cycles = 2;
     break;
 
 // --------- BEGIN GENERATED CODE ---------
