@@ -2,6 +2,7 @@
 #define EMULATOR_H
 
 #include "CPU.h"
+#include "LCD.h"
 #include "Memory.h"
 #include <string>
 #include <list>
@@ -15,6 +16,7 @@ public:
 
 private:
   CPU *cpu;
+  LCD *lcd;
   Memory *memory;
 };
 
