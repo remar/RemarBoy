@@ -131,9 +131,8 @@ def generate_dec_rr(op):
 def generate_inc_r(op):
     reg = get_reg((op & 0x38) // 8)
     return make_case(op, "INC " + reg) + [
-        indent(3), reg, "++;", nl(),
-        indent(3), reg, " &= 0xff;", nl(),
-        indent(3), "F = (F & CF) | (r == 0 ? ZF : 0) | (r == 0x10 ? HF : 0);".replace("r", reg), nl()] + make_cycles_and_break(1)
+        indent(2), reg, "++;", nl(),
+        indent(2), "F = (F & CF) | (r == 0 ? ZF : 0) | (r == 0x10 ? HF : 0);".replace("r", reg), nl()] + make_cycles_and_break(1)
 
 def generate_dec_r(op):
     reg = get_reg((op & 0x38) // 8)
@@ -328,8 +327,8 @@ def make_cb_case(op, title):
             ", ", title, nl()]
 
 def make_cycles_and_break(cycles):
-    return [indent(3), "mem->cycles = "+str(cycles)+";", nl(),
-            indent(3), "break;", nl()]
+    return [indent(2), "mem->cycles = "+str(cycles)+";", nl(),
+            indent(2), "break;", nl()]
 
 def make_cb_cycles_and_break(cycles):
     return [indent(4), "mem->cycles = "+str(cycles)+";", nl(),
@@ -353,6 +352,9 @@ def generate_opcodes():
     for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
         ops.extend(generate_ld_indexed(op))
 
+    for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
+        ops.extend(generate_inc_r(op))
+
     for op in [0x05, 0x0d, 0x15, 0x1d, 0x25, 0x2d, 0x3d]:
         ops.extend(generate_dec_r(op))
 
@@ -372,9 +374,6 @@ def ops_not_included_yet():
 
     for op in [0x03, 0x13, 0x23]:
         ops.extend(generate_inc_rr(op))
-
-    for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
-        ops.extend(generate_inc_r(op))
 
     for op in [0x09, 0x19, 0x29, 0x39]:
         ops.extend(generate_add_hl_rr(op))
@@ -458,7 +457,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x20, 0x28, 0x30, 0x38]:
-        print("".join(generate_jr_cond(op)))
+    for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
+        print("".join(generate_inc_r(op)))
 
 main()
