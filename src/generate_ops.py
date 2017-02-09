@@ -122,10 +122,10 @@ def generate_dec_rr(op):
         return s.replace("r1", r1).replace("r2", r2)
 
     return make_case(op, "DEC " + r1 + r2) + [
-        indent(3), r1r2("r1r2 = (r1 & 0xff) * 0x100 + (r2 & 0xff);"), nl(),
-        indent(3), r1r2("r1r2 = (r1r2 - 1) & 0xffff;"), nl(),
-        indent(3), r1r2("r1 = (r1r2 & 0xff00) >> 8;"), nl(),
-        indent(3), r1r2("r2 = r1r2 & 0x00ff;"), nl()
+        indent(2), r1r2("r2--;"), nl(),
+        indent(2), r1r2("if(r2 == 0xff) {"), nl(),
+        indent(3), r1r2("r1--;"), nl(),
+        indent(2), "}", nl(),
     ] + make_cycles_and_break(2)
 
 def generate_inc_r(op):
@@ -361,6 +361,9 @@ def generate_opcodes():
     for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
         ops.extend(generate_ld_r_n(op))
 
+    for op in [0x0b, 0x1b, 0x2b]:
+        ops.extend(generate_dec_rr(op))
+
     for op in [0x20, 0x28, 0x30, 0x38]:
         ops.extend(generate_jr_cond(op))
 
@@ -377,9 +380,6 @@ def ops_not_included_yet():
 
     for op in [0x09, 0x19, 0x29, 0x39]:
         ops.extend(generate_add_hl_rr(op))
-
-    for op in [0x0b, 0x1b, 0x2b]:
-        ops.extend(generate_dec_rr(op))
 
     for op in range(0x40, 0x70):
         ops.extend(generate_ld_r_r(op))
@@ -457,7 +457,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
-        print("".join(generate_inc_r(op)))
+    for op in [0x0b, 0x1b, 0x2b]:
+        print("".join(generate_dec_rr(op)))
 
 main()
