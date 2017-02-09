@@ -145,13 +145,13 @@ def generate_ld_r_r(op):
     src = get_reg(op & 0x07) if (op & 0x07) != 0x06 else "(HL)"
     if src == "(HL)":
         return make_case(op, "LD " + dest + "," + src) + [
-            indent(3), dest, " = mem->getByte(", make_word("H", "L"), ");", nl()
+            indent(2), dest, " = mem->getByte(", make_word("H", "L"), ");", nl()
         ] + make_cycles_and_break(2)
     elif dest == src:
         return make_case(op, "LD " + dest + "," + src) + make_cycles_and_break(1)
     else:
         return make_case(op, "LD " + dest + "," + src) + [
-            indent(3), dest, " = ", src, ";", nl()
+            indent(2), dest, " = ", src, ";", nl()
         ] + make_cycles_and_break(1)
 
 def generate_add(op):
@@ -367,6 +367,9 @@ def generate_opcodes():
     for op in [0x20, 0x28, 0x30, 0x38]:
         ops.extend(generate_jr_cond(op))
 
+    for op in range(0x78, 0x80):
+        ops.extend(generate_ld_r_r(op))
+
     for op in range(0xa8, 0xb0):
         ops.extend(generate_xor(op))
 
@@ -382,9 +385,6 @@ def ops_not_included_yet():
         ops.extend(generate_add_hl_rr(op))
 
     for op in range(0x40, 0x70):
-        ops.extend(generate_ld_r_r(op))
-
-    for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
     for op in range(0x80, 0x88):
@@ -457,7 +457,7 @@ def main():
     f.close()
 
 def test():
-    for op in [0x0b, 0x1b, 0x2b]:
-        print("".join(generate_dec_rr(op)))
+    for op in range(0x78, 0x80):
+        print("".join(generate_ld_r_r(op)))
 
 main()
