@@ -206,9 +206,9 @@ def generate_or(op):
     r_name = get_reg(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "OR " + r_name) + ([
-        indent(3), "A = (A & 0xff) | (" + r + " & 0xff);",
+        indent(2), "A |= " + r + ";",
         nl() ] if r != "A" else []) + [
-            indent(3), "F = A == 0 ? ZF : 0;", nl()
+            indent(2), "F = A == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
 
 def generate_ret_cond(op):
@@ -311,7 +311,6 @@ def get_hl():
 
 def make_word(h, l):
     return "(" + h + " << 8) + " + l
-#    return "(" + h + " & 0xff) * 0x100 + (" + l + " & 0xff)"
 
 def get_reg(r):
     return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 6:"(HL)", 7:"A"}[r]
@@ -373,6 +372,9 @@ def generate_opcodes():
     for op in range(0xa8, 0xb0):
         ops.extend(generate_xor(op))
 
+    for op in range(0xb0, 0xb8):
+        ops.extend(generate_or(op))
+
     return ops
 
 def ops_not_included_yet():
@@ -398,9 +400,6 @@ def ops_not_included_yet():
 
     for op in range(0xa8, 0xb0):
         ops.extend(generate_xor(op))
-
-    for op in range(0xb0, 0xb8):
-        ops.extend(generate_or(op))
 
     for op in [0xc0, 0xc8, 0xd0, 0xd8]:
         ops.extend(generate_ret_cond(op))
@@ -457,7 +456,7 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x78, 0x80):
-        print("".join(generate_ld_r_r(op)))
+    for op in range(0xb0, 0xb8):
+        print("".join(generate_or(op)))
 
 main()
