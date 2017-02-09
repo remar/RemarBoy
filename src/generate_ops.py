@@ -159,12 +159,11 @@ def generate_add(op):
     r_name = get_reg(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "ADD " + r_name) + [
-        indent(3), "operand = (" + r + " & 0xff);", nl(),
-        indent(3), "halfcarry = (A & 0x0f) + (operand & 0x0f) > 0x0f;", nl(),
-        indent(3), "A = (A & 0xff) + operand;", nl(),
-        indent(3), "carry = (A & 0x100) != 0;", nl(),
-        indent(3), "A &= 0xff;", nl(),
-        indent(3), "F = (A == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);", nl()
+        indent(2), "n = " + r + ";", nl(),
+        indent(2), "halfcarry = (A & 0x0f) + (n & 0x0f) > 0x0f;", nl(),
+        indent(2), "carry = (A + n) > 0xff;", nl(),
+        indent(2), "A += n;", nl(),
+        indent(2), "F = (A == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);", nl()
     ] + make_cycles_and_break(cycles)
 
 def generate_adc(op):
@@ -371,6 +370,9 @@ def generate_opcodes():
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
+    for op in range(0x80, 0x88):
+        ops.extend(generate_add(op))
+
     for op in range(0xa0, 0xa8):
         ops.extend(generate_and(op))
 
@@ -393,9 +395,6 @@ def ops_not_included_yet():
 
     for op in [0x09, 0x19, 0x29, 0x39]:
         ops.extend(generate_add_hl_rr(op))
-
-    for op in range(0x80, 0x88):
-        ops.extend(generate_add(op))
 
     for op in range(0x88, 0x90):
         ops.extend(generate_adc(op))
@@ -457,8 +456,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
-        print("".join(generate_rst(op)))
+    for op in range(0x80, 0x88):
+        print("".join(generate_add(op)))
 
 #test()
 main()
