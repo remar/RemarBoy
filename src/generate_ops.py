@@ -279,16 +279,17 @@ def generate_swap(op):
     if op & 0x07 == 0x06:
         # (HL)
         return make_cb_case(op, "SWAP (HL)") + [
-            indent(4), "HL = ", make_word("H", "L"), ";", nl(),
-            indent(4), "temp = mem->getByte(HL);", nl(),
-            indent(4), "mem->putByte(HL, "+swap("temp")+");", nl()
+            indent(2), "HL = ", make_word("H", "L"), ";", nl(),
+            indent(2), "temp = mem->getByte(HL);", nl(),
+            indent(2), "mem->putByte(HL, "+swap("temp")+");", nl(),
+            indent(2), "F = (temp == 0 ? ZF : 0);", nl()
         ] + make_cb_cycles_and_break(4)
     else:
         r = get_reg(op & 0x07)
         return make_cb_case(op, "SWAP " + r) + [
-            indent(4), ("r = "+swap("r")+";")
+            indent(2), ("r = "+swap("r")+";")
             .replace("r", r), nl(),
-            indent(4), "F = (r == 0 ? ZF : 0);".replace("r", r), nl()
+            indent(2), "F = (r == 0 ? ZF : 0);".replace("r", r), nl()
         ] + make_cb_cycles_and_break(2)
 
 def generate_res(op):
@@ -322,16 +323,15 @@ def make_case(op, title):
     return [indent(1), "case ", make_op(op), ": // ", title, nl()]
 
 def make_cb_case(op, title):
-    return [indent(3), "case ", make_op(op), ": // 0x", format(op, "02x"),
-            ", ", title, nl()]
+    return [indent(1), "case ", make_op(op), ": // ", title, nl()]
 
 def make_cycles_and_break(cycles):
     return [indent(2), "mem->cycles = "+str(cycles)+";", nl(),
             indent(2), "break;", nl()]
 
 def make_cb_cycles_and_break(cycles):
-    return [indent(4), "mem->cycles = "+str(cycles)+";", nl(),
-            indent(4), "break;", nl()]
+    return [indent(2), "mem->cycles = "+str(cycles)+";", nl(),
+            indent(2), "break;", nl()]
 
 def make_op(op):
     return "0x" + format(op, "02X")
@@ -424,6 +424,11 @@ def generate_cb_opcodes():
     for op in range(0x30, 0x38):
         ops.extend(generate_swap(op))
 
+    return ops
+
+def cb_ops_not_included_yet():
+    ops = []
+
     for op in range(0x80, 0xc0):
         ops.extend(generate_res(op))
 
@@ -439,24 +444,24 @@ def main():
     begin = cpu.index("// --------- BEGIN GENERATED CODE ---------")
     end = cpu.index("// --------- END GENERATED CODE ---------")
 
-#    begin_cb = cpu.index("// --------- BEGIN GENERATED CB CODE ---------")
-#    end_cb = cpu.index("// --------- END GENERATED CB CODE ---------")
+    begin_cb = cpu.index("// --------- BEGIN GENERATED CB CODE ---------")
+    end_cb = cpu.index("// --------- END GENERATED CB CODE ---------")
 
     opcodes = generate_opcodes()
-#    cb_opcodes = generate_cb_opcodes()
+    cb_opcodes = generate_cb_opcodes()
 
     f = open("CPU.cpp", "w")
     f.write("\n".join(cpu[0:begin+1]) + "\n")
     f.write("".join(opcodes))
-    f.write("\n".join(cpu[end:]))
-#    f.write("\n".join(cpu[end:begin_cb+1]) + "\n")
-#    f.write("".join(cb_opcodes))
-#    f.write("\n".join(cpu[end_cb:]))
+#    f.write("\n".join(cpu[end:]))
+    f.write("\n".join(cpu[end:begin_cb+1]) + "\n")
+    f.write("".join(cb_opcodes))
+    f.write("\n".join(cpu[end_cb:]))
 
     f.close()
 
 def test():
-    for op in range(0xb0, 0xb8):
-        print("".join(generate_or(op)))
+    for op in range(0x30, 0x38):
+        print("".join(generate_swap(op)))
 
 main()

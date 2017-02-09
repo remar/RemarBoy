@@ -69,6 +69,10 @@ CPU::step() {
     mem->cycles = 4;
     break;
 
+  case 0xCB: // CB prefix
+    doCB();
+    break;
+
   case 0xCD: // CALL nn
     PC += 2;
     mem->putByte(SP-1, (PC & 0xff00) >> 8);
@@ -127,6 +131,45 @@ CPU::step() {
   default:
     std::stringstream fmt;
     fmt << "OP not implemented: 0x"
+	<< std::hex
+	<< std::setw(2)
+	<< std::setfill('0')
+	<< std::uppercase
+	<< (int)op;
+    throw std::out_of_range(fmt.str());
+  }
+}
+
+//   0 1 2 3 4 5 6 7 8 9 A B C D E F
+// 0 . . . . . . . . . . . . . . . . 0
+// 1 . . . . . . . . . . . . . . . . 1
+// 2 . . . . . . . . . . . . . . . . 2
+// 3 g g g g g g g g . . . . . . . . 3
+// 4 . . . . . . . . . . . . . . . . 4
+// 5 . . . . . . . . . . . . . . . . 5
+// 6 . . . . . . . . . . . . . . . . 6
+// 7 . . . . . . . . . . . . . . . . 7
+// 8 . . . . . . . . . . . . . . . . 8
+// 9 . . . . . . . . . . . . . . . . 9
+// A . . . . . . . . . . . . . . . . A
+// B . . . . . . . . . . . . . . . . B
+// C . . . . . . . . . . . . . . . . C
+// D . . . . . . . . . . . . . . . . D
+// E . . . . . . . . . . . . . . . . E
+// F . . . . . . . . . . . . . . . . F
+//   0 1 2 3 4 5 6 7 8 9 A B C D E F
+
+void
+CPU::doCB() {
+  unsigned char op = mem->getByte(PC++);
+  unsigned char temp;
+
+  switch(op) {
+// --------- BEGIN GENERATED CB CODE ---------
+// --------- END GENERATED CB CODE ---------
+  default:
+    std::stringstream fmt;
+    fmt << "CB OP not implemented: 0x"
 	<< std::hex
 	<< std::setw(2)
 	<< std::setfill('0')
