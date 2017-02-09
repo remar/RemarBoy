@@ -264,10 +264,10 @@ def generate_push_rr(op):
 def generate_rst(op):
     dest = (op & 0x38) // 8
     return make_case(op, "RST " + str(dest) + " (0x" + format(dest*8, "02x") + ")") + [
-        indent(3), "mem->putByte(SP-1, (PC & 0xff00) >> 8);", nl(),
-        indent(3), "mem->putByte(SP-2, PC & 0x00ff);", nl(),
-        indent(3), "SP -= 2;", nl(),
-        indent(3), "PC = 0x", format(dest*8, "02x"), ";", nl()
+        indent(2), "mem->putByte(SP-1, (PC & 0xff00) >> 8);", nl(),
+        indent(2), "mem->putByte(SP-2, PC & 0x00ff);", nl(),
+        indent(2), "SP -= 2;", nl(),
+        indent(2), "PC = 0x", format(dest*8, "02x"), ";", nl()
     ] + make_cycles_and_break(4)
 
 # CB op codes
@@ -380,6 +380,9 @@ def generate_opcodes():
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
 
+    for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
+        ops.extend(generate_rst(op))
+
     return ops
 
 def ops_not_included_yet():
@@ -408,9 +411,6 @@ def ops_not_included_yet():
 
     for op in [0xc5, 0xd5, 0xe5, 0xf5]:
         ops.extend(generate_push_rr(op))
-
-    for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
-        ops.extend(generate_rst(op))
 
     return ops
 
@@ -457,7 +457,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0xa0, 0xa8):
-        print("".join(generate_and(op)))
+    for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
+        print("".join(generate_rst(op)))
 
+#test()
 main()

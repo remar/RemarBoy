@@ -29,10 +29,10 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 9 . . . . . . . . . . . . . . . . 9
 // A g g g g g g g g g g g g g g g g A
 // B g g g g g g g g . . . . . . . . B
-// C . . . x . . . . . x . . . x . . C
-// D . . .   . . . . . . .   .   . . D
-// E x . x     . x . . . x       . . E
-// F x . . x   . . . . . . x     x . F
+// C . . . x . . . g . x . . . x . g C
+// D . . .   . . . g . . .   .   . g D
+// E x . x     . x g . . x       . g E
+// F x . . x   . . g . . . x     x g F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 void
