@@ -12,7 +12,7 @@ Disassembler disasm(&memory);
 int main() {
   memory.insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
   emulator.printState();
-  for(int i = 0;i < 10;i++) {
+  for(int i = 0;i < 100000;i++) {
     emulator.step();
   }
   emulator.printState();

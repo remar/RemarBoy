@@ -13,6 +13,7 @@ const unsigned char CF = 0x10; // Carry flag
 CPU::CPU(Memory* memory) : mem(memory) {
   PC = 0x100; // Program starts at 0x100
   SP = 0xfffe;
+  IME = true; // TODO: Verify that it's on at start
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -31,7 +32,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // C . . . x . . . . . . . . . . . . C
 // D . . .   . . . . . . .   .   . . D
 // E . . .     . . . . . .       . . E
-// F . . . .   . . . . . . .     . . F
+// F . . . x   . . . . . . .     . . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 void
@@ -46,6 +47,11 @@ CPU::step() {
   case 0xC3: // JP nn
     PC = mem->getWord(PC);
     mem->cycles = 4;
+    break;
+
+  case 0xF3: // DI
+    IME = false;
+    mem->cycles = 1;
     break;
 
 // --------- BEGIN GENERATED CODE ---------

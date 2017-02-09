@@ -27,6 +27,7 @@ private:
 
   unsigned short AF, BC, DE, HL;
 
+  bool IME; // Interrupt Master Enable
 };
 
 #endif
