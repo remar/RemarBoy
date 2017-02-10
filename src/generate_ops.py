@@ -227,11 +227,11 @@ def generate_ret_cond(op):
         indent(3), "break;", nl()
     ]
 
-def generate_pop(op):
+def generate_pop_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "POP " + r1 + r2) + [
-        indent(3), r2, " = mem->getByte(SP++);", nl(),
-        indent(3), r1, " = mem->getByte(SP++);", nl()
+        indent(2), r2, " = mem->getByte(SP++);", nl(),
+        indent(2), r1, " = mem->getByte(SP++);", nl()
     ] + make_cycles_and_break(3)
 
 def generate_jp_cond(op):
@@ -382,6 +382,9 @@ def generate_opcodes():
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
 
+    for op in [0xc1, 0xd1, 0xe1, 0xf1]:
+        ops.extend(generate_pop_rr(op))
+
     for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
         ops.extend(generate_rst(op))
 
@@ -401,9 +404,6 @@ def ops_not_included_yet():
 
     for op in [0xc0, 0xc8, 0xd0, 0xd8]:
         ops.extend(generate_ret_cond(op))
-
-    for op in [0xc1, 0xd1, 0xe1, 0xf1]:
-        ops.extend(generate_pop(op))
 
     for op in [0xc2, 0xca, 0xd2, 0xda]:
         ops.extend(generate_jp_cond(op))
@@ -456,8 +456,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x80, 0x88):
-        print("".join(generate_add(op)))
+    for op in [0xc1, 0xd1, 0xe1, 0xf1]:
+        print("".join(generate_pop_rr(op)))
 
 #test()
 main()
