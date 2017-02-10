@@ -78,42 +78,42 @@ def generate_ld_r_n(op):
 def generate_add_hl_rr(op):
     def inner(rr):
         def gethl():
-            return indent(3) + "HL = " + make_word("H", "L") + ";" + nl()
+            return indent(2) + "HL = " + make_word("H", "L") + ";" + nl()
         def hc(rr):
-            return (indent(3) + "halfcarry = (HL & 0x0f00) + (" + rr
+            return (indent(2) + "halfcarry = (HL & 0x0f00) + (" + rr
                     + " & 0x0f00) > 0x0f00;" + nl())
         def carry(rr):
-            return (indent(3) + "carry = (HL + " + rr + ") > 0xffff;" + nl())
-        flags = (indent(3)
+            return (indent(2) + "carry = (HL + " + rr + ") > 0xffff;" + nl())
+        flags = (indent(2)
                  + "F = (F & ZF) | (halfcarry ? HF : 0) | (carry ? CF : 0);"
                  + nl())
         if rr == 3: # SP
             return [gethl(),
                     hc("SP"),
                     carry("SP"),
-                    indent(3), "HL = (HL + SP) & 0xffff;", nl(),
+                    indent(2), "HL += SP;", nl(),
                     flags]
         elif rr == 2: # HL
             return [gethl(),
                     hc("HL"),
                     carry("HL"),
-                    indent(3), "HL = (HL + HL) & 0xffff;", nl(),
+                    indent(2), "HL += HL;", nl(),
                     flags]
         else: # BC or DE
             return [
                 gethl(),
-                indent(3), r1, r2, " = ", make_word(r1, r2), ";", nl(),
+                indent(2), r1, r2, " = ", make_word(r1, r2), ";", nl(),
                 hc(r1+r2),
                 carry(r1+r2),
-                indent(3), "HL = (HL + ",r1,r2,") & 0xffff;", nl(),
+                indent(2), "HL += ",r1,r2,";", nl(),
                 flags
             ]
     rr = (op & 0x30) // 16
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     rr_name = "SP" if rr == 3 else (r1 + r2)
     return (make_case(op, "ADD HL," + rr_name) + inner(rr) + [
-        indent(3), "H = (HL & 0xff00) >> 8;", nl(),
-        indent(3), "L = (HL & 0x00ff);", nl()
+        indent(2), "H = (HL & 0xff00) >> 8;", nl(),
+        indent(2), "L = (HL & 0x00ff);", nl()
     ] + make_cycles_and_break(2))
 
 def generate_dec_rr(op):
@@ -358,6 +358,9 @@ def generate_opcodes():
     for op in [0x06, 0x0e, 0x16, 0x1e, 0x26, 0x2e, 0x36, 0x3e]:
         ops.extend(generate_ld_r_n(op))
 
+    for op in [0x09, 0x19, 0x29, 0x39]:
+        ops.extend(generate_add_hl_rr(op))
+
     for op in [0x0b, 0x1b, 0x2b]:
         ops.extend(generate_dec_rr(op))
 
@@ -395,9 +398,6 @@ def ops_not_included_yet():
 
     for op in [0x03, 0x13, 0x23]:
         ops.extend(generate_inc_rr(op))
-
-    for op in [0x09, 0x19, 0x29, 0x39]:
-        ops.extend(generate_add_hl_rr(op))
 
     for op in range(0x88, 0x90):
         ops.extend(generate_adc(op))
@@ -456,8 +456,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0xc1, 0xd1, 0xe1, 0xf1]:
-        print("".join(generate_pop_rr(op)))
+    for op in [0x09, 0x19, 0x29, 0x39]:
+        print("".join(generate_add_hl_rr(op)))
 
 #test()
 main()
