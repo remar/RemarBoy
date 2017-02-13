@@ -21,7 +21,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 0 x g g g g g g . . g g g g g g . 0
 // 1 . g g g g g g . x g g g g g g . 1
 // 2 g g g g g g g . g g g g g g g x 2
-// 3 g x g . . . g . g g g . g g g . 3
+// 3 g x g . x . g . g g g . g g g . 3
 // 4 g g g g g g g g g g g g g g g g 4
 // 5 g g g g g g g g g g g g g g g g 5
 // 6 g g g g g g g g g g g g g g g g 6
@@ -84,6 +84,13 @@ CPU::step() {
   case 0x31: // LD SP,nn
     SP = mem->getWord(PC);
     PC += 2;
+    mem->cycles = 3;
+    break;
+
+  case 0x34: // INC (HL)
+    n = mem->getByte(HL.word) + 1;
+    AF.low = (AF.low & CF) | (n == 0 ? ZF : 0) | (n == 0x10 ? HF : 0);
+    mem->putByte(HL.word, n);
     mem->cycles = 3;
     break;
 
