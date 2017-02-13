@@ -14,6 +14,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
   PC = 0x100; // Program starts at 0x100
   SP = 0xfffe;
   IME = true; // TODO: Verify that it's on at start
+  accum_cycles = 0;
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -141,6 +142,8 @@ CPU::step() {
 	<< (int)op;
     throw std::out_of_range(fmt.str());
   }
+
+  accum_cycles += mem->cycles;
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -185,32 +188,25 @@ CPU::doCB() {
 
 void
 CPU::printState() {
+  std::cout << "------------------" << std::endl;
   printWordReg("PC", PC);
   std::cout << "  ";
   printWordReg("SP", SP);
   std::cout << std::endl;
 
-  printRegPair("A", AF.high, "F", AF.low);
-  printRegPair("B", BC.high, "C", BC.low);
-  printRegPair("D", DE.high, "E", DE.low);
-  printRegPair("H", HL.high, "L", HL.low);
-}
+  printWordReg("AF", AF.word);
+  std::cout << "  ";
+  printWordReg("BC", BC.word);
+  std::cout << std::endl;
+  printWordReg("DE", DE.word);
+  std::cout << "  ";
+  printWordReg("HL", HL.word);
+  std::cout << std::endl;
 
-void
-CPU::printByteReg(std::string name, unsigned char value) {
-  std::cout << name << ": " << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)value;
+  std::cout << "Total Cycles: " << std::dec << accum_cycles << std::endl;
 }
 
 void
 CPU::printWordReg(std::string name, unsigned short value) {
   std::cout << name << ": " << std::setw(4) << std::setfill('0') << std::uppercase << std::hex << value;
-}
-
-void
-CPU::printRegPair(std::string name1, unsigned char value1,
-		  std::string name2, unsigned char value2) {
-  printByteReg(name1, value1);
-  std::cout << "     ";
-  printByteReg(name2, value2);
-  std::cout << std::endl;
 }

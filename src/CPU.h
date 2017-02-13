@@ -11,10 +11,9 @@ public:
 
 private:
   void doCB();
-  void printByteReg(std::string name, unsigned char value);
   void printWordReg(std::string name, unsigned short value);
-  void printRegPair(std::string name1, unsigned char value1,
-		    std::string name2, unsigned char value2);
+
+  int accum_cycles;
 
   Memory* mem;
 
