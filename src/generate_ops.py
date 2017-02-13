@@ -231,11 +231,11 @@ def generate_jp_cond(op):
     ]
 
 def generate_push_rr(op):
-    r1, r2 = get_wide_reg((op & 0x30) // 16)
-    return make_case(op, "PUSH " + r1 + r2) + [
-        indent(3), "mem->putByte(SP-1, ", r1, ");", nl(),
-        indent(3), "mem->putByte(SP-2, ", r2, ");", nl(),
-        indent(3), "SP -= 2;", nl()
+    wide = ["BC", "DE", "HL", "AF"][(op & 0x30) // 16]
+    return make_case(op, "PUSH " + wide) + [
+        indent(2), "mem->putByte(SP-1, ", wide, ".high);", nl(),
+        indent(2), "mem->putByte(SP-2, ", wide, ".low);", nl(),
+        indent(2), "SP -= 2;", nl()
     ] + make_cycles_and_break(4)
 
 def generate_rst(op):
@@ -372,6 +372,9 @@ def generate_opcodes():
     for op in [0xc1, 0xd1, 0xe1, 0xf1]:
         ops.extend(generate_pop_rr(op))
 
+    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
+        ops.extend(generate_push_rr(op))
+
     for op in [0xc7, 0xcf, 0xd7, 0xdf, 0xe7, 0xef, 0xf7, 0xff]:
         ops.extend(generate_rst(op))
 
@@ -388,9 +391,6 @@ def ops_not_included_yet():
 
     for op in [0xc2, 0xca, 0xd2, 0xda]:
         ops.extend(generate_jp_cond(op))
-
-    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
-        ops.extend(generate_push_rr(op))
 
     return ops
 
@@ -437,8 +437,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0x03, 0x13, 0x23]:
-        print("".join(generate_inc_rr(op)))
+    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
+        print("".join(generate_push_rr(op)))
 
 #test()
 main()
