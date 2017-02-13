@@ -19,7 +19,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 // 0 x g g g g g g . . g g g g g g . 0
-// 1 . g g g g g g . . g g g g g g . 1
+// 1 . g g g g g g . x g g g g g g . 1
 // 2 g g g g g g g . g g g g g g g x 2
 // 3 g x g . . . g . g g g . g g g . 3
 // 4 g g g g g g g g g g g g g g g g 4
@@ -47,6 +47,11 @@ CPU::step() {
   switch(op) {
   case 0x00: // NOP
     mem->cycles = 1;
+    break;
+
+  case 0x18: // JR n
+    PC += (signed char)mem->getByte(PC) + 1;
+    mem->cycles = 3;
     break;
 
   case 0x2F: // CPL
