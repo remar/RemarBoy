@@ -271,15 +271,15 @@ def generate_swap(op):
 def generate_res(op):
     bit = (op - 0x80)//8
     r = get_reg(op & 0x07)
+    reg_name = get_reg_name(op & 0x07)
     if(op & 0x07 == 0x06): # (HL)
         return make_cb_case(op, "RES " + str(bit) + ",(HL)") + [
-            indent(4), "HL = ", make_word("H", "L"), ";", nl(),
-            indent(4), "mem->putByte(HL, mem->getByte(HL) & 0x",
+            indent(2), "mem->putByte(HL.word, mem->getByte(HL.word) & 0x",
             format((0xff - (1 << bit)), "02x"), ");", nl()
         ] + make_cb_cycles_and_break(4)
     else:
-        return make_cb_case(op, "RES " + str(bit) + "," + r) + [
-            indent(4), r, " &= 0x", format((0xff - (1 << bit)), "02x"),
+        return make_cb_case(op, "RES " + str(bit) + "," + reg_name) + [
+            indent(2), r, " &= 0x", format((0xff - (1 << bit)), "02x"),
             ";", nl()
         ] + make_cb_cycles_and_break(2)
 
@@ -400,11 +400,6 @@ def generate_cb_opcodes():
     for op in range(0x30, 0x38):
         ops.extend(generate_swap(op))
 
-    return ops
-
-def cb_ops_not_included_yet():
-    ops = []
-
     for op in range(0x80, 0xc0):
         ops.extend(generate_res(op))
 
@@ -437,8 +432,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0xc5, 0xd5, 0xe5, 0xf5]:
-        print("".join(generate_push_rr(op)))
+    for op in range(0x80, 0xc0):
+        print("".join(generate_res(op)))
 
 #test()
 main()
