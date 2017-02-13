@@ -18,9 +18,9 @@ CPU::CPU(Memory* memory) : mem(memory) {
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-// 0 x g g . g g g . . g g g g g g . 0
-// 1 . g g . g g g . . g g g g g g . 1
-// 2 g g g . g g g . g g g g g g g x 2
+// 0 x g g g g g g . . g g g g g g . 0
+// 1 . g g g g g g . . g g g g g g . 1
+// 2 g g g g g g g . g g g g g g g x 2
 // 3 g x g . . . g . g g g . g g g . 3
 // 4 g g g g g g g g g g g g g g g g 4
 // 5 g g g g g g g g g g g g g g g g 5

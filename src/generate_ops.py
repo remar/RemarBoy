@@ -45,15 +45,9 @@ def generate_ld_indexed(op):
     ) + make_cycles_and_break(2)
 
 def generate_inc_rr(op):
-    r1, r2 = get_wide_reg((op & 0x30) // 16)
-    def r1r2(s):
-        return s.replace("r1", r1).replace("r2", r2)
-
-    return make_case(op, "INC " + r1 + r2) + [
-        indent(3), r1r2("r1r2 = (r1 & 0xff) * 0x100 + (r2 & 0xff);"), nl(),
-        indent(3), r1r2("r1r2 = (r1r2 + 1) & 0xffff;"), nl(),
-        indent(3), r1r2("r1 = (r1r2 & 0xff00) >> 8;"), nl(),
-        indent(3), r1r2("r2 = r1r2 & 0x00ff;"), nl()
+    wide = ["BC", "DE", "HL"][(op & 0x30) // 16]
+    return make_case(op, "INC " + wide) + [
+        indent(2), wide, ".word++;", nl()
     ] + make_cycles_and_break(2)
 
 def generate_ld_r_n(op):
@@ -336,6 +330,9 @@ def generate_opcodes():
     for op in [0x02, 0x0a, 0x12, 0x1a, 0x22, 0x2a, 0x32, 0x3a]:
         ops.extend(generate_ld_indexed(op))
 
+    for op in [0x03, 0x13, 0x23]:
+        ops.extend(generate_inc_rr(op))
+
     for op in [0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x3c]:
         ops.extend(generate_inc_r(op))
 
@@ -382,9 +379,6 @@ def generate_opcodes():
 
 def ops_not_included_yet():
     ops = []
-
-    for op in [0x03, 0x13, 0x23]:
-        ops.extend(generate_inc_rr(op))
 
     for op in range(0x88, 0x90):
         ops.extend(generate_adc(op))
@@ -443,8 +437,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x30, 0x38):
-        print("".join(generate_swap(op)))
+    for op in [0x03, 0x13, 0x23]:
+        print("".join(generate_inc_rr(op)))
 
 #test()
 main()
