@@ -219,15 +219,15 @@ def generate_jp_cond(op):
         return "==" if op & 0x08 == 0x08 else "!="
     m = {0xc2: "NZ", 0xca: "Z", 0xd2: "NC", 0xda: "C"}
     return make_case(op, "JP "+m[op]+",nn") + [
-        indent(3), "if((F & ", flag(op), ") ", cond(op), " ",
+        indent(2), "if((AF.low & ", flag(op), ") ", cond(op), " ",
         flag(op), ") {", nl(),
-        indent(4), "PC = mem->getWord(PC);", nl(),
-        indent(4), "mem->cycles = 4;", nl(),
-        indent(3), "} else {", nl(),
-        indent(4), "PC += 2;", nl(),
-        indent(4), "mem->cycles = 3;", nl(),
-        indent(3), "}", nl(),
-        indent(3), "break;", nl()
+        indent(3), "PC = mem->getWord(PC);", nl(),
+        indent(3), "mem->cycles = 4;", nl(),
+        indent(2), "} else {", nl(),
+        indent(3), "PC += 2;", nl(),
+        indent(3), "mem->cycles = 3;", nl(),
+        indent(2), "}", nl(),
+        indent(2), "break;", nl()
     ]
 
 def generate_push_rr(op):
@@ -372,6 +372,9 @@ def generate_opcodes():
     for op in [0xc1, 0xd1, 0xe1, 0xf1]:
         ops.extend(generate_pop_rr(op))
 
+    for op in [0xc2, 0xca, 0xd2, 0xda]:
+        ops.extend(generate_jp_cond(op))
+
     for op in [0xc5, 0xd5, 0xe5, 0xf5]:
         ops.extend(generate_push_rr(op))
 
@@ -388,9 +391,6 @@ def ops_not_included_yet():
 
     for op in [0xc0, 0xc8, 0xd0, 0xd8]:
         ops.extend(generate_ret_cond(op))
-
-    for op in [0xc2, 0xca, 0xd2, 0xda]:
-        ops.extend(generate_jp_cond(op))
 
     return ops
 
@@ -432,8 +432,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x80, 0xc0):
-        print("".join(generate_res(op)))
+    for op in [0xc2, 0xca, 0xd2, 0xda]:
+        print("".join(generate_jp_cond(op)))
 
 #test()
 main()
