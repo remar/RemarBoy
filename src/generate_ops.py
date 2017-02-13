@@ -11,7 +11,7 @@ def generate_jr_cond(op):
         return "==" if op & 0x08 == 0x08 else "!="
     m = {0x20: "NZ", 0x28: "Z", 0x30: "NC", 0x38: "C"}
     return make_case(op, "JR "+m[op]+",n") + [
-        indent(2), "if((F & ", flag(op), ") ", cond(op), " ",
+        indent(2), "if((AF.low & ", flag(op), ") ", cond(op), " ",
         flag(op), ") {", nl(),
         indent(3), "PC += (signed char)mem->getByte(PC) + 1;", nl(),
         indent(3), "mem->cycles = 3;", nl(),
@@ -25,30 +25,23 @@ def generate_jr_cond(op):
 def generate_ld_rr_nn(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "LD " + r1 + r2 + ",nn") + [
-        indent(3), r2, " = mem->getByte(PC++);", nl(),
-        indent(3), r1, " = mem->getByte(PC++);", nl()
+        indent(2), r1, r2, ".low = mem->getByte(PC++);", nl(),
+        indent(2), r1, r2, ".high = mem->getByte(PC++);", nl()
     ] + make_cycles_and_break(3)
 
 def generate_ld_indexed(op):
-    def get_r1r2(n):
-        return [("B", "C"), ("D", "E"), ("H", "L"), ("H", "L")][n]
-    r1, r2 = get_r1r2((op & 0x30) // 16)
+    def get_wide(n):
+        return ["BC", "DE", "HL", "HL"][n]
+    wide = get_wide((op & 0x30) // 16)
     s = "" if (op & 0x20) == 0 else ("+" if (op & 0x10 == 0) else "-")
-    mne = "("+r1+r2+s+"),A" if (op & 0x0a) == 0x02 else "A,("+r1+r2+s+")"
-    return make_case(op, "LD " + mne) + [
-        indent(3), r1, r2, " = ", make_word(r1, r2), ";", nl()
-    ] + (
+    mne = "("+wide+s+"),A" if (op & 0x0a) == 0x02 else "A,("+wide+s+")"
+    return make_case(op, "LD " + mne) + (
         [
-            indent(3), "A = mem->getByte(", r1, r2, ");", nl()
+            indent(2), "AF.high = mem->getByte(", wide, ".word);", nl()
         ] if (op & 0x08) == 0x08 else [
-            indent(3), "mem->putByte(", r1, r2, ", A);", nl()
+            indent(2), "mem->putByte(", wide, ".word, AF.high);", nl()
         ]
-    ) + (
-        [] if s == "" else [
-            indent(3), "HL",s,s,";", nl(),
-            indent(3), "H = HL >> 8;", nl(),
-            indent(3), "L = HL & 0xff;", nl()
-        ]
+    ) + ([] if s == "" else [indent(2), "HL.word",s,s,";", nl()]
     ) + make_cycles_and_break(2)
 
 def generate_inc_rr(op):
@@ -65,14 +58,14 @@ def generate_inc_rr(op):
 
 def generate_ld_r_n(op):
     r = get_reg((op & 0x38) // 8)
+    reg_name = get_reg_name((op & 0x38) // 8)
     if(r == "(HL)"):
         return make_case(op, "LD (HL),n") + [
-            indent(3), "mem->putByte("
-            + make_word("H", "L") + ", mem->getByte(PC++));", nl()
+            indent(2), "mem->putByte(HL.word, mem->getByte(PC++));", nl()
         ] + make_cycles_and_break(3)
     else:
-        return make_case(op, "LD " + r + ",n") + [
-            indent(3), r, " = mem->getByte(PC++);", nl()
+        return make_case(op, "LD " + reg_name + ",n") + [
+            indent(2), r, " = mem->getByte(PC++);", nl()
         ] + make_cycles_and_break(2)
 
 def generate_add_hl_rr(op):
@@ -80,90 +73,81 @@ def generate_add_hl_rr(op):
         def gethl():
             return indent(2) + "HL = " + make_word("H", "L") + ";" + nl()
         def hc(rr):
-            return (indent(2) + "halfcarry = (HL & 0x0f00) + (" + rr
+            return (indent(2) + "halfcarry = (HL.word & 0x0f00) + (" + rr
                     + " & 0x0f00) > 0x0f00;" + nl())
         def carry(rr):
-            return (indent(2) + "carry = (HL + " + rr + ") > 0xffff;" + nl())
+            return (indent(2) + "carry = (HL.word + " + rr + ") > 0xffff;" + nl())
         flags = (indent(2)
-                 + "F = (F & ZF) | (halfcarry ? HF : 0) | (carry ? CF : 0);"
+                 + "AF.low = (AF.low & ZF) | (halfcarry ? HF : 0) | (carry ? CF : 0);"
                  + nl())
         if rr == 3: # SP
-            return [gethl(),
-                    hc("SP"),
+            return [hc("SP"),
                     carry("SP"),
-                    indent(2), "HL += SP;", nl(),
+                    indent(2), "HL.word += SP;", nl(),
                     flags]
         elif rr == 2: # HL
-            return [gethl(),
-                    hc("HL"),
-                    carry("HL"),
-                    indent(2), "HL += HL;", nl(),
+            return [hc("HL.word"),
+                    indent(2), "carry = HL.word > 0x7fff;", nl(),
+                    indent(2), "HL.word += HL.word;", nl(),
                     flags]
         else: # BC or DE
             return [
-                gethl(),
-                indent(2), r1, r2, " = ", make_word(r1, r2), ";", nl(),
-                hc(r1+r2),
-                carry(r1+r2),
-                indent(2), "HL += ",r1,r2,";", nl(),
+                hc(r1+r2+".word"),
+                carry(r1+r2+".word"),
+                indent(2), "HL.word += ",r1,r2,".word;", nl(),
                 flags
             ]
     rr = (op & 0x30) // 16
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     rr_name = "SP" if rr == 3 else (r1 + r2)
-    return (make_case(op, "ADD HL," + rr_name) + inner(rr) + [
-        indent(2), "H = (HL & 0xff00) >> 8;", nl(),
-        indent(2), "L = (HL & 0x00ff);", nl()
-    ] + make_cycles_and_break(2))
+    return (make_case(op, "ADD HL," + rr_name) + inner(rr) + make_cycles_and_break(2))
 
 def generate_dec_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
-    def r1r2(s):
-        return s.replace("r1", r1).replace("r2", r2)
-
     return make_case(op, "DEC " + r1 + r2) + [
-        indent(2), r1r2("r2--;"), nl(),
-        indent(2), r1r2("if(r2 == 0xff) {"), nl(),
-        indent(3), r1r2("r1--;"), nl(),
-        indent(2), "}", nl(),
+        indent(2), r1+r2+".word--;", nl()
     ] + make_cycles_and_break(2)
 
 def generate_inc_r(op):
+    reg_name = get_reg_name((op & 0x38) // 8)
     reg = get_reg((op & 0x38) // 8)
-    return make_case(op, "INC " + reg) + [
+    return make_case(op, "INC " + reg_name) + [
         indent(2), reg, "++;", nl(),
-        indent(2), "F = (F & CF) | (r == 0 ? ZF : 0) | (r == 0x10 ? HF : 0);".replace("r", reg), nl()] + make_cycles_and_break(1)
+        indent(2), "AF.low = (AF.low & CF) | (r == 0 ? ZF : 0) | (r == 0x10 ? HF : 0);".replace("r", reg), nl()] + make_cycles_and_break(1)
 
 def generate_dec_r(op):
     reg = get_reg((op & 0x38) // 8)
-    return make_case(op, "DEC " + reg) + [
-            indent(3), reg, "--;", nl(),
-            indent(3), "F = (F & CF) | (r == 0 ? ZF : 0) | NF | ((r & 0xf) == 0xf ? HF : 0);".replace("r",reg), nl()] + make_cycles_and_break(1)
+    reg_name = get_reg_name((op & 0x38) // 8)
+    return make_case(op, "DEC " + reg_name) + [
+            indent(2), reg, "--;", nl(),
+            indent(2), "AF.low = (AF.low & CF) | (r == 0 ? ZF : 0) | NF | ((r & 0xf) == 0xf ? HF : 0);".replace("r",reg), nl()] + make_cycles_and_break(1)
 
 def generate_ld_r_r(op):
     dest = get_reg((op & 0x38) // 8)
+    dest_name = get_reg_name((op & 0x38) // 8)
     src = get_reg(op & 0x07) if (op & 0x07) != 0x06 else "(HL)"
+    src_name = get_reg_name(op & 0x07) # if (op & 0x07) != 0x06 else "(HL)"
     if src == "(HL)":
-        return make_case(op, "LD " + dest + "," + src) + [
-            indent(2), dest, " = mem->getByte(", make_word("H", "L"), ");", nl()
+        return make_case(op, "LD " + dest_name + "," + src_name) + [
+            indent(2), dest, " = mem->getByte(HL.word);", nl()
         ] + make_cycles_and_break(2)
     elif dest == src:
-        return make_case(op, "LD " + dest + "," + src) + make_cycles_and_break(1)
+        return make_case(op, "LD " + dest_name + "," + src_name) + make_cycles_and_break(1)
     else:
-        return make_case(op, "LD " + dest + "," + src) + [
+        return make_case(op, "LD " + dest_name + "," + src_name) + [
             indent(2), dest, " = ", src, ";", nl()
         ] + make_cycles_and_break(1)
 
 def generate_add(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
-    r_name = get_reg(op & 0x07)
+    r_name = get_reg_name(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "ADD " + r_name) + [
         indent(2), "n = " + r + ";", nl(),
-        indent(2), "halfcarry = (A & 0x0f) + (n & 0x0f) > 0x0f;", nl(),
-        indent(2), "carry = (A + n) > 0xff;", nl(),
-        indent(2), "A += n;", nl(),
-        indent(2), "F = (A == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);", nl()
+        indent(2), "halfcarry = (AF.high & 0x0f) + (n & 0x0f) > 0x0f;", nl(),
+        indent(2), "carry = (AF.high + n) > 0xff;", nl(),
+        indent(2), "AF.high += n;", nl(),
+        indent(2), "AF.low = (AF.high == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);", nl()
     ] + make_cycles_and_break(cycles)
 
 def generate_adc(op):
@@ -182,31 +166,31 @@ def generate_adc(op):
 
 def generate_and(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
-    r_name = get_reg(op & 0x07)
+    r_name = get_reg_name(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "AND " + r_name) + (
-        [indent(2), "A &= " + r + ";", nl()] if r != "A" else []
-    ) + [indent(2), "F = (A == 0 ? ZF : 0) | HF;", nl()
+        [indent(2), "AF.high &= " + r + ";", nl()] if r != "AF.high" else []
+    ) + [indent(2), "AF.low = (AF.high == 0 ? ZF : 0) | HF;", nl()
     ] + make_cycles_and_break(cycles)
 
 def generate_xor(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
-    r_name = get_reg(op & 0x07)
+    r_name = get_reg_name(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "XOR " + r_name) + [
         indent(2),
-        "A ^= " + r + ";" if r != "A" else "A = 0;", nl(),
-        indent(2), "F = (A ? 0 : ZF);", nl()
+        "AF.high ^= " + r + ";" if r != "AF.high" else "AF.high = 0;", nl(),
+        indent(2), "AF.low = (AF.high ? 0 : ZF);", nl()
     ] + make_cycles_and_break(cycles)
 
 def generate_or(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
-    r_name = get_reg(op & 0x07)
+    r_name = get_reg_name(op & 0x07)
     cycles = 2 if (op & 0x07) == 0x06 else 1
     return make_case(op, "OR " + r_name) + ([
-        indent(2), "A |= " + r + ";",
-        nl() ] if r != "A" else []) + [
-            indent(2), "F = A == 0 ? ZF : 0;", nl()
+        indent(2), "AF.high |= " + r + ";",
+        nl() ] if r != "AF.high" else []) + [
+            indent(2), "AF.low = AF.high == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
 
 def generate_ret_cond(op):
@@ -230,8 +214,8 @@ def generate_ret_cond(op):
 def generate_pop_rr(op):
     r1, r2 = get_wide_reg((op & 0x30) // 16)
     return make_case(op, "POP " + r1 + r2) + [
-        indent(2), r2, " = mem->getByte(SP++);", nl(),
-        indent(2), r1, " = mem->getByte(SP++);", nl()
+        indent(2), r1, r2, ".low = mem->getByte(SP++);", nl(),
+        indent(2), r1, r2, ".high = mem->getByte(SP++);", nl()
     ] + make_cycles_and_break(3)
 
 def generate_jp_cond(op):
@@ -277,17 +261,17 @@ def generate_swap(op):
     if op & 0x07 == 0x06:
         # (HL)
         return make_cb_case(op, "SWAP (HL)") + [
-            indent(2), "HL = ", make_word("H", "L"), ";", nl(),
-            indent(2), "temp = mem->getByte(HL);", nl(),
-            indent(2), "mem->putByte(HL, "+swap("temp")+");", nl(),
-            indent(2), "F = (temp == 0 ? ZF : 0);", nl()
+            indent(2), "temp = mem->getByte(HL.word);", nl(),
+            indent(2), "mem->putByte(HL.word, "+swap("temp")+");", nl(),
+            indent(2), "AF.low = (temp == 0 ? ZF : 0);", nl()
         ] + make_cb_cycles_and_break(4)
     else:
         r = get_reg(op & 0x07)
-        return make_cb_case(op, "SWAP " + r) + [
+        reg_name = get_reg_name(op & 0x07)
+        return make_cb_case(op, "SWAP " + reg_name) + [
             indent(2), ("r = "+swap("r")+";")
             .replace("r", r), nl(),
-            indent(2), "F = (r == 0 ? ZF : 0);".replace("r", r), nl()
+            indent(2), "AF.low = (r == 0 ? ZF : 0);".replace("r", r), nl()
         ] + make_cb_cycles_and_break(2)
 
 def generate_res(op):
@@ -306,12 +290,15 @@ def generate_res(op):
         ] + make_cb_cycles_and_break(2)
 
 def get_hl():
-    return "mem->getByte("+make_word("H", "L")+")"
+    return "mem->getByte(HL.word)"
 
 def make_word(h, l):
     return "(" + h + " << 8) + " + l
 
 def get_reg(r):
+    return {0: "BC.high", 1: "BC.low", 2: "DE.high", 3: "DE.low", 4:"HL.high", 5:"HL.low", 6:"(HL)", 7:"AF.high"}[r]
+
+def get_reg_name(r):
     return {0: "B", 1: "C", 2: "D", 3: "E", 4:"H", 5:"L", 6:"(HL)", 7:"A"}[r]
 
 def get_wide_reg(r):
@@ -456,8 +443,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0x09, 0x19, 0x29, 0x39]:
-        print("".join(generate_add_hl_rr(op)))
+    for op in range(0x30, 0x38):
+        print("".join(generate_swap(op)))
 
 #test()
 main()

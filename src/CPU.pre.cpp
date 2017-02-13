@@ -49,8 +49,8 @@ CPU::step() {
     break;
 
   case 0x2F: // CPL
-    A ^= 0xff;
-    F = (F & (ZF | CF)) | NF | HF;
+    AF.high ^= 0xff;
+    AF.low = (AF.low & (ZF | CF)) | NF | HF;
     mem->cycles = 1;
     break;
 
@@ -85,29 +85,29 @@ CPU::step() {
     break;
 
   case 0xE0: // LD (0xff00 + n),A
-    mem->putByte(0xff00 + mem->getByte(PC++), A);
+    mem->putByte(0xff00 + mem->getByte(PC++), AF.high);
     mem->cycles = 3;
     break;
 
   case 0xE2: // LD (0xff00 + C),A
-    mem->putByte(0xff00 + C, A);
+    mem->putByte(0xff00 + BC.low, AF.high);
     mem->cycles = 2;
     break;
 
   case 0xE6: // AND n
-    A &= mem->getByte(PC++);
-    F = (A == 0 ? ZF : 0) | HF;
+    AF.high &= mem->getByte(PC++);
+    AF.low = (AF.high == 0 ? ZF : 0) | HF;
     mem->cycles = 2;
     break;
 
   case 0xEA: // LD (nn),A
-    mem->putByte(mem->getWord(PC), A);
+    mem->putByte(mem->getWord(PC), AF.high);
     PC += 2;
     mem->cycles = 4;
     break;
 
   case 0xF0: // LD A,(0xff00 + n)
-    A = mem->getByte(0xff00 + mem->getByte(PC++));
+    AF.high = mem->getByte(0xff00 + mem->getByte(PC++));
     mem->cycles = 3;
     break;
 
@@ -123,7 +123,7 @@ CPU::step() {
 
   case 0xFE: // CP n
     n = mem->getByte(PC++);
-    F = (A == n ? ZF : 0) | NF | ((A & 0xf) < (n & 0xf) ? HF : 0) | (A < n ? CF : 0);
+    AF.low = (AF.high == n ? ZF : 0) | NF | ((AF.high & 0xf) < (n & 0xf) ? HF : 0) | (AF.high < n ? CF : 0);
     mem->cycles = 2;
     break;
 
@@ -131,6 +131,7 @@ CPU::step() {
 // --------- END GENERATED CODE ---------
 
   default:
+    printState();
     std::stringstream fmt;
     fmt << "OP not implemented: 0x"
 	<< std::hex
@@ -170,6 +171,7 @@ CPU::doCB() {
 // --------- BEGIN GENERATED CB CODE ---------
 // --------- END GENERATED CB CODE ---------
   default:
+    printState();
     std::stringstream fmt;
     fmt << "CB OP not implemented: 0x"
 	<< std::hex
@@ -188,10 +190,10 @@ CPU::printState() {
   printWordReg("SP", SP);
   std::cout << std::endl;
 
-  printRegPair("A", A, "F", F);
-  printRegPair("B", B, "C", C);
-  printRegPair("D", D, "E", E);
-  printRegPair("H", H, "L", L);
+  printRegPair("A", AF.high, "F", AF.low);
+  printRegPair("B", BC.high, "C", BC.low);
+  printRegPair("D", DE.high, "E", DE.low);
+  printRegPair("H", HL.high, "L", HL.low);
 }
 
 void

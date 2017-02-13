@@ -21,12 +21,18 @@ private:
   unsigned short PC;
   unsigned short SP;
 
-  unsigned char A, F;
-  unsigned char B, C;
-  unsigned char D, E;
-  unsigned char H, L;
+  union reg_pair {
+    unsigned short word;
+    struct {
+#ifdef BIG_ENDIAN
+      unsigned char low, high;
+#else
+      unsigned char high, low;
+#endif
+    };
+  };
 
-  unsigned short AF, BC, DE, HL;
+  reg_pair AF, BC, DE, HL;
 
   bool IME; // Interrupt Master Enable
 };
