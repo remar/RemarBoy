@@ -1,6 +1,8 @@
 #include "Disassembler.h"
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 Disassembler::Disassembler(Memory *memory) : memory(memory) {
   setupOpToMnemonicMap();
@@ -8,8 +10,8 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 // 0 x . . . . . . . . . . . . . . . 0
-// 1 . . . . . . . . . . . . . . . . 1
-// 2 . . . . . . . . . . . . . . . . 2
+// 1 . . . . . . . . x . . . . . . . 1
+// 2 . . . . . . . . . . . . . . . x 2
 // 3 . . . . . . . . . . . . . . . . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
@@ -19,18 +21,28 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 // 9 . . . . . . . . . . . . . . . . 9
 // A . . . . . . . . . . . . . . . . A
 // B . . . . . . . . . . . . . . . . B
-// C . . . . . . . . . . . . . . . . C
-// D . . . . . . . . . . . . . . . . D
-// E . . . . . . . . . . . . . . . . E
-// F . . . . . . . . . . . . . . . . F
+// C x . . x . . . . x x x . . x . . C
+// D . . . . . . . . . x . . . . . . D
+// E x . x . . . x . . x . . . . . . E
+// F x . . x . . . . . . x x . . x . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 std::string
 Disassembler::disassemble(unsigned short address) {
   unsigned char op = memory->getByte(address);
 
+  std::stringstream fmt;
   std::string mnemonic = opToMnemonic[op];
   if(mnemonic != "") {
+    int pos;
+    if((pos = mnemonic.find("nn")) != std::string::npos) {
+      fmt << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << memory->getWord(address+1);
+      return mnemonic.replace(pos, 2, fmt.str());
+    } else if((pos = mnemonic.find("n")) != std::string::npos) {
+      fmt << std::hex << std::setw(2) << std::setfill('0') << std::uppercase
+	  << (int)memory->getByte(address+1);
+      return mnemonic.replace(pos, 1, fmt.str());
+    }
     return mnemonic;
   }
 
@@ -40,4 +52,23 @@ Disassembler::disassemble(unsigned short address) {
 void
 Disassembler::setupOpToMnemonicMap() {
   opToMnemonic[0x00] = "NOP";
+  opToMnemonic[0x18] = "JR 0xn";
+  opToMnemonic[0x2F] = "CPL";
+  opToMnemonic[0xC0] = "RET NZ";
+  opToMnemonic[0xC3] = "JP 0xnn";
+  opToMnemonic[0xC8] = "RET Z";
+  opToMnemonic[0xC9] = "RET";
+  opToMnemonic[0xCA] = "JP Z,0xnn";
+  opToMnemonic[0xCD] = "CALL 0xnn";
+  opToMnemonic[0xD9] = "RETI";
+  opToMnemonic[0xE0] = "LD (0xFFn),A";
+  opToMnemonic[0xE2] = "LD (0xFF00 + C),A";
+  opToMnemonic[0xE6] = "AND 0xn";
+  opToMnemonic[0xE9] = "JP (HL)";
+  opToMnemonic[0xEA] = "LD (0xnn),A";
+  opToMnemonic[0xF0] = "LD A,(0xFFn)";
+  opToMnemonic[0xF3] = "DI";
+  opToMnemonic[0xFA] = "LD A,(0xnn)";
+  opToMnemonic[0xFB] = "EI";
+  opToMnemonic[0xFE] = "CP 0xn";
 }
