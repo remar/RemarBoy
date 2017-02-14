@@ -31,17 +31,13 @@ std::string
 Disassembler::disassemble(unsigned short address) {
   unsigned char op = memory->getByte(address);
 
-  std::stringstream fmt;
   std::string mnemonic = opToMnemonic[op];
   if(mnemonic != "") {
     int pos;
     if((pos = mnemonic.find("nn")) != std::string::npos) {
-      fmt << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << memory->getWord(address+1);
-      return mnemonic.replace(pos, 2, fmt.str());
+      return mnemonic.replace(pos, 2, format(memory->getWord(address+1), 4));
     } else if((pos = mnemonic.find("n")) != std::string::npos) {
-      fmt << std::hex << std::setw(2) << std::setfill('0') << std::uppercase
-	  << (int)memory->getByte(address+1);
-      return mnemonic.replace(pos, 1, fmt.str());
+      return mnemonic.replace(pos, 1, format((unsigned short)memory->getByte(address+1), 2));
     }
     return mnemonic;
   }
@@ -71,4 +67,11 @@ Disassembler::setupOpToMnemonicMap() {
   opToMnemonic[0xFA] = "LD A,(0xnn)";
   opToMnemonic[0xFB] = "EI";
   opToMnemonic[0xFE] = "CP 0xn";
+}
+
+std::string
+Disassembler::format(unsigned short val, int width) {
+  std::stringstream fmt;
+  fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(width) << val;
+  return fmt.str();
 }

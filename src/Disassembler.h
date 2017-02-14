@@ -12,6 +12,7 @@ public:
 
 private:
   void setupOpToMnemonicMap();
+  std::string format(unsigned short val, int width);
 
   Memory *memory;
   std::map<unsigned char, std::string> opToMnemonic;
