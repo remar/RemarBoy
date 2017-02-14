@@ -2,6 +2,7 @@
 #define DISASSEMBLER_H
 
 #include <string>
+#include <map>
 #include "Memory.h"
 
 class Disassembler {
@@ -10,7 +11,10 @@ public:
   std::string disassemble(unsigned short address);
 
 private:
+  void setupOpToMnemonicMap();
+
   Memory *memory;
+  std::map<unsigned char, std::string> opToMnemonic;
 };
 
 #endif
