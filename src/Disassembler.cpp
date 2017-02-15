@@ -27,7 +27,7 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 // F x . . x . . . . . . x x . . x . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
-std::string
+Instruction
 Disassembler::disassemble(unsigned short address) {
   unsigned char op = memory->getByte(address);
 
@@ -35,14 +35,18 @@ Disassembler::disassemble(unsigned short address) {
   if(mnemonic != "") {
     int pos;
     if((pos = mnemonic.find("nn")) != std::string::npos) {
-      return mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1)));
+      return Instruction(mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1))),
+			 3,
+			 memory->getBytes(address));
     } else if((pos = mnemonic.find("n")) != std::string::npos) {
-      return mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1)));
+      return Instruction(mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1))),
+			 2,
+			 memory->getBytes(address));
     }
-    return mnemonic;
+    return Instruction(mnemonic, 1, memory->getBytes(address));
   }
 
-  return "---";
+  return Instruction("---", 0, 0);
 }
 
 void

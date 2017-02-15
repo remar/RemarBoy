@@ -16,6 +16,7 @@ public:
   unsigned char getOp(unsigned short address);
   void putByte(unsigned short address, unsigned char byte);
   std::list<int> getVisited();
+  unsigned char* getBytes(unsigned short address);
 
 private:
   void setupMetarom();

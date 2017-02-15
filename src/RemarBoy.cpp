@@ -13,7 +13,7 @@ void printDisassembly() {
   std::list<int> visited = memory.getVisited();
   std::list<int>::iterator it = visited.begin();
   for(;it != visited.end();it++) {
-    std::cout << "[" << std::setw(4) << std::setfill('0') << std::uppercase << std::hex << *it << "] " << disasm.disassemble(*it) << std::endl;
+    std::cout << "[" << std::setw(4) << std::setfill('0') << std::uppercase << std::hex << *it << "] " << disasm.disassemble(*it).asString() << std::endl;
   }
 }
 

@@ -66,6 +66,11 @@ Memory::getVisited() {
   return visited;
 }
 
+unsigned char*
+Memory::getBytes(unsigned short address) {
+  return &mem[address];
+}
+
 void
 Memory::setupMetarom() {
   if(metarom != 0) {

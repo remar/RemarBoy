@@ -4,11 +4,12 @@
 #include <string>
 #include <map>
 #include "Memory.h"
+#include "Instruction.h"
 
 class Disassembler {
 public:
   Disassembler(Memory *memory);
-  std::string disassemble(unsigned short address);
+  Instruction disassemble(unsigned short address);
 
 private:
   void setupOpToMnemonicMap();

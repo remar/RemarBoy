@@ -1,6 +1,6 @@
 CXX := g++
 
-OBJS = Cart.o Disassembler.o Emulator.o LCD.o Memory.o RemarBoy.o
+OBJS = Cart.o Disassembler.o Emulator.o Instruction.o LCD.o Memory.o RemarBoy.o
 
 all: remarboy
 
