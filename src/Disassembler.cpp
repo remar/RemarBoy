@@ -35,9 +35,9 @@ Disassembler::disassemble(unsigned short address) {
   if(mnemonic != "") {
     int pos;
     if((pos = mnemonic.find("nn")) != std::string::npos) {
-      return mnemonic.replace(pos, 2, format(memory->getWord(address+1), 4));
+      return mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1)));
     } else if((pos = mnemonic.find("n")) != std::string::npos) {
-      return mnemonic.replace(pos, 1, format((unsigned short)memory->getByte(address+1), 2));
+      return mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1)));
     }
     return mnemonic;
   }
@@ -70,8 +70,15 @@ Disassembler::setupOpToMnemonicMap() {
 }
 
 std::string
-Disassembler::format(unsigned short val, int width) {
+Disassembler::formatByte(unsigned char val) {
   std::stringstream fmt;
-  fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(width) << val;
+  fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(2) << (int)val;
+  return fmt.str();
+}
+
+std::string
+Disassembler::formatWord(unsigned short val) {
+  std::stringstream fmt;
+  fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(4) << val;
   return fmt.str();
 }
