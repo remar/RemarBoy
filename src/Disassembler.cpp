@@ -35,7 +35,6 @@ Disassembler::disassemble(unsigned short address) {
     std::string neg = (op & 0x08) == 0x08 ? "":"N";
     std::string flag = (op & 0x10) == 0x10 ? "C":"Z";
     unsigned char n = memory->getByte(address + 1);
-    std::cout << "N: " << (int)n << std::endl;
     return Instruction("JR "+neg+flag+",0x"+formatByte(n),
 		       2,
 		       memory->getBytes(address));
