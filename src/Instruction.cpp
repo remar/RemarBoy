@@ -12,7 +12,7 @@ Instruction::Instruction(std::string mnemonic, int len, unsigned char *data)
 std::string
 Instruction::asString() {
   std::stringstream fmt;
-  fmt << std::setfill(' ') << std::setw(15) << std::left << mnemonic;
+  fmt << std::setfill(' ') << std::setw(15) << std::left << mnemonic << std::right;
   if(len > 0) {
     fmt << "   (";
     for(int i = 0;i < len - 1;i++) {
