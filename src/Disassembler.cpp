@@ -11,8 +11,8 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 // 0 x . . . . . . . . . . . . . . . 0
 // 1 . . . . . . . . x . . . . . . . 1
-// 2 . . . . . . . . . . . . . . . x 2
-// 3 . . . . . . . . . . . . . . . . 3
+// 2 x . . . . . . . x . . . . . . x 2
+// 3 x . . . . . . . x . . . . . . . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
 // 6 . . . . . . . . . . . . . . . . 6
@@ -31,22 +31,32 @@ Instruction
 Disassembler::disassemble(unsigned short address) {
   unsigned char op = memory->getByte(address);
 
-  std::string mnemonic = opToMnemonic[op];
-  if(mnemonic != "") {
-    int pos;
-    if((pos = mnemonic.find("nn")) != std::string::npos) {
-      return Instruction(mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1))),
-			 3,
-			 memory->getBytes(address));
-    } else if((pos = mnemonic.find("n")) != std::string::npos) {
-      return Instruction(mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1))),
-			 2,
-			 memory->getBytes(address));
+  if((op & 0xe7) == 0x20) { // JR conditional,n
+    std::string neg = (op & 0x08) == 0x08 ? "":"N";
+    std::string flag = (op & 0x10) == 0x10 ? "C":"Z";
+    unsigned char n = memory->getByte(address + 1);
+    std::cout << "N: " << (int)n << std::endl;
+    return Instruction("JR "+neg+flag+",0x"+formatByte(n),
+		       2,
+		       memory->getBytes(address));
+  } else {
+    std::string mnemonic = opToMnemonic[op];
+    if(mnemonic != "") {
+      int pos;
+      if((pos = mnemonic.find("nn")) != std::string::npos) {
+	return Instruction(mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1))),
+			   3,
+			   memory->getBytes(address));
+      } else if((pos = mnemonic.find("n")) != std::string::npos) {
+	return Instruction(mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1))),
+			   2,
+			   memory->getBytes(address));
+      }
+      return Instruction(mnemonic, 1, memory->getBytes(address));
     }
-    return Instruction(mnemonic, 1, memory->getBytes(address));
-  }
 
-  return Instruction("---", 0, 0);
+    return Instruction("---", 0, 0);
+  }
 }
 
 void
