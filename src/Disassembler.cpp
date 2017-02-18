@@ -35,32 +35,22 @@ Disassembler::disassemble(unsigned short address) {
     std::string neg = (op & 0x08) == 0x08 ? "":"N";
     std::string flag = (op & 0x10) == 0x10 ? "C":"Z";
     unsigned char n = memory->getByte(address + 1);
-    return Instruction("JR "+neg+flag+",0x"+formatByte(n),
-		       2,
-		       memory->getBytes(address));
+    return mkInstr("JR "+neg+flag+",0x"+formatByte(n), address);
   } else if((op & 0xcf) == 0x01) { // LD rr,nn
     int nn = memory->getWord(address + 1);
-    return Instruction("LD " + getWideRegNameSP((op & 0x30) >> 4) + ",0x"+formatWord(nn),
-		       3,
-		       memory->getBytes(address));
+    return mkInstr("LD " + getWideRegNameSP((op & 0x30) >> 4) + ",0x"+formatWord(nn), address);
   } else if((op & 0xcf) == 0x02) { // LD (rr+-),A
-    return Instruction("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A",
-		       1,
-		       memory->getBytes(address));
+    return mkInstr("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A", address);
   } else {
     std::string mnemonic = opToMnemonic[op];
     if(mnemonic != "") {
       int pos;
       if((pos = mnemonic.find("nn")) != std::string::npos) {
-	return Instruction(mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1))),
-			   3,
-			   memory->getBytes(address));
+	return mkInstr(mnemonic.replace(pos, 2, formatWord(memory->getWord(address+1))), address);
       } else if((pos = mnemonic.find("n")) != std::string::npos) {
-	return Instruction(mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1))),
-			   2,
-			   memory->getBytes(address));
+	return mkInstr(mnemonic.replace(pos, 1, formatByte(memory->getByte(address+1))), address);
       }
-      return Instruction(mnemonic, 1, memory->getBytes(address));
+      return mkInstr(mnemonic, address);
     }
 
     return Instruction("---", 0, 0);
@@ -103,6 +93,32 @@ Disassembler::formatWord(unsigned short val) {
   std::stringstream fmt;
   fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(4) << val;
   return fmt.str();
+}
+
+Instruction
+Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
+  const int lengths[] = {
+  //0 1 2 3 4 5 6 7 8 9 A B C D E F
+    1,3,1,1,1,1,2,1,3,1,1,1,1,1,2,1, // 0
+    2,3,1,1,1,1,2,1,2,1,1,1,1,1,2,1, // 1
+    2,3,1,1,1,1,2,1,2,1,1,1,1,1,2,1, // 2
+    2,3,1,1,1,1,2,1,2,1,1,1,1,1,2,1, // 3
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 4
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 5
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 6
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 7
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 8
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 9
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // A
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // B
+    1,1,3,3,3,1,2,1,1,1,3,1,3,3,2,1, // C
+    1,1,3,0,3,1,2,1,1,1,3,0,3,0,2,1, // D
+    2,1,2,0,0,1,2,1,2,1,3,0,0,0,2,1, // E
+    2,1,2,1,0,1,2,1,2,1,3,1,0,0,2,1  // F
+  //0 1 2 3 4 5 6 7 8 9 A B C D E F
+  };
+  unsigned char op = memory->getByte(address);
+  return Instruction(mnemonic, lengths[op], memory->getBytes(address));
 }
 
 std::string
