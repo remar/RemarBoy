@@ -16,6 +16,7 @@ private:
   std::string formatByte(unsigned char val);
   std::string formatWord(unsigned short val);
   std::string getWideRegNameSP(int widereg);
+  std::string getIndirectRegName(int indirectreg);
 
   Memory *memory;
   std::map<unsigned char, std::string> opToMnemonic;

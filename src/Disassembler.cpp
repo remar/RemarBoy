@@ -9,10 +9,10 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-// 0 x x . . . . . . . . . . . . . . 0
-// 1 . x . . . . . . x . . . . . . . 1
-// 2 x x . . . . . . x . . . . . . x 2
-// 3 x x . . . . . . x . . . . . . . 3
+// 0 x x x . . . . . . . . . . . . . 0
+// 1 . x x . . . . . x . . . . . . . 1
+// 2 x x x . . . . . x . . . . . . x 2
+// 3 x x x . . . . . x . . . . . . . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
 // 6 . . . . . . . . . . . . . . . . 6
@@ -42,6 +42,10 @@ Disassembler::disassemble(unsigned short address) {
     int nn = memory->getWord(address + 1);
     return Instruction("LD " + getWideRegNameSP((op & 0x30) >> 4) + ",0x"+formatWord(nn),
 		       3,
+		       memory->getBytes(address));
+  } else if((op & 0xcf) == 0x02) { // LD (rr+-),A
+    return Instruction("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A",
+		       1,
 		       memory->getBytes(address));
   } else {
     std::string mnemonic = opToMnemonic[op];
@@ -105,4 +109,10 @@ std::string
 Disassembler::getWideRegNameSP(int widereg) {
   const std::string wideregs[] = {"BC", "DE", "HL", "SP"};
   return wideregs[widereg];
+}
+
+std::string
+Disassembler::getIndirectRegName(int indirectreg) {
+  const std::string indirectregs[] = {"(BC)", "(DE)", "(HL+)", "(HL-)"};
+  return indirectregs[indirectreg];
 }
