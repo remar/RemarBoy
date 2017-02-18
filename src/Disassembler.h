@@ -16,6 +16,7 @@ private:
   std::string formatByte(unsigned char val);
   std::string formatWord(unsigned short val);
   Instruction mkInstr(std::string mnemonic, unsigned short address);
+  std::string getRegName(int reg);
   std::string getWideRegNameSP(int widereg);
   std::string getIndirectRegName(int indirectreg);
 

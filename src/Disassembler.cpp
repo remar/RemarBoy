@@ -9,10 +9,10 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-// 0 x x x x . . . . . . . . . . . . 0
-// 1 . x x x . . . . x . . . . . . . 1
-// 2 x x x x . . . . x . . . . . . x 2
-// 3 x x x x . . . . x . . . . . . . 3
+// 0 x x x x x . . . . . . . x . . . 0
+// 1 . x x x x . . . x . . . x . . . 1
+// 2 x x x x x . . . x . . . x . . x 2
+// 3 x x x x x . . . x . . . x . . . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
 // 6 . . . . . . . . . . . . . . . . 6
@@ -43,6 +43,8 @@ Disassembler::disassemble(unsigned short address) {
     return mkInstr("LD " + getIndirectRegName((op & 0x30) >> 4) + ",A", address);
   } else if((op & 0xcf) == 0x03) { // INC rr
     return mkInstr("INC " + getWideRegNameSP((op & 0x30) >> 4), address);
+  } else if((op & 0xc7) == 0x04) { // INC r
+    return mkInstr("INC " + getRegName((op & 0x38) >> 3), address);
   } else {
     std::string mnemonic = opToMnemonic[op];
     if(mnemonic != "") {
@@ -121,6 +123,12 @@ Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
   };
   unsigned char op = memory->getByte(address);
   return Instruction(mnemonic, lengths[op], memory->getBytes(address));
+}
+
+std::string
+Disassembler::getRegName(int reg) {
+  const std::string regs[] = {"B", "C", "D", "E", "H", "L", "(HL)", "A"};
+  return regs[reg];
 }
 
 std::string
