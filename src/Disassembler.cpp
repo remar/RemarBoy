@@ -9,10 +9,10 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-// 0 x . . . . . . . . . . . . . . . 0
-// 1 . . . . . . . . x . . . . . . . 1
-// 2 x . . . . . . . x . . . . . . x 2
-// 3 x . . . . . . . x . . . . . . . 3
+// 0 x x . . . . . . . . . . . . . . 0
+// 1 . x . . . . . . x . . . . . . . 1
+// 2 x x . . . . . . x . . . . . . x 2
+// 3 x x . . . . . . x . . . . . . . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
 // 6 . . . . . . . . . . . . . . . . 6
@@ -37,6 +37,11 @@ Disassembler::disassemble(unsigned short address) {
     unsigned char n = memory->getByte(address + 1);
     return Instruction("JR "+neg+flag+",0x"+formatByte(n),
 		       2,
+		       memory->getBytes(address));
+  } else if((op & 0xcf) == 0x01) { // LD rr,nn
+    int nn = memory->getWord(address + 1);
+    return Instruction("LD " + getWideRegNameSP((op & 0x30) >> 4) + ",0x"+formatWord(nn),
+		       3,
 		       memory->getBytes(address));
   } else {
     std::string mnemonic = opToMnemonic[op];
@@ -94,4 +99,10 @@ Disassembler::formatWord(unsigned short val) {
   std::stringstream fmt;
   fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(4) << val;
   return fmt.str();
+}
+
+std::string
+Disassembler::getWideRegNameSP(int widereg) {
+  const std::string wideregs[] = {"BC", "DE", "HL", "SP"};
+  return wideregs[widereg];
 }

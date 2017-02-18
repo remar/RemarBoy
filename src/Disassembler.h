@@ -15,6 +15,7 @@ private:
   void setupOpToMnemonicMap();
   std::string formatByte(unsigned char val);
   std::string formatWord(unsigned short val);
+  std::string getWideRegNameSP(int widereg);
 
   Memory *memory;
   std::map<unsigned char, std::string> opToMnemonic;
