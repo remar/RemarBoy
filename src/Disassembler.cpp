@@ -70,6 +70,8 @@ Disassembler::disassemble(unsigned short address) {
   } else if((op & 0xc7) == 0xc7) { // RST n
     int dest = ((op & 0x28) >> 3);
     return mkInstr("RST " + std::to_string(dest) + " (0x" + formatByte(dest * 8) + ")", address);
+  } else if(op == 0xcb) { // CB prefix
+    return disassembleCB(address);
   } else {
     std::string mnemonic = opToMnemonic[op];
     if(mnemonic != "") {
@@ -140,7 +142,7 @@ Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 9
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // A
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // B
-    1,1,3,3,3,1,2,1,1,1,3,1,3,3,2,1, // C
+    1,1,3,3,3,1,2,1,1,1,3,2,3,3,2,1, // C
     1,1,3,0,3,1,2,1,1,1,3,0,3,0,2,1, // D
     2,1,2,0,0,1,2,1,2,1,3,0,0,0,2,1, // E
     2,1,2,1,0,1,2,1,2,1,3,1,0,0,2,1  // F
@@ -148,6 +150,39 @@ Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
   };
   unsigned char op = memory->getByte(address);
   return Instruction(mnemonic, lengths[op], memory->getBytes(address));
+}
+
+//   0 1 2 3 4 5 6 7 8 9 A B C D E F
+// 0 x x x x x x x x x x x x x x x x 0
+// 1 x x x x x x x x x x x x x x x x 1
+// 2 x x x x x x x x x x x x x x x x 2
+// 3 x x x x x x x x x x x x x x x x 3
+// 4 . . . . . . . . . . . . . . . . 4
+// 5 . . . . . . . . . . . . . . . . 5
+// 6 . . . . . . . . . . . . . . . . 6
+// 7 . . . . . . . . . . . . . . . . 7
+// 8 x x x x x x x x x x x x x x x x 8
+// 9 x x x x x x x x x x x x x x x x 9
+// A x x x x x x x x x x x x x x x x A
+// B x x x x x x x x x x x x x x x x B
+// C . . . . . . . . . . . . . . . . C
+// D . . . . . . . . . . . . . . . . D
+// E . . . . . . . . . . . . . . . . E
+// F . . . . . . . . . . . . . . . . F
+//   0 1 2 3 4 5 6 7 8 9 A B C D E F
+
+Instruction
+Disassembler::disassembleCB(unsigned short address) {
+  unsigned char op = memory->getByte(address + 1);
+  if(op >= 0x00 && op < 0x40) { // RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL
+    const std::string mnemonics[] = {"RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP", "SRL"};
+    return mkInstr(mnemonics[op >> 3] + " " + getRegName(op & 0x07), address);
+  } else if((op & 0xff) >= 0x80 && (op & 0xff) < 0xc0) { // RES r
+    int bit = (op - 0x80) >> 3;
+    return mkInstr("RES " + std::to_string(bit) + "," + getRegName(op & 0x07), address);
+  } else {
+    return mkInstr("--- CB", address);
+  }
 }
 
 std::string
