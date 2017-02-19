@@ -21,10 +21,10 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 // 9 x x x x x x x x x x x x x x x x 9
 // A x x x x x x x x x x x x x x x x A
 // B x x x x x x x x x x x x x x x x B
-// C x . . x . . . . x x x . . x . . C
-// D . . . . . . . . . x . . . . . . D
-// E x . x . . . x . . x . . . . . . E
-// F x . . x . . . . . . x x . . x . F
+// C x x . x . . . . x x x . . x . . C
+// D . x . . . . . . . x . . . . . . D
+// E x x x . . . x . . x . . . . . . E
+// F x x . x . . . . . . x x . . x . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 Instruction
@@ -63,6 +63,8 @@ Disassembler::disassemble(unsigned short address) {
   } else if(op >= 0x80 && op <= 0xbf) { // ADD, ADC, SUB, SBC, AND, XOR, OR, CP
     const std::string mne[] = {"ADD","ADC","SUB","SBC","AND","XOR","OR","CP"};
     return mkInstr(mne[(op - 0x80) >> 3] + " " + getRegName(op & 0x07), address);
+  } else if((op & 0xcf) == 0xc1) { // POP rr
+    return mkInstr("POP " + getWideRegNameAF((op & 0x30) >> 4), address);
   } else {
     std::string mnemonic = opToMnemonic[op];
     if(mnemonic != "") {
@@ -147,6 +149,12 @@ std::string
 Disassembler::getRegName(int reg) {
   const std::string regs[] = {"B", "C", "D", "E", "H", "L", "(HL)", "A"};
   return regs[reg];
+}
+
+std::string
+Disassembler::getWideRegNameAF(int widereg) {
+  const std::string wideregs[] = {"BC", "DE", "HL", "AF"};
+  return wideregs[widereg];
 }
 
 std::string
