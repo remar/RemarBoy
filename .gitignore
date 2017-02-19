@@ -4,3 +4,4 @@ remarboy/bin
 remarboy/.settings
 *.o
 CPU.cpp
+src/remarboy
