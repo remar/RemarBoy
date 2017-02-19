@@ -17,10 +17,10 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 // 5 x x x x x x x x x x x x x x x x 5
 // 6 x x x x x x x x x x x x x x x x 6
 // 7 x x x x x x . x x x x x x x x x 7
-// 8 . . . . . . . . . . . . . . . . 8
-// 9 . . . . . . . . . . . . . . . . 9
-// A . . . . . . . . . . . . . . . . A
-// B . . . . . . . . . . . . . . . . B
+// 8 x x x x x x x x x x x x x x x x 8
+// 9 x x x x x x x x x x x x x x x x 9
+// A x x x x x x x x x x x x x x x x A
+// B x x x x x x x x x x x x x x x x B
 // C x . . x . . . . x x x . . x . . C
 // D . . . . . . . . . x . . . . . . D
 // E x . x . . . x . . x . . . . . . E
@@ -60,6 +60,9 @@ Disassembler::disassemble(unsigned short address) {
     std::string target = getRegName((op & 0x38) >> 3);
     std::string source = getRegName(op & 0x07);
     return mkInstr("LD "+target+","+source, address);
+  } else if(op >= 0x80 && op <= 0xbf) { // ADD, ADC, SUB, SBC, AND, XOR, OR, CP
+    const std::string mne[] = {"ADD","ADC","SUB","SBC","AND","XOR","OR","CP"};
+    return mkInstr(mne[(op - 0x80) >> 3] + " " + getRegName(op & 0x07), address);
   } else {
     std::string mnemonic = opToMnemonic[op];
     if(mnemonic != "") {
