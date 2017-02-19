@@ -21,10 +21,10 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 // 9 x x x x x x x x x x x x x x x x 9
 // A x x x x x x x x x x x x x x x x A
 // B x x x x x x x x x x x x x x x x B
-// C x x . x . . . . x x x . . x . . C
-// D . x . . . . . . . x . . . . . . D
-// E x x x . . . x . . x . . . . . . E
-// F x x . x . . . . . . x x . . x . F
+// C x x . x . x . . x x x . . x . . C
+// D . x . . . x . . . x . . . . . . D
+// E x x x . . x x . . x . . . . . . E
+// F x x . x . x . . . . x x . . x . F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 Instruction
@@ -65,6 +65,8 @@ Disassembler::disassemble(unsigned short address) {
     return mkInstr(mne[(op - 0x80) >> 3] + " " + getRegName(op & 0x07), address);
   } else if((op & 0xcf) == 0xc1) { // POP rr
     return mkInstr("POP " + getWideRegNameAF((op & 0x30) >> 4), address);
+  } else if((op & 0xcf) == 0xc5) { // PUSH rr
+    return mkInstr("PUSH " + getWideRegNameAF((op & 0x30) >> 4), address);
   } else {
     std::string mnemonic = opToMnemonic[op];
     if(mnemonic != "") {
