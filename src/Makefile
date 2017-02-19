@@ -1,5 +1,7 @@
 CXX := g++
 
+CXXFLAGS := -std=c++11
+
 OBJS = Cart.o Disassembler.o Emulator.o Instruction.o LCD.o Memory.o RemarBoy.o
 
 all: remarboy
@@ -8,7 +10,7 @@ CPU.cpp: generate_ops.py CPU.pre.cpp
 	./generate_ops.py
 
 CPU.o: CPU.cpp
-	$(CXX) -c -o $@ $^
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 remarboy: $(OBJS) CPU.o
 	$(CXX) -o $@ $^
