@@ -3,6 +3,7 @@
 
 #include "CPU.h"
 #include "LCD.h"
+#include "Input.h"
 #include "Memory.h"
 #include <string>
 #include <list>
@@ -17,6 +18,7 @@ public:
 private:
   CPU *cpu;
   LCD *lcd;
+  Input *input;
   Memory *memory;
 };
 

@@ -3,6 +3,7 @@
 Emulator::Emulator(Memory *memory) : memory(memory) {
   cpu = new CPU(memory);
   lcd = new LCD(memory);
+  input = new Input(memory);
 }
 
 void
@@ -14,6 +15,7 @@ void
 Emulator::step() {
   cpu->step();
   lcd->step();
+  input->step();
 }
 
 void
