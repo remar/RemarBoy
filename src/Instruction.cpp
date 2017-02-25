@@ -12,9 +12,9 @@ Instruction::Instruction(std::string mnemonic, int len, unsigned char *data)
 std::string
 Instruction::asString() {
   std::stringstream fmt;
-  fmt << std::setfill(' ') << std::setw(15) << std::left << mnemonic << std::right;
+  fmt << std::setfill(' ') << std::setw(20) << std::left << mnemonic << std::right;
   if(len > 0) {
-    fmt << "   (";
+    fmt << "(";
     for(int i = 0;i < len - 1;i++) {
       fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(2) << (int)data[i] << ", ";
     }
