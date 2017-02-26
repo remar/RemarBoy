@@ -1,9 +1,12 @@
 #include "DisassemblyEngine.h"
+#include "Console.h"
 
 DisassemblyEngine disassemblyEngine;
 
 int main() {
+  Console console(disassemblyEngine);
+
   disassemblyEngine.loadRom("/home/andreas/Spel/roms/gb/Tetris.gb");
-  disassemblyEngine.runSteps(100000);
-  disassemblyEngine.printDisassembly();
+
+  console.run();
 }
