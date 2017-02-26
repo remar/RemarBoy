@@ -55,7 +55,7 @@ Console::runSteps(std::vector<std::string> &tokens) {
     try { 
       steps = stoi(tokens[1]);
     } catch(const out_of_range) {
-      cout << "Number of out bounds (" << tokens[1] << ")" << endl;
+      cout << "Number out of bounds (" << tokens[1] << ")" << endl;
       return;
     } catch(...) {
       cout << "Faulty argument to run (" << tokens[1] << ")" << endl;
