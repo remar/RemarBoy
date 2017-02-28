@@ -25,7 +25,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 4 g g g g g g g g g g g g g g g g 4
 // 5 g g g g g g g g g g g g g g g g 5
 // 6 g g g g g g g g g g g g g g g g 6
-// 7 . . . . . . . . g g g g g g g g 7
+// 7 g g g g g g . g g g g g g g g g 7
 // 8 g g g g g g g g . . . . . . . . 8
 // 9 . . . . . . . . . . . . . . . . 9
 // A g g g g g g g g g g g g g g g g A

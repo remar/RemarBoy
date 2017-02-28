@@ -132,6 +132,13 @@ def generate_ld_r_r(op):
             indent(2), dest, " = ", src, ";", nl()
         ] + make_cycles_and_break(1)
 
+def generate_ld_hl_r(op):
+    src = get_reg(op & 0x07)
+    src_name = get_reg_name(op & 0x07)
+    return make_case(op, "LD (HL)," + src_name) + [
+        indent(2), "mem->putByte(HL.word, " + src + ");", nl()
+    ] + make_cycles_and_break(2)
+
 def generate_add(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
     r_name = get_reg_name(op & 0x07)
@@ -354,6 +361,9 @@ def generate_opcodes():
     for op in range(0x40, 0x70):
         ops.extend(generate_ld_r_r(op))
 
+    for op in [0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x77]:
+        ops.extend(generate_ld_hl_r(op))
+
     for op in range(0x78, 0x80):
         ops.extend(generate_ld_r_r(op))
 
@@ -432,8 +442,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0xc0, 0xc8, 0xd0, 0xd8]:
-        print("".join(generate_ret_cond(op)))
+    for op in [0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x77]:
+        print("".join(generate_ld_hl_r(op)))
 
 #test()
 main()
