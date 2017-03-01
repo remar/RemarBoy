@@ -14,6 +14,7 @@ public:
   void insertCart(std::string path);
   void step();
   void printState();
+  int getTotalCPUCycles();
 
 private:
   CPU *cpu;

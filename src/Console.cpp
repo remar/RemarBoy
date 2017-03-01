@@ -41,6 +41,8 @@ Console::execute(string command) {
     cout << "{TODO: show list of commands here}" << endl;
   } else if(op == "run") {
     runSteps(tokens);
+  } else if(op == "speed") {
+    printSpeed();
   } else {
     cout << "Unrecognized command \"" << op << "\", try \"help\"" << endl;
   }
@@ -62,5 +64,15 @@ Console::runSteps(std::vector<std::string> &tokens) {
       return;
     }
     engine.runSteps(steps);
+  }
+}
+
+void
+Console::printSpeed() {
+  int cycles = engine.getCyclesPerSecond();
+  if(cycles == 0) {
+    cout << "Cycles/sec: ?" << endl;
+  } else {
+    cout << "Cycles/sec: " << cycles << endl;
   }
 }

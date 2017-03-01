@@ -15,6 +15,7 @@ private:
   void execute(std::string command);
 
   void runSteps(std::vector<std::string> &tokens);
+  void printSpeed();
 
   DisassemblyEngine &engine;
   bool quit;

@@ -22,3 +22,8 @@ void
 Emulator::printState() {
   cpu->printState();
 }
+
+int
+Emulator::getTotalCPUCycles() {
+  return cpu->getTotalCycles();
+}

@@ -11,11 +11,13 @@ public:
   void loadRom(std::string path);
   void runSteps(int steps);
   void printDisassembly();
+  int getCyclesPerSecond();
 
 private:
   Memory memory;
   Emulator *emulator;
   Disassembler *disassembler;
+  int cyclesPerSecondLastRun;
 };
 
 #endif

@@ -286,6 +286,11 @@ CPU::printState() {
   std::cout << "Total Cycles: " << std::dec << accum_cycles << std::endl;
 }
 
+int
+CPU::getTotalCycles() {
+  return accum_cycles;
+}
+
 void
 CPU::printWordReg(std::string name, unsigned short value) {
   std::cout << name << ": " << std::setw(4) << std::setfill('0') << std::uppercase << std::hex << value;

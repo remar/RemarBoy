@@ -8,6 +8,7 @@ public:
   CPU(Memory* memory);
   void step();
   void printState();
+  int getTotalCycles();
 
 private:
   void doCB();
