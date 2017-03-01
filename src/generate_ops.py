@@ -193,6 +193,21 @@ def generate_or(op):
             indent(2), "AF.low = AF.high == 0 ? ZF : 0;", nl()
         ] + make_cycles_and_break(cycles)
 
+def generate_cp(op):
+    r = get_reg(op & 0x07)
+    r_name = get_reg_name(op & 0x07)
+    if (op & 0x07) == 0x06: # (HL)
+        return make_case(op, "CP (HL)") + [
+            indent(2), "n = ", get_hl(), ";", nl(),
+            indent(2), "AF.low = NF | (AF.high == n ? ZF : 0) | (AF.high < n ? CF : 0) ",
+            "| ((AF.high & 0x0f) < (n & 0x0f) ? HF : 0);", nl()
+        ] + make_cycles_and_break(2)
+    else:
+        return make_case(op, "CP " + r_name) + [
+            indent(2), "AF.low = NF | (AF.high == ", r, " ? ZF : 0) | (AF.high < ", r, " ? CF : 0) ",
+            "| ((AF.high & 0x0f) < (", r, " & 0x0f) ? HF : 0);", nl()
+        ] + make_cycles_and_break(1)
+
 def generate_ret_cond(op):
     def flag(op):
         return "CF" if op & 0x10 == 0x10 else "ZF"
@@ -427,6 +442,9 @@ def generate_opcodes():
     for op in range(0xb0, 0xb8):
         ops.extend(generate_or(op))
 
+    for op in range(0xb8, 0xc0):
+        ops.extend(generate_cp(op))
+
     for op in [0xc0, 0xc8, 0xd0, 0xd8]:
         ops.extend(generate_ret_cond(op))
 
@@ -491,8 +509,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x88, 0x90):
-        print("".join(generate_adc(op)))
+    for op in range(0xb8, 0xc0):
+        print("".join(generate_cp(op)))
 
 #test()
 main()

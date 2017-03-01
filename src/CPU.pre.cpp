@@ -29,7 +29,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 8 g g g g g g g g g g g g g g g g 8
 // 9 . . . . . . . . . . . . . . . . 9
 // A g g g g g g g g g g g g g g g g A
-// B g g g g g g g g . . . . . . . . B
+// B g g g g g g g g g g g g g g g g B
 // C g g g x . g x g g x g . . x . g C
 // D g g g   . g . g g x g   .   . g D
 // E x g x     g x g . x x       . g E
