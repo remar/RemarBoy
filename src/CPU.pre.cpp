@@ -30,7 +30,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // 9 . . . . . . . . . . . . . . . . 9
 // A g g g g g g g g g g g g g g g g A
 // B g g g g g g g g . . . . . . . . B
-// C g g g x . g . g g x g . . x . g C
+// C g g g x . g x g g x g . . x . g C
 // D g g g   . g . g g x g   .   . g D
 // E x g x     g x g . x x       . g E
 // F x g . x   g . g . . x x     x g F
@@ -104,6 +104,15 @@ CPU::step() {
   case 0xC3: // JP nn
     PC = mem->getWord(PC);
     mem->cycles = 4;
+    break;
+
+  case 0xC6: // ADD n
+    n = mem->getByte(PC++);
+    halfcarry = (AF.high & 0x0f) + (n & 0x0f) > 0x0f;
+    carry = (AF.high + n) > 0xff;
+    AF.high += n;
+    AF.low = (AF.high == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);
+    mem->cycles = 2;
     break;
 
   case 0xC9: // RET
