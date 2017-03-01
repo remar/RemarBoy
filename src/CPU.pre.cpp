@@ -223,7 +223,7 @@ CPU::step() {
 // 0 . . . . . . . . . . . . . . . . 0
 // 1 . . . . . . . . . . . . . . . . 1
 // 2 g g g g g g g g . . . . . . . . 2
-// 3 g g g g g g g g . . . . . . . . 3
+// 3 g g g g g g g g g g g g g g g g 3
 // 4 g g g g g g g g g g g g g g g g 4
 // 5 g g g g g g g g g g g g g g g g 5
 // 6 g g g g g g g g g g g g g g g g 6

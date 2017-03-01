@@ -293,6 +293,24 @@ def generate_swap(op):
             indent(2), "AF.low = (r == 0 ? ZF : 0);".replace("r", r), nl()
         ] + make_cb_cycles_and_break(2)
 
+def generate_srl(op):
+    if op & 0x07 == 0x06: # (HL)
+        return make_cb_case(op, "SLA (HL)") + [
+            indent(2), "temp = mem->getByte(HL.word);", nl(),
+            indent(2), "carry = temp == 0x01;", nl(),
+            indent(2), "temp >>= 1;", nl(),
+            indent(2), "mem->putByte(HL.word, temp);", nl(),
+            indent(2), "AF.low = (carry ? CF : 0) | (temp == 0 ? ZF : 0);", nl()
+        ] + make_cb_cycles_and_break(4)
+    else:
+        reg = get_reg(op & 0x07)
+        reg_name = get_reg_name(op & 0x07)
+        return make_cb_case(op, "SLA " + reg_name) + [
+            indent(2), "carry = ", reg, " == 0x01;", nl(),
+            indent(2), reg, " >>= 1;", nl(),
+            indent(2), "AF.low = (carry ? CF : 0) | (", reg, " == 0 ? ZF : 0);", nl()
+        ] + make_cb_cycles_and_break(2)
+
 def generate_bit(op):
     bit = (op - 0x40)//8
     r = get_reg(op & 0x07) if (op & 0x07 != 0x06) else "mem->getByte(HL.word)"
@@ -441,6 +459,9 @@ def generate_cb_opcodes():
     for op in range(0x30, 0x38):
         ops.extend(generate_swap(op))
 
+    for op in range(0x38, 0x40):
+        ops.extend(generate_srl(op))
+
     for op in range(0x40, 0x80):
         ops.extend(generate_bit(op))
 
@@ -476,8 +497,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x40, 0x80):
-        print("".join(generate_bit(op)))
+    for op in range(0x38, 0x40):
+        print("".join(generate_srl(op)))
 
 #test()
 main()
