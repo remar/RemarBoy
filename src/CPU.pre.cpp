@@ -207,7 +207,7 @@ CPU::step() {
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 // 0 . . . . . . . . . . . . . . . . 0
 // 1 . . . . . . . . . . . . . . . . 1
-// 2 . . . . . . . . . . . . . . . . 2
+// 2 g g g g g g g g . . . . . . . . 2
 // 3 g g g g g g g g . . . . . . . . 3
 // 4 . . . . . . . . . . . . . . . . 4
 // 5 . . . . . . . . . . . . . . . . 5
@@ -227,6 +227,7 @@ void
 CPU::doCB() {
   unsigned char op = mem->getByte(PC++);
   unsigned char temp;
+  bool carry;
 
   switch(op) {
 // --------- BEGIN GENERATED CB CODE ---------

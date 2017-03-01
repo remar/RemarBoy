@@ -255,6 +255,24 @@ def generate_rst(op):
     ] + make_cycles_and_break(4)
 
 # CB op codes
+def generate_sla(op):
+    if op & 0x07 == 0x06: # (HL)
+        return make_cb_case(op, "SLA (HL)") + [
+            indent(2), "temp = mem->getByte(HL.word);", nl(),
+            indent(2), "carry = temp == 0x80;", nl(),
+            indent(2), "temp <<= 1;", nl(),
+            indent(2), "mem->putByte(HL.word, temp);", nl(),
+            indent(2), "AF.low = (carry ? CF : 0) | (temp == 0 ? ZF : 0);", nl()
+        ] + make_cb_cycles_and_break(4)
+    else:
+        reg = get_reg(op & 0x07)
+        reg_name = get_reg_name(op & 0x07)
+        return make_cb_case(op, "SLA " + reg_name) + [
+            indent(2), "carry = ", reg, " == 0x80;", nl(),
+            indent(2), reg, " <<= 1;", nl(),
+            indent(2), "AF.low = (carry ? CF : 0) | (", reg, " == 0 ? ZF : 0);", nl()
+        ] + make_cb_cycles_and_break(2)
+
 def generate_swap(op):
     def swap(s):
         return "((s & 0x0f) << 4) | ((s & 0xf0) >> 4)".replace("s", s)
@@ -407,6 +425,9 @@ def ops_not_included_yet():
 def generate_cb_opcodes():
     ops = []
 
+    for op in range(0x20, 0x28):
+        ops.extend(generate_sla(op))
+
     for op in range(0x30, 0x38):
         ops.extend(generate_swap(op))
 
@@ -442,8 +463,8 @@ def main():
     f.close()
 
 def test():
-    for op in [0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x77]:
-        print("".join(generate_ld_hl_r(op)))
+    for op in range(0x20, 0x28):
+        print("".join(generate_sla(op)))
 
 #test()
 main()
