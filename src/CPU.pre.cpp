@@ -33,7 +33,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // C g g g x . g x g g x g . . x . g C
 // D g g g   . g . g g x g   .   . g D
 // E x g x     g x g . x x       . g E
-// F x g . x   g . g . . x x     x g F
+// F x g . x   g x g . . x x     x g F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 void
@@ -176,6 +176,12 @@ CPU::step() {
   case 0xF3: // DI
     IME = false;
     mem->cycles = 1;
+    break;
+
+  case 0xF6: // OR n
+    AF.high |= mem->getByte(PC++);
+    AF.low = (AF.high == 0 ? ZF : 0);
+    mem->cycles = 2;
     break;
 
   case 0xFA: // LD A,(nn)
