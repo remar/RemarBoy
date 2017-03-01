@@ -218,10 +218,10 @@ CPU::step() {
 // 1 . . . . . . . . . . . . . . . . 1
 // 2 g g g g g g g g . . . . . . . . 2
 // 3 g g g g g g g g . . . . . . . . 3
-// 4 . . . . . . . . . . . . . . . . 4
-// 5 . . . . . . . . . . . . . . . . 5
-// 6 . . . . . . . . . . . . . . . . 6
-// 7 . . . . . . . . . . . . . . . . 7
+// 4 g g g g g g g g g g g g g g g g 4
+// 5 g g g g g g g g g g g g g g g g 5
+// 6 g g g g g g g g g g g g g g g g 6
+// 7 g g g g g g g g g g g g g g g g 7
 // 8 g g g g g g g g g g g g g g g g 8
 // 9 g g g g g g g g g g g g g g g g 9
 // A g g g g g g g g g g g g g g g g A

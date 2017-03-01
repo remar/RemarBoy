@@ -293,6 +293,16 @@ def generate_swap(op):
             indent(2), "AF.low = (r == 0 ? ZF : 0);".replace("r", r), nl()
         ] + make_cb_cycles_and_break(2)
 
+def generate_bit(op):
+    bit = (op - 0x40)//8
+    r = get_reg(op & 0x07) if (op & 0x07 != 0x06) else "mem->getByte(HL.word)"
+    reg_name = get_reg_name(op & 0x07)
+    cycles = 3 if (op & 0x07) == 0x06 else 2
+    return make_cb_case(op, "BIT " + str(bit) + "," + reg_name) + [
+        indent(2), "AF.low = (AF.low & CF) | HF | (", r, " & 0x",
+        format(1 << bit, "02x"), " ? 0 : ZF);", nl()
+    ] + make_cb_cycles_and_break(cycles)
+
 def generate_res(op):
     bit = (op - 0x80)//8
     r = get_reg(op & 0x07)
@@ -431,6 +441,9 @@ def generate_cb_opcodes():
     for op in range(0x30, 0x38):
         ops.extend(generate_swap(op))
 
+    for op in range(0x40, 0x80):
+        ops.extend(generate_bit(op))
+
     for op in range(0x80, 0xc0):
         ops.extend(generate_res(op))
 
@@ -463,8 +476,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x20, 0x28):
-        print("".join(generate_sla(op)))
+    for op in range(0x40, 0x80):
+        print("".join(generate_bit(op)))
 
 #test()
 main()
