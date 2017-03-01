@@ -18,7 +18,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-// 0 x g g g g g g . . g g g g g g . 0
+// 0 x g g g g g g x . g g g g g g . 0
 // 1 . g g g g g g . x g g g g g g . 1
 // 2 g g g g g g g . g g g g g g g x 2
 // 3 g x g . x x g . g g g . g g g . 3
@@ -67,6 +67,12 @@ CPU::step() {
 
   switch(op) {
   case 0x00: // NOP
+    mem->cycles = 1;
+    break;
+
+  case 0x07: // My name is RLCA, James RLCA
+    AF.low = (AF.high & 0x80 ? CF : 0);
+    AF.high = (AF.high << 1) | (AF.high >> 7);
     mem->cycles = 1;
     break;
 
