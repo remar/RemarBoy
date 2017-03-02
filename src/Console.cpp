@@ -54,6 +54,14 @@ Console::runSteps(std::vector<std::string> &tokens) {
     engine.runSteps(1);
   } else {
     int steps = 0;
+    int multiplier = 1;
+
+    if(toupper(tokens[1].back()) == 'M') {
+      multiplier = 1000000;
+    } else if(toupper(tokens[1].back()) == 'K') {
+      multiplier = 1000;
+    }
+
     try { 
       steps = stoi(tokens[1]);
     } catch(const out_of_range) {
@@ -63,7 +71,7 @@ Console::runSteps(std::vector<std::string> &tokens) {
       cout << "Faulty argument to run (" << tokens[1] << ")" << endl;
       return;
     }
-    engine.runSteps(steps);
+    engine.runSteps(steps * multiplier);
   }
 }
 
