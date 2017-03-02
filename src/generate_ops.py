@@ -164,6 +164,30 @@ def generate_adc(op):
         indent(2), "AF.low = (AF.high == 0 ? ZF : 0) | (carry ? CF : 0) | (halfcarry ? HF : 0);", nl()
     ] + make_cycles_and_break(cycles)
 
+def generate_sub(op):
+    r = get_reg(op & 0x07)
+    r_name = get_reg_name(op & 0x07)
+    if (op & 0x07) == 0x06: # (HL)
+        return make_case(op, "SUB (HL)") + [
+            indent(2), "n = mem->getByte(HL.word);", nl(),
+            indent(2), "carry = AF.high < n ? CF : 0;", nl(),
+            indent(2), "halfcarry = (AF.high & 0x0f) < (n & 0x0f) ? HF : 0;", nl(),
+            indent(2), "AF.high -= n;", nl(),
+            indent(2), "AF.low = NF | (AF.high == 0 ? ZF : 0) | carry | halfcarry;", nl()
+        ] + make_cycles_and_break(2)
+    elif (op & 0x07) == 0x07: # SUB A
+        return make_case(op, "SUB A") + [
+            indent(2), "AF.high = 0;", nl(),
+            indent(2), "AF.low = NF | ZF;", nl()
+        ] + make_cycles_and_break(1)
+    else:
+        return make_case(op, "SUB " + r_name) + [
+            indent(2), "carry = AF.high < ", r, " ? CF : 0;", nl(),
+            indent(2), "halfcarry = (AF.high & 0x0f) < (", r, " & 0x0f) ? HF : 0;", nl(),
+            indent(2), "AF.high -= ", r, ";", nl(),
+            indent(2), "AF.low = NF | (AF.high == 0 ? ZF : 0) | carry | halfcarry;", nl()
+        ] + make_cycles_and_break(1)
+
 def generate_and(op):
     r = get_reg(op & 0x07) if (op & 0x07) != 0x06 else get_hl()
     r_name = get_reg_name(op & 0x07)
@@ -433,6 +457,9 @@ def generate_opcodes():
     for op in range(0x88, 0x90):
         ops.extend(generate_adc(op))
 
+    for op in range(0x90, 0x98):
+        ops.extend(generate_sub(op))
+
     for op in range(0xa0, 0xa8):
         ops.extend(generate_and(op))
 
@@ -509,8 +536,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0xb8, 0xc0):
-        print("".join(generate_cp(op)))
+    for op in range(0x90, 0x98):
+        print("".join(generate_sub(op)))
 
 #test()
 main()
