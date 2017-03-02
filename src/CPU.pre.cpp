@@ -209,8 +209,8 @@ CPU::step() {
 
   case 0xD6: // SUB n
     n = mem->getByte(PC++);
-    carry = AF.high < n ? 0 : CF;
-    halfcarry = (AF.high & 0x0f) < (n & 0x0f) ? 0 : HF;
+    carry = AF.high < n ? CF : 0;
+    halfcarry = (AF.high & 0x0f) < (n & 0x0f) ? HF : 0;
     AF.high -= n;
     AF.low = NF | (AF.high == 0 ? ZF : 0) | carry | halfcarry;
     mem->cycles = 2;
