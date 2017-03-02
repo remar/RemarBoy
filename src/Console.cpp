@@ -43,6 +43,8 @@ Console::execute(string command) {
     runSteps(tokens);
   } else if(op == "speed") {
     printSpeed();
+  } else if(op == "print") {
+    engine.printDisassembly();
   } else {
     cout << "Unrecognized command \"" << op << "\", try \"help\"" << endl;
   }
