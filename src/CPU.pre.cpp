@@ -31,7 +31,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 // A g g g g g g g g g g g g g g g g A
 // B g g g g g g g g g g g g g g g g B
 // C g g g x . g x g g x g . . x . g C
-// D g g g   . g . g g x g   .   . g D
+// D g g g   . g x g g x g   .   . g D
 // E x g x     g x g . x x       . g E
 // F x g . x   g x g . . x x     x g F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -139,6 +139,15 @@ CPU::step() {
     SP -= 2;
     PC = mem->getWord(PC - 2);
     mem->cycles = 6;
+    break;
+
+  case 0xD6: // SUB n
+    n = mem->getByte(PC++);
+    carry = AF.high < n ? 0 : CF;
+    halfcarry = (AF.high & 0x0f) < (n & 0x0f) ? 0 : HF;
+    AF.high -= n;
+    AF.low = NF | (AF.high == 0 ? ZF : 0) | carry | halfcarry;
+    mem->cycles = 2;
     break;
 
   case 0xD9: // RETI
