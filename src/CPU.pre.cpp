@@ -20,7 +20,7 @@ CPU::CPU(Memory* memory) : mem(memory) {
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 // 0 x g g g g g g x . g g g g g g . 0
 // 1 . g g g g g g . x g g g g g g . 1
-// 2 g g g g g g g . g g g g g g g x 2
+// 2 g g g g g g g x g g g g g g g x 2
 // 3 g x g . x x g . g g g . g g g . 3
 // 4 g g g g g g g g g g g g g g g g 4
 // 5 g g g g g g g g g g g g g g g g 5
@@ -80,6 +80,72 @@ CPU::step() {
   case 0x18: // JR n
     PC += (signed char)mem->getByte(PC) + 1;
     mem->cycles = 3;
+    break;
+
+  case 0x27: // DAA
+    switch(AF.low & 0x70) {
+    case 0x00: // !neg, !carry, !halfcarry
+      if((AF.high & 0xf0) <= 0x80 && (AF.high & 0x0f) >= 0x0a) {
+	AF.high += 0x06;
+	carry = false;
+      } else if((AF.high & 0xf0) >= 0xa0 && (AF.high & 0x0f) <= 0x09) {
+	AF.high += 0x60;
+	carry = true;
+      } else if((AF.high & 0xf0) >= 0x90 && (AF.high & 0x0f) >= 0x0a) {
+	AF.high += 0x66;
+	carry = true;
+      }
+      break;
+
+    case 0x10: // !neg, carry, !halfcarry
+      if(AF.high & 0xf0 <= 0x20) {
+	AF.high += (AF.high & 0x0f <= 0x09 ? 0x60 : 0x66);
+	carry = true;
+      }
+      break;
+
+    case 0x20: // !neg, !carry, halfcarry
+      if(AF.high & 0x0f <= 0x03) {
+	if(AF.high & 0xf0 <= 0x90) {
+	  AF.high += 0x06;
+	  carry = false;
+	} else {
+	  AF.high += 0x66;
+	  carry = true;
+	}
+      }
+      break;
+
+    case 0x30: // !neg, carry, halfcarry
+      if((AF.high & 0xf0 <= 0x30) && (AF.high & 0x0f <= 0x03)) {
+	AF.high += 0x66;
+	carry = true;
+      }
+      break;
+
+    case 0x50: // neg, carry, !halfcarry
+      if((AF.high & 0xf0 >= 0x70) && (AF.high & 0x0f <= 0x09)) {
+	AF.high += 0xa0;
+	carry = true;
+      }
+      break;
+
+    case 0x60: // neg, !carry, halfcarry
+      if((AF.high & 0xf0 <= 0x80) && (AF.high & 0x0f >= 0x06)) {
+	AF.high += 0xfa;
+	carry = false;
+      }
+      break;
+
+    case 0x70: // neg, carry, halfcarry
+      if((AF.high & 0xf0 >= 0x60) && (AF.high & 0x0f) >= 0x06) {
+	AF.high += 0x9a;
+	carry = true;
+      }
+      break;
+    }
+    AF.low = (AF.low & NF) | (carry ? CF : 0) | (AF.high == 0 ? ZF : 0);
+    mem->cycles = 1;
     break;
 
   case 0x2F: // CPL
