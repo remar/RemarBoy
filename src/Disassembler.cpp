@@ -84,6 +84,18 @@ Disassembler::disassemble(unsigned short address) {
       return mkInstr(mnemonic, address);
     }
 
+    std::stringstream fmt;
+    fmt << "Unable to disassemble 0x"
+	<< std::hex
+	<< std::setw(2)
+	<< std::setfill('0')
+	<< std::uppercase
+	<< (int)op
+	<< " @ 0x"
+	<< std::setw(4)
+	<< address;
+    throw std::out_of_range(fmt.str());
+
     return Instruction("---", 0, 0);
   }
 }
