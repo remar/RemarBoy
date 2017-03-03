@@ -21,7 +21,7 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 // 9 x x x x x x x x x x x x x x x x 9
 // A x x x x x x x x x x x x x x x x A
 // B x x x x x x x x x x x x x x x x B
-// C x x . x . x . x x x x . . x . x C
+// C x x . x . x x x x x x . . x . x C
 // D x x . . . x . x . x . . . . . x D
 // E x x x . . x x x . x . . . . . x E
 // F x x . x . x . x . . x x . . x x F
@@ -108,6 +108,7 @@ Disassembler::setupOpToMnemonicMap() {
   opToMnemonic[0x2F] = "CPL";
   opToMnemonic[0xC0] = "RET NZ";
   opToMnemonic[0xC3] = "JP 0xnn";
+  opToMnemonic[0xC6] = "ADD 0xn";
   opToMnemonic[0xC8] = "RET Z";
   opToMnemonic[0xC9] = "RET";
   opToMnemonic[0xCA] = "JP Z,0xnn";
