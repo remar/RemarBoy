@@ -9,7 +9,7 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 }
 
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
-// 0 x x x x x x x . . x x x x x x . 0
+// 0 x x x x x x x x . x x x x x x . 0
 // 1 . x x x x x x . x x x x x x x . 1
 // 2 x x x x x x x x x x x x x x x x 2
 // 3 x x x x x x x . x x x x x x x . 3
@@ -103,6 +103,7 @@ Disassembler::disassemble(unsigned short address) {
 void
 Disassembler::setupOpToMnemonicMap() {
   opToMnemonic[0x00] = "NOP";
+  opToMnemonic[0x07] = "RLCA";
   opToMnemonic[0x18] = "JR 0xn";
   opToMnemonic[0x27] = "DAA";
   opToMnemonic[0x2F] = "CPL";
