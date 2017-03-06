@@ -192,7 +192,7 @@ Disassembler::disassembleCB(unsigned short address) {
   if(op >= 0x00 && op < 0x40) { // RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL
     const std::string mnemonics[] = {"RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP", "SRL"};
     return mkInstr(mnemonics[op >> 3] + " " + getRegName(op & 0x07), address);
-  } else if((op & 0xff) >= 0x80 && (op & 0xff) < 0xc0) { // RES r
+  } else if(op >= 0x80 && op < 0xc0) { // RES r
     int bit = (op - 0x80) >> 3;
     return mkInstr("RES " + std::to_string(bit) + "," + getRegName(op & 0x07), address);
   } else {
