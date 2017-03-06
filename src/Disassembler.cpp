@@ -172,18 +172,18 @@ Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
 // 1 x x x x x x x x x x x x x x x x 1
 // 2 x x x x x x x x x x x x x x x x 2
 // 3 x x x x x x x x x x x x x x x x 3
-// 4 . . . . . . . . . . . . . . . . 4
-// 5 . . . . . . . . . . . . . . . . 5
-// 6 . . . . . . . . . . . . . . . . 6
-// 7 . . . . . . . . . . . . . . . . 7
+// 4 x x x x x x x x x x x x x x x x 4
+// 5 x x x x x x x x x x x x x x x x 5
+// 6 x x x x x x x x x x x x x x x x 6
+// 7 x x x x x x x x x x x x x x x x 7
 // 8 x x x x x x x x x x x x x x x x 8
 // 9 x x x x x x x x x x x x x x x x 9
 // A x x x x x x x x x x x x x x x x A
 // B x x x x x x x x x x x x x x x x B
-// C . . . . . . . . . . . . . . . . C
-// D . . . . . . . . . . . . . . . . D
-// E . . . . . . . . . . . . . . . . E
-// F . . . . . . . . . . . . . . . . F
+// C x x x x x x x x x x x x x x x x C
+// D x x x x x x x x x x x x x x x x D
+// E x x x x x x x x x x x x x x x x E
+// F x x x x x x x x x x x x x x x x F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 Instruction
@@ -192,21 +192,15 @@ Disassembler::disassembleCB(unsigned short address) {
   if(op >= 0x00 && op < 0x40) { // RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL
     const std::string mnemonics[] = {"RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP", "SRL"};
     return mkInstr(mnemonics[op >> 3] + " " + getRegName(op & 0x07), address);
-  } else if(op >= 0x80 && op < 0xc0) { // RES r
+  } else if(op >= 0x40 && op < 0x80) { // BIT b,r
+    int bit = (op - 0x40) >> 3;
+    return mkInstr("BIT " + std::to_string(bit) + "," + getRegName(op & 0x07), address);
+  } else if(op >= 0x80 && op < 0xc0) { // RES b,r
     int bit = (op - 0x80) >> 3;
     return mkInstr("RES " + std::to_string(bit) + "," + getRegName(op & 0x07), address);
-  } else {
-    std::stringstream fmt;
-    fmt << "Unable to disassemble 0xCB 0x"
-	<< std::hex
-	<< std::setw(2)
-	<< std::setfill('0')
-	<< std::uppercase
-	<< (int)op
-	<< " @ 0x"
-	<< std::setw(4)
-	<< address;
-    throw std::out_of_range(fmt.str());
+  } else { // SET b,r
+    int bit = (op - 0xc0) >> 3;
+    return mkInstr("SET " + std::to_string(bit) + "," + getRegName(op & 0x07), address);
   }
 }
 
