@@ -196,7 +196,17 @@ Disassembler::disassembleCB(unsigned short address) {
     int bit = (op - 0x80) >> 3;
     return mkInstr("RES " + std::to_string(bit) + "," + getRegName(op & 0x07), address);
   } else {
-    return mkInstr("--- CB", address);
+    std::stringstream fmt;
+    fmt << "Unable to disassemble 0xCB 0x"
+	<< std::hex
+	<< std::setw(2)
+	<< std::setfill('0')
+	<< std::uppercase
+	<< (int)op
+	<< " @ 0x"
+	<< std::setw(4)
+	<< address;
+    throw std::out_of_range(fmt.str());
   }
 }
 
