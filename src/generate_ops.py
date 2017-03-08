@@ -526,6 +526,9 @@ def main():
     cb_opcodes = generate_cb_opcodes()
 
     f = open("CPU.cpp", "w")
+    f.write("////////////////////////////////////////////////////////////////////////\n")
+    f.write("// GENERATED CODE, DO NOT EDIT /////////////////////////////////////////\n")
+    f.write("////////////////////////////////////////////////////////////////////////\n")
     f.write("\n".join(cpu[0:begin+1]) + "\n")
     f.write("".join(opcodes))
 #    f.write("\n".join(cpu[end:]))
