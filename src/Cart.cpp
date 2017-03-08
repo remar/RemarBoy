@@ -10,7 +10,7 @@
 Cart::Cart(std::string path) {
   size = getFileSize(path);
 
-  data = new unsigned char[size];
+  data = new uint8_t[size];
 
   std::ifstream infile(path.c_str());
 
@@ -18,7 +18,7 @@ Cart::Cart(std::string path) {
 }
 
 void
-Cart::writeToMemory(unsigned char *memory, int bank) {
+Cart::writeToMemory(uint8_t *memory, int bank) {
   memcpy(memory, &data[bank * BANK_SIZE], BANK_SIZE);
 }
 

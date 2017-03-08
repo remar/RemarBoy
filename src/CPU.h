@@ -12,22 +12,22 @@ public:
 
 private:
   void doCB();
-  void printWordReg(std::string name, unsigned short value);
+  void printWordReg(std::string name, uint16_t value);
 
   int accum_cycles;
 
   Memory* mem;
 
-  unsigned short PC;
-  unsigned short SP;
+  uint16_t PC;
+  uint16_t SP;
 
   union reg_pair {
-    unsigned short word;
+    uint16_t word;
     struct {
 #ifdef BIG_ENDIAN
-      unsigned char low, high;
+      uint8_t low, high;
 #else
-      unsigned char high, low;
+      uint8_t high, low;
 #endif
     };
   };

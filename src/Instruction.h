@@ -5,13 +5,13 @@
 
 class Instruction {
 public:
-  Instruction(std::string mnemonic, int len, unsigned char *data);
+  Instruction(std::string mnemonic, int len, uint8_t *data);
   std::string asString();
 
 private:
   std::string mnemonic;
   int len;
-  unsigned char data[3];
+  uint8_t data[3];
 };
 
 #endif

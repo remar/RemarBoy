@@ -1,8 +1,8 @@
 #include "LCD.h"
 
-const unsigned short IF = 0xFF0F;
-const unsigned short LCDC = 0xFF40;
-const unsigned short LY = 0xFF44;
+const uint16_t IF = 0xFF0F;
+const uint16_t LCDC = 0xFF40;
+const uint16_t LY = 0xFF44;
 
 LCD::LCD(Memory *memory) : mem(memory), cycles(0) {
   ly = mem->getByte(LY);

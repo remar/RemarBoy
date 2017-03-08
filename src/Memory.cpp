@@ -13,7 +13,7 @@
 // 0xFF80-0xFFFE    Working & Stack RAM (127 bytes)
 // 0xFFFF           Interrupt Enable
 
-const unsigned char VISITED = 0x01;
+const uint8_t VISITED = 0x01;
 
 Memory::Memory() : metarom(0) {}
 
@@ -26,18 +26,18 @@ Memory::insertCart(std::string path) {
   setupMetarom();
 }
 
-unsigned char
-Memory::getByte(unsigned short address) {
+uint8_t
+Memory::getByte(uint16_t address) {
   return mem[address];
 }
 
-unsigned short
-Memory::getWord(unsigned short address) {
+uint16_t
+Memory::getWord(uint16_t address) {
   return mem[address] + (mem[address+1] << 8);
 }
 
-unsigned char
-Memory::getOp(unsigned short address) {
+uint8_t
+Memory::getOp(uint16_t address) {
   // TODO: Need more sophistication to deal with bank switching
   if(address < 0x8000) {
     metarom[address] = VISITED;
@@ -47,7 +47,7 @@ Memory::getOp(unsigned short address) {
 }
 
 void
-Memory::putByte(unsigned short address, unsigned char byte) {
+Memory::putByte(uint16_t address, uint8_t byte) {
   if(address >= 0x8000) {
     mem[address] = byte;
   }
@@ -66,8 +66,8 @@ Memory::getVisited() {
   return visited;
 }
 
-unsigned char*
-Memory::getBytes(unsigned short address) {
+uint8_t*
+Memory::getBytes(uint16_t address) {
   return &mem[address];
 }
 
@@ -77,7 +77,7 @@ Memory::setupMetarom() {
     delete[] metarom;
   }
 
-  metarom = new unsigned char[cart->getSize()];
+  metarom = new uint8_t[cart->getSize()];
   for(int i = 0;i < cart->getSize();i++) {
     metarom[i] = 0;
   }

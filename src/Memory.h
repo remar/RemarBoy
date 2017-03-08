@@ -11,17 +11,17 @@ public:
 
   Memory();
   void insertCart(std::string path);
-  unsigned char getByte(unsigned short address);
-  unsigned short getWord(unsigned short address);
-  unsigned char getOp(unsigned short address);
-  void putByte(unsigned short address, unsigned char byte);
+  uint8_t getByte(uint16_t address);
+  uint16_t getWord(uint16_t address);
+  uint8_t getOp(uint16_t address);
+  void putByte(uint16_t address, uint8_t byte);
   std::list<int> getVisited();
-  unsigned char* getBytes(unsigned short address);
+  uint8_t* getBytes(uint16_t address);
 
 private:
   void setupMetarom();
-  unsigned char mem[65536];
-  unsigned char *metarom;
+  uint8_t mem[65536];
+  uint8_t *metarom;
   Cart *cart;
 };
 

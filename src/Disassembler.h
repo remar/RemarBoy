@@ -9,21 +9,21 @@
 class Disassembler {
 public:
   Disassembler(Memory *memory);
-  Instruction disassemble(unsigned short address);
+  Instruction disassemble(uint16_t address);
 
 private:
   void setupOpToMnemonicMap();
-  std::string formatByte(unsigned char val);
-  std::string formatWord(unsigned short val);
-  Instruction mkInstr(std::string mnemonic, unsigned short address);
-  Instruction disassembleCB(unsigned short address);
+  std::string formatByte(uint8_t val);
+  std::string formatWord(uint16_t val);
+  Instruction mkInstr(std::string mnemonic, uint16_t address);
+  Instruction disassembleCB(uint16_t address);
   std::string getRegName(int reg);
   std::string getWideRegNameAF(int widereg);
   std::string getWideRegNameSP(int widereg);
   std::string getIndirectRegName(int indirectreg);
 
   Memory *memory;
-  std::map<unsigned char, std::string> opToMnemonic;
+  std::map<uint8_t, std::string> opToMnemonic;
 };
 
 #endif

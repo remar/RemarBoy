@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iomanip>
 
-Instruction::Instruction(std::string mnemonic, int len, unsigned char *data)
+Instruction::Instruction(std::string mnemonic, int len, uint8_t *data)
   : mnemonic(mnemonic), len(len) {
   for(int i = 0;i < len;i++) {
     this->data[i] = data[i];

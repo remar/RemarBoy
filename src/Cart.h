@@ -6,11 +6,11 @@
 class Cart {
 public:
   Cart(std::string path);
-  void writeToMemory(unsigned char* memory, int bank);
+  void writeToMemory(uint8_t* memory, int bank);
   int getSize();
 
 private:
-  unsigned char *data;
+  uint8_t *data;
   int size;
   long getFileSize(std::string path);
 };

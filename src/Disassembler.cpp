@@ -28,13 +28,13 @@ Disassembler::Disassembler(Memory *memory) : memory(memory) {
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 Instruction
-Disassembler::disassemble(unsigned short address) {
-  unsigned char op = memory->getByte(address);
+Disassembler::disassemble(uint16_t address) {
+  uint8_t op = memory->getByte(address);
 
   if((op & 0xe7) == 0x20) { // JR conditional,n
     std::string neg = (op & 0x08) == 0x08 ? "":"N";
     std::string flag = (op & 0x10) == 0x10 ? "C":"Z";
-    unsigned char n = memory->getByte(address + 1);
+    uint8_t n = memory->getByte(address + 1);
     return mkInstr("JR "+neg+flag+",0x"+formatByte(n), address);
   } else if((op & 0xcf) == 0x01) { // LD rr,nn
     int nn = memory->getWord(address + 1);
@@ -48,7 +48,7 @@ Disassembler::disassemble(unsigned short address) {
   } else if((op & 0xc7) == 0x05) { // DEC r
     return mkInstr("DEC " + getRegName((op & 0x38) >> 3), address);
   } else if((op & 0xc7) == 0x06) { // LD r,n
-    unsigned char n = memory->getByte(address + 1);
+    uint8_t n = memory->getByte(address + 1);
     return mkInstr("LD " + getRegName((op & 0x38) >> 3) + ",0x" + formatByte(n), address);
   } else if((op & 0xcf) == 0x09) { // ADD HL,rr
     return mkInstr("ADD HL," + getWideRegNameSP((op & 0x30) >> 4), address);
@@ -133,21 +133,21 @@ Disassembler::setupOpToMnemonicMap() {
 }
 
 std::string
-Disassembler::formatByte(unsigned char val) {
+Disassembler::formatByte(uint8_t val) {
   std::stringstream fmt;
   fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(2) << (int)val;
   return fmt.str();
 }
 
 std::string
-Disassembler::formatWord(unsigned short val) {
+Disassembler::formatWord(uint16_t val) {
   std::stringstream fmt;
   fmt << std::hex << std::setfill('0') << std::uppercase << std::setw(4) << val;
   return fmt.str();
 }
 
 Instruction
-Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
+Disassembler::mkInstr(std::string mnemonic, uint16_t address) {
   const int lengths[] = {
   //0 1 2 3 4 5 6 7 8 9 A B C D E F
     1,3,1,1,1,1,2,1,3,1,1,1,1,1,2,1, // 0
@@ -168,7 +168,7 @@ Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
     2,1,1,1,0,1,2,1,2,1,3,1,0,0,2,1  // F
   //0 1 2 3 4 5 6 7 8 9 A B C D E F
   };
-  unsigned char op = memory->getByte(address);
+  uint8_t op = memory->getByte(address);
   return Instruction(mnemonic, lengths[op], memory->getBytes(address));
 }
 
@@ -192,8 +192,8 @@ Disassembler::mkInstr(std::string mnemonic, unsigned short address) {
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 Instruction
-Disassembler::disassembleCB(unsigned short address) {
-  unsigned char op = memory->getByte(address + 1);
+Disassembler::disassembleCB(uint16_t address) {
+  uint8_t op = memory->getByte(address + 1);
   if(op >= 0x00 && op < 0x40) { // RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL
     const std::string mnemonics[] = {"RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP", "SRL"};
     return mkInstr(mnemonics[op >> 3] + " " + getRegName(op & 0x07), address);

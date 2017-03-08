@@ -5,10 +5,10 @@
 #include <sstream>
 #include <iomanip>
 
-const unsigned char ZF = 0x80; // Zero flag
-const unsigned char NF = 0x40; // Negative op flag
-const unsigned char HF = 0x20; // Half-carry flag
-const unsigned char CF = 0x10; // Carry flag
+const uint8_t ZF = 0x80; // Zero flag
+const uint8_t NF = 0x40; // Negative op flag
+const uint8_t HF = 0x20; // Half-carry flag
+const uint8_t CF = 0x10; // Carry flag
 
 CPU::CPU(Memory* memory) : mem(memory) {
   PC = 0x100; // Program starts at 0x100
@@ -41,10 +41,10 @@ CPU::step() {
   // std::cout << std::hex << PC << std::endl;
 
   if(IME) {
-    unsigned char IF = mem->getByte(0xFF0F); // Interrupt Request
-    unsigned char IE = mem->getByte(0xFFFF); // Interrupt Enable
-    unsigned char i = 0x01;
-    unsigned char j = 0;
+    uint8_t IF = mem->getByte(0xFF0F); // Interrupt Request
+    uint8_t IE = mem->getByte(0xFFFF); // Interrupt Enable
+    uint8_t i = 0x01;
+    uint8_t j = 0;
     while(i < 0x20) {
       if((IF & i) != 0 && (IE & i) != 0) {
 	IME = false;
@@ -60,9 +60,9 @@ CPU::step() {
     }
   }
 
-  unsigned char op = mem->getOp(PC++);
-  unsigned char n;
-  unsigned char operand;
+  uint8_t op = mem->getOp(PC++);
+  uint8_t n;
+  uint8_t operand;
   bool carry;
   bool halfcarry;
 
@@ -322,8 +322,8 @@ CPU::step() {
 
 void
 CPU::doCB() {
-  unsigned char op = mem->getByte(PC++);
-  unsigned char temp;
+  uint8_t op = mem->getByte(PC++);
+  uint8_t temp;
   bool carry;
 
   switch(op) {
@@ -368,6 +368,6 @@ CPU::getTotalCycles() {
 }
 
 void
-CPU::printWordReg(std::string name, unsigned short value) {
+CPU::printWordReg(std::string name, uint16_t value) {
   std::cout << name << ": " << std::setw(4) << std::setfill('0') << std::uppercase << std::hex << value;
 }
