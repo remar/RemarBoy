@@ -5,8 +5,10 @@
 #include <iomanip>
 
 Analyzer::Analyzer() {
-  emulator = new Emulator(&memory);
   disassembler = new Disassembler(&memory);
+  cpu = new CPU(&memory);
+  lcd = new LCD(&memory);
+  input = new Input(&memory);
 }
 
 void
@@ -17,12 +19,12 @@ Analyzer::loadRom(std::string path) {
 void
 Analyzer::runSteps(int steps) {
   auto start = std::chrono::high_resolution_clock::now();
-  int cyclesStart = emulator->getTotalCPUCycles();
+  int cyclesStart = cpu->getTotalCycles();
   for(int i = 0;i < steps;i++) {
-    emulator->step();
+    step();
   }
   auto end = std::chrono::high_resolution_clock::now();
-  int cyclesEnd = emulator->getTotalCPUCycles();
+  int cyclesEnd = cpu->getTotalCycles();
   double ms = std::chrono::duration<double>(end - start).count();
   cyclesPerSecondLastRun = (cyclesEnd - cyclesStart) / ms;
 }
@@ -39,4 +41,11 @@ Analyzer::printDisassembly() {
 int
 Analyzer::getCyclesPerSecond() {
   return cyclesPerSecondLastRun;
+}
+
+void
+Analyzer::step() {
+  cpu->step();
+  lcd->step();
+  input->step();
 }

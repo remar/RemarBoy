@@ -83,6 +83,6 @@ Console::printSpeed() {
   if(cycles == 0) {
     cout << "Cycles/sec: ?" << endl;
   } else {
-    cout << "Cycles/sec: " << cycles << endl;
+    cout << "Cycles/sec: " << dec << cycles << endl;
   }
 }

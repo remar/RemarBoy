@@ -14,8 +14,12 @@ public:
   int getCyclesPerSecond();
 
 private:
+  void step();
+
   Memory memory;
-  Emulator *emulator;
+  CPU *cpu;
+  LCD *lcd;
+  Input *input;
   Disassembler *disassembler;
   int cyclesPerSecondLastRun;
 };
