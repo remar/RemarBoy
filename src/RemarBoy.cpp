@@ -1,12 +1,12 @@
-#include "DisassemblyEngine.h"
+#include "Analyzer.h"
 #include "Console.h"
 
-DisassemblyEngine disassemblyEngine;
+Analyzer analyzer;
 
 int main() {
-  Console console(disassemblyEngine);
+  Console console(analyzer);
 
-  disassemblyEngine.loadRom("/home/andreas/Spel/roms/gb/Tetris.gb");
+  analyzer.loadRom("/home/andreas/Spel/roms/gb/Tetris.gb");
 
   console.run();
 }

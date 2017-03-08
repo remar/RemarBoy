@@ -1,14 +1,14 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "DisassemblyEngine.h"
+#include "Analyzer.h"
 
 #include <string>
 #include <vector>
 
 class Console {
 public:
-  Console(DisassemblyEngine &engine);
+  Console(Analyzer &analyzer);
   void run();
 
 private:
@@ -17,7 +17,7 @@ private:
   void runSteps(std::vector<std::string> &tokens);
   void printSpeed();
 
-  DisassemblyEngine &engine;
+  Analyzer &analyzer;
   bool quit;
 };
 

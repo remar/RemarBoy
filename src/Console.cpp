@@ -5,7 +5,7 @@
 #include <sstream>
 #include <vector>
 
-Console::Console(DisassemblyEngine &engine) : engine(engine), quit(false) {}
+Console::Console(Analyzer &analyzer) : analyzer(analyzer), quit(false) {}
 
 using namespace std;
 
@@ -44,7 +44,7 @@ Console::execute(string command) {
   } else if(op == "speed") {
     printSpeed();
   } else if(op == "print") {
-    engine.printDisassembly();
+    analyzer.printDisassembly();
   } else {
     cout << "Unrecognized command \"" << op << "\", try \"help\"" << endl;
   }
@@ -53,7 +53,7 @@ Console::execute(string command) {
 void
 Console::runSteps(std::vector<std::string> &tokens) {
   if(tokens.size() == 1) {
-    engine.runSteps(1);
+    analyzer.runSteps(1);
   } else {
     int steps = 0;
     int multiplier = 1;
@@ -73,13 +73,13 @@ Console::runSteps(std::vector<std::string> &tokens) {
       cout << "Faulty argument to run (" << tokens[1] << ")" << endl;
       return;
     }
-    engine.runSteps(steps * multiplier);
+    analyzer.runSteps(steps * multiplier);
   }
 }
 
 void
 Console::printSpeed() {
-  int cycles = engine.getCyclesPerSecond();
+  int cycles = analyzer.getCyclesPerSecond();
   if(cycles == 0) {
     cout << "Cycles/sec: ?" << endl;
   } else {

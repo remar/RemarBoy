@@ -1,21 +1,21 @@
-#include "DisassemblyEngine.h"
+#include "Analyzer.h"
 
 #include <chrono>
 #include <iostream>
 #include <iomanip>
 
-DisassemblyEngine::DisassemblyEngine() {
+Analyzer::Analyzer() {
   emulator = new Emulator(&memory);
   disassembler = new Disassembler(&memory);
 }
 
 void
-DisassemblyEngine::loadRom(std::string path) {
+Analyzer::loadRom(std::string path) {
   memory.insertCart(path);
 }
 
 void
-DisassemblyEngine::runSteps(int steps) {
+Analyzer::runSteps(int steps) {
   auto start = std::chrono::high_resolution_clock::now();
   int cyclesStart = emulator->getTotalCPUCycles();
   for(int i = 0;i < steps;i++) {
@@ -28,7 +28,7 @@ DisassemblyEngine::runSteps(int steps) {
 }
 
 void
-DisassemblyEngine::printDisassembly() {
+Analyzer::printDisassembly() {
   std::list<int> visited = memory.getVisited();
   std::list<int>::iterator it = visited.begin();
   for(;it != visited.end();it++) {
@@ -37,6 +37,6 @@ DisassemblyEngine::printDisassembly() {
 }
 
 int
-DisassemblyEngine::getCyclesPerSecond() {
+Analyzer::getCyclesPerSecond() {
   return cyclesPerSecondLastRun;
 }

@@ -5,9 +5,9 @@
 #include "Emulator.h"
 #include "Disassembler.h"
 
-class DisassemblyEngine {
+class Analyzer {
 public:
-  DisassemblyEngine();
+  Analyzer();
   void loadRom(std::string path);
   void runSteps(int steps);
   void printDisassembly();
