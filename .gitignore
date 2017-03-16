@@ -5,3 +5,4 @@ remarboy/.settings
 *.o
 CPU.cpp
 src/remarboy
+src/emulator

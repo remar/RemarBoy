@@ -1,29 +1,22 @@
-#include "Emulator.h"
+#include "Memory.h"
+#include "CPU.h"
+#include "LCD.h"
+#include "Input.h"
 
-Emulator::Emulator(Memory *memory) : memory(memory) {
+Memory *memory;
+CPU *cpu;
+LCD *lcd;
+Input *input;
+
+int main() {
+  memory = new Memory();
   cpu = new CPU(memory);
   lcd = new LCD(memory);
   input = new Input(memory);
-}
 
-void
-Emulator::insertCart(std::string path) {
-  memory->insertCart(path);
-}
+  memory->insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
 
-void
-Emulator::step() {
-  cpu->step();
-  lcd->step();
-  input->step();
-}
-
-void
-Emulator::printState() {
-  cpu->printState();
-}
-
-int
-Emulator::getTotalCPUCycles() {
-  return cpu->getTotalCycles();
+  // cpu->step();
+  // lcd->step();
+  // input->step();
 }
