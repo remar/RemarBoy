@@ -2,8 +2,10 @@
 #define DISASSEMBLY_ENGINE_H
 
 #include "Memory.h"
-#include "Emulator.h"
 #include "Disassembler.h"
+#include "CPU.h"
+#include "Input.h"
+#include "LCD.h"
 
 class Analyzer {
 public:
