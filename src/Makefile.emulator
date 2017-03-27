@@ -1,8 +1,8 @@
 CXX := g++
 
-CXXFLAGS := -std=c++11
+CXXFLAGS := -std=c++11 `sdl2-config --cflags`
 
-OBJS = Cart.o Input.o LCD.o Memory.o Emulator.o
+OBJS = Cart.o SDL_Input.o SDL_LCD.o Memory.o Emulator.o
 
 all: emulator
 
@@ -13,7 +13,7 @@ CPU.o: CPU.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 emulator: $(OBJS) CPU.o
-	$(CXX) -o $@ $^
+	$(CXX) `sdl2-config --libs` -o $@ $^
 
 clean:
 	rm -f *.o emulator CPU.cpp

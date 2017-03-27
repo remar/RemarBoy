@@ -1,22 +1,30 @@
 #include "Memory.h"
 #include "CPU.h"
-#include "LCD.h"
-#include "Input.h"
+#include "SDL_LCD.h"
+#include "SDL_Input.h"
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_render.h>
 
 Memory *memory;
 CPU *cpu;
-LCD *lcd;
-Input *input;
+SDL_LCD *lcd;
+SDL_Input *input;
 
 int main() {
+  SDL_Init(SDL_INIT_EVERYTHING);
+  atexit(SDL_Quit);
+
   memory = new Memory();
   cpu = new CPU(memory);
-  lcd = new LCD(memory);
-  input = new Input(memory);
+  lcd = new SDL_LCD(memory);
+  input = new SDL_Input(memory);
 
   memory->insertCart("/home/andreas/Spel/roms/gb/Tetris.gb");
 
-  // cpu->step();
-  // lcd->step();
-  // input->step();
+  while(!input->quit()) {
+    cpu->step();
+    lcd->step();
+    input->step();
+  }
 }
