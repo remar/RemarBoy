@@ -2,9 +2,10 @@
 
 #include <cassert>
 #include <iostream>
+#include <cstring>
 
 const uint16_t IF = 0xFF0F;
-const uint16_t SDL_LCDC = 0xFF40;
+const uint16_t LCDC = 0xFF40;
 const uint16_t LY = 0xFF44;
 
 SDL_LCD::SDL_LCD(Memory *memory) : mem(memory), cycles(0) {
@@ -23,7 +24,7 @@ SDL_LCD::SDL_LCD(Memory *memory) : mem(memory), cycles(0) {
 			      screenWidth, screenHeight);
   assert(texture != 0);
 
-  pixels = new uint8_t[screenWidth*screenHeight*4];
+  memset(screen, 0, screenWidth*screenHeight*4);
 }
 
 void
@@ -52,16 +53,46 @@ SDL_LCD::step() {
 
 void
 SDL_LCD::redraw() {
-  unsigned int x = screenWidth/2;
-  unsigned int y = screenHeight/2;
-  unsigned int offset = (screenWidth*4*y) + x*4;
-  pixels[offset] = 0;
-  pixels[offset+1] = 0;
-  pixels[offset+2] = 255;
-  pixels[offset+3] = SDL_ALPHA_OPAQUE;
+  getIntermediate();
+  getBgChr();
 
-  SDL_UpdateTexture(texture, 0, pixels, screenWidth * 4);
+  // Output background tile at (0,0) to top left corner of screen
+  uint8_t lcdc = mem->getByte(LCDC);
+  uint16_t offset = ((lcdc & 0x08) == 0x08) ? 0x9c00 : 0x9800;
+  uint8_t chr = mem->getByte(offset);
+  for(int y = 0;y < 8;y++) {
+    memcpy(&screen[y*screenWidth*4], &bgChr[chr*256 + y*32], 32);
+  }
+
+  SDL_UpdateTexture(texture, 0, screen, screenWidth * 4);
 
   SDL_RenderCopy(renderer, texture, 0, 0);
   SDL_RenderPresent(renderer);
+}
+
+void
+SDL_LCD::getIntermediate() {
+  for(int row = 0;row < 3072;row++) {
+    uint8_t n0 = mem->getByte(0x8000 + row*2);
+    uint8_t n1 = mem->getByte(0x8000 + row*2 + 1);
+
+    for(int i = 0;i < 8;i++) {
+      intermediate[row*8 + (7 - i)] = (n0 & 1) + ((n1 & 1) << 1);
+      n0 >>= 1;
+      n1 >>= 1;
+    }
+  }
+}
+
+void
+SDL_LCD::getBgChr() {
+  uint8_t lcdc = mem->getByte(LCDC);
+  uint16_t offset = ((lcdc & 0x10) == 0x10) ? 0 : 0x800;
+
+  for(int p = 0;p < 16384;p++) {
+    uint8_t pixel = intermediate[p + offset];
+    // TODO: Base color value off palette
+    bgChr[p*4] = bgChr[p*4+1] = bgChr[p*4+2] = pixel * 85;
+    bgChr[p*4+3] = SDL_ALPHA_OPAQUE;
+  }
 }

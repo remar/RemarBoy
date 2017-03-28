@@ -13,7 +13,7 @@ CPU.o: CPU.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 emulator: $(OBJS) CPU.o
-	$(CXX) `sdl2-config --libs` -o $@ $^
+	$(CXX) -o $@ $^ `sdl2-config --libs`
 
 clean:
 	rm -f *.o emulator CPU.cpp
