@@ -56,12 +56,16 @@ SDL_LCD::redraw() {
   getIntermediate();
   getBgChr();
 
-  // Output background tile at (0,0) to top left corner of screen
   uint8_t lcdc = mem->getByte(LCDC);
   uint16_t offset = ((lcdc & 0x08) == 0x08) ? 0x9c00 : 0x9800;
-  uint8_t chr = mem->getByte(offset);
-  for(int y = 0;y < 8;y++) {
-    memcpy(&screen[y*screenWidth*4], &bgChr[chr*256 + y*32], 32);
+
+  for(int bg_y = 0;bg_y < 18;bg_y++) {
+    for(int bg_x = 0;bg_x < 20;bg_x++) {
+      uint8_t chr = mem->getByte(offset + bg_y*32 + bg_x);
+      for(int y = 0;y < 8;y++) {
+	memcpy(&screen[((bg_y*8 + y)*screenWidth + bg_x*8)*4], &bgChr[chr*256 + y*32], 32);
+      }
+    }
   }
 
   SDL_UpdateTexture(texture, 0, screen, screenWidth * 4);
@@ -72,9 +76,10 @@ SDL_LCD::redraw() {
 
 void
 SDL_LCD::getIntermediate() {
+  uint8_t *bytes = mem->getBytes(0x8000);
   for(int row = 0;row < 3072;row++) {
-    uint8_t n0 = mem->getByte(0x8000 + row*2);
-    uint8_t n1 = mem->getByte(0x8000 + row*2 + 1);
+    uint8_t n0 = *bytes; bytes++;
+    uint8_t n1 = *bytes; bytes++;
 
     for(int i = 0;i < 8;i++) {
       intermediate[row*8 + (7 - i)] = (n0 & 1) + ((n1 & 1) << 1);
