@@ -18,6 +18,7 @@ private:
   void redraw();
   void getIntermediate();
   void getBgChr();
+  void getBgPalette();
 
   Memory *mem;
   int cycles;
@@ -31,6 +32,7 @@ private:
   uint8_t obj0Chr[64 * 1024];
   uint8_t obj1Chr[64 * 1024];
   uint8_t bgChr[64 * 1024];
+  uint8_t bgPal[4];
 };
 
 #endif

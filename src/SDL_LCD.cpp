@@ -7,6 +7,7 @@
 const uint16_t IF = 0xFF0F;
 const uint16_t LCDC = 0xFF40;
 const uint16_t LY = 0xFF44;
+const uint16_t BGP = 0xFF47;
 
 SDL_LCD::SDL_LCD(Memory *memory) : mem(memory), cycles(0) {
   ly = mem->getByte(LY);
@@ -94,10 +95,20 @@ SDL_LCD::getBgChr() {
   uint8_t lcdc = mem->getByte(LCDC);
   uint16_t offset = ((lcdc & 0x10) == 0x10) ? 0 : 0x800;
 
+  getBgPalette();
+
   for(int p = 0;p < 16384;p++) {
     uint8_t pixel = intermediate[p + offset];
-    // TODO: Base color value off palette
-    bgChr[p*4] = bgChr[p*4+1] = bgChr[p*4+2] = pixel * 85;
+    bgChr[p*4] = bgChr[p*4+1] = bgChr[p*4+2] = bgPal[pixel] * 85;
     bgChr[p*4+3] = SDL_ALPHA_OPAQUE;
+  }
+}
+
+void
+SDL_LCD::getBgPalette() {
+  uint8_t bgp = mem->getByte(BGP);
+  for(int i = 0;i < 4;i++) {
+    bgPal[i] = 3 - (bgp & 3);
+    bgp >>= 2;
   }
 }
