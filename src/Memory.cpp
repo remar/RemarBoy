@@ -1,6 +1,7 @@
 #include "Memory.h"
 #include "Constants.h"
 #include <iostream>
+#include <cstring>
 
 // Memory map
 // 0x0000-0x7FFF    Game rom (32 kB)
@@ -24,6 +25,8 @@ Memory::insertCart(std::string path) {
   cart->writeToMemory(&mem[BANK_SIZE], 1);
 
   setupMetarom();
+
+  memset(vram, 0, 8192);
 }
 
 uint8_t
@@ -69,6 +72,15 @@ Memory::getVisited() {
 uint8_t*
 Memory::getBytes(uint16_t address) {
   return &mem[address];
+}
+
+bool
+Memory::vramChanged() {
+  if(memcmp(vram, &mem[0x8000], 8192) != 0) {
+    memcpy(vram, &mem[0x8000], 8192);
+    return true;
+  }
+  return false;
 }
 
 void

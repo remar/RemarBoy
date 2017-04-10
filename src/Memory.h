@@ -17,12 +17,14 @@ public:
   void putByte(uint16_t address, uint8_t byte);
   std::list<int> getVisited();
   uint8_t* getBytes(uint16_t address);
+  bool vramChanged();
 
 private:
   void setupMetarom();
   uint8_t mem[65536];
   uint8_t *metarom;
   Cart *cart;
+  uint8_t vram[8192];
 };
 
 #endif
