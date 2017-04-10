@@ -54,19 +54,18 @@ SDL_LCD::step() {
 
 void
 SDL_LCD::redraw() {
-  getIntermediate();
-  getBgChr();
+  if(mem->vramChanged()) {
+    getIntermediate();
+    getBgChr();
+    renderBg(bg0, 0x9800);
+    renderBg(bg1, 0x9c00);
+  }
 
   uint8_t lcdc = mem->getByte(LCDC);
-  uint16_t offset = ((lcdc & 0x08) == 0x08) ? 0x9c00 : 0x9800;
+  uint8_t *bg = ((lcdc & 0x08) == 0x08) ? bg1 : bg0;
 
-  for(int bg_y = 0;bg_y < 18;bg_y++) {
-    for(int bg_x = 0;bg_x < 20;bg_x++) {
-      uint8_t chr = mem->getByte(offset + bg_y*32 + bg_x);
-      for(int y = 0;y < 8;y++) {
-	memcpy(&screen[((bg_y*8 + y)*screenWidth + bg_x*8)*4], &bgChr[chr*256 + y*32], 32);
-      }
-    }
+  for(int y = 0;y < screenHeight;y++) {
+    memcpy(&screen[y*screenWidth*4], &bg[y*256*4], screenWidth*4);
   }
 
   SDL_UpdateTexture(texture, 0, screen, screenWidth * 4);
@@ -110,5 +109,17 @@ SDL_LCD::getBgPalette() {
   for(int i = 0;i < 4;i++) {
     bgPal[i] = 3 - (bgp & 3);
     bgp >>= 2;
+  }
+}
+
+void
+SDL_LCD::renderBg(uint8_t *bg, uint16_t offset) {
+  for(int bg_y = 0;bg_y < 32;bg_y++) {
+    for(int bg_x = 0;bg_x < 32;bg_x++) {
+      uint8_t chr = mem->getByte(offset + bg_y*32 + bg_x);
+      for(int y = 0;y < 8;y++) {
+	memcpy(&bg[((bg_y*8 + y)*256 + bg_x*8)*4], &bgChr[chr*256 + y*32], 32);
+      }
+    }
   }
 }

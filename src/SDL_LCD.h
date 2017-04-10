@@ -19,6 +19,7 @@ private:
   void getIntermediate();
   void getBgChr();
   void getBgPalette();
+  void renderBg(uint8_t *bg, uint16_t offset);
 
   Memory *mem;
   int cycles;
@@ -33,6 +34,8 @@ private:
   uint8_t obj1Chr[64 * 1024];
   uint8_t bgChr[64 * 1024];
   uint8_t bgPal[4];
+  uint8_t bg0[256 * 1024];
+  uint8_t bg1[256 * 1024];
 };
 
 #endif
