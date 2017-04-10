@@ -21,6 +21,17 @@ SDL_Input::SDL_Input(Memory *memory) : mem(memory), shouldQuit(false), reading(f
 
 void
 SDL_Input::step() {
+  handleEvents();
+  interfaceToMemory();
+}
+
+bool
+SDL_Input::quit() {
+  return shouldQuit;
+}
+
+void
+SDL_Input::handleEvents() {
   SDL_Event event;
   while(SDL_PollEvent(&event)) {
     if(event.type == SDL_QUIT) {
@@ -44,10 +55,15 @@ SDL_Input::step() {
       }
     }
   }
+}
 
+void
+SDL_Input::interfaceToMemory() {
   uint8_t p1 = mem->getByte(P1) & 0x30;
 
-  if(p1 == 0x10) {
+  if(p1 == 0x30) {
+    reading = false;
+  } else if(p1 == 0x10) {
     // Read START, SELECT, B, A
     p1 = (keys[START] ? 0 : 0x08) + (keys[SELECT] ? 0 : 0x04) + (keys[B] ? 0 : 0x02) + (keys[A] ? 0 : 0x01);
     mem->putByte(P1, p1);
@@ -57,16 +73,9 @@ SDL_Input::step() {
     p1 = (keys[DOWN] ? 0 : 0x08) + (keys[UP] ? 0 : 0x04) + (keys[LEFT] ? 0 : 0x02) + (keys[RIGHT] ? 0 : 0x01);
     mem->putByte(P1, p1);
     reading = true;
-  } else if(p1 == 0x30) {
-    reading = false;
   }
 
   if(!reading) {
     mem->putByte(P1, 0xFF);
   }
-}
-
-bool
-SDL_Input::quit() {
-  return shouldQuit;
 }

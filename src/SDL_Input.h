@@ -12,6 +12,8 @@ public:
   bool quit();
 
 private:
+  void handleEvents();
+  void interfaceToMemory();
   Memory *mem;
   bool shouldQuit;
   bool keys[8];
