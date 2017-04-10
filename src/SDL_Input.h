@@ -3,6 +3,8 @@
 
 #include "Memory.h"
 
+enum KeyType {DOWN, UP, LEFT, RIGHT, START, SELECT, B, A};
+
 class SDL_Input {
 public:
   SDL_Input(Memory *memory);
@@ -12,6 +14,9 @@ public:
 private:
   Memory *mem;
   bool shouldQuit;
+  bool keys[8];
+  int keysyms[8];
+  bool reading;
 };
 
 #endif
