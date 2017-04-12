@@ -320,10 +320,10 @@ CPU::step() {
 // 9 g g g g g g g g g g g g g g g g 9
 // A g g g g g g g g g g g g g g g g A
 // B g g g g g g g g g g g g g g g g B
-// C . . . . . . . . . . . . . . . . C
-// D . . . . . . . . . . . . . . . . D
-// E . . . . . . . . . . . . . . . . E
-// F . . . . . . . . . . . . . . . . F
+// C g g g g g g g g g g g g g g g g C
+// D g g g g g g g g g g g g g g g g D
+// E g g g g g g g g g g g g g g g g E
+// F g g g g g g g g g g g g g g g g F
 //   0 1 2 3 4 5 6 7 8 9 A B C D E F
 
 void

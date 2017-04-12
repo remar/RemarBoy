@@ -374,6 +374,21 @@ def generate_res(op):
             ";", nl()
         ] + make_cb_cycles_and_break(2)
 
+def generate_set(op):
+    bit = (op - 0xc0)//8
+    r = get_reg(op & 0x07)
+    reg_name = get_reg_name(op & 0x07)
+    if(op & 0x07 == 0x06): # (HL)
+        return make_cb_case(op, "SET " + str(bit) + ",(HL)") + [
+            indent(2), "mem->putByte(HL.word, mem->getByte(HL.word) | 0x",
+            format((1 << bit), "02x"), ");", nl()
+        ] + make_cb_cycles_and_break(4)
+    else:
+        return make_cb_case(op, "SET " + str(bit) + "," + reg_name) + [
+            indent(2), r, " |= 0x", format((1 << bit), "02x"),
+            ";", nl()
+        ] + make_cb_cycles_and_break(2)
+
 def get_hl():
     return "mem->getByte(HL.word)"
 
@@ -507,6 +522,9 @@ def generate_cb_opcodes():
     for op in range(0x80, 0xc0):
         ops.extend(generate_res(op))
 
+    for op in range(0xc0, 0x100):
+        ops.extend(generate_set(op))
+
     return ops
 
 def main():
@@ -539,8 +557,8 @@ def main():
     f.close()
 
 def test():
-    for op in range(0x90, 0x98):
-        print("".join(generate_sub(op)))
+    for op in range(0xc0, 0x100):
+        print("".join(generate_set(op)))
 
 #test()
 main()
