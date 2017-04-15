@@ -8,6 +8,8 @@ const uint16_t IF = 0xFF0F;
 const uint16_t LCDC = 0xFF40;
 const uint16_t LY = 0xFF44;
 const uint16_t BGP = 0xFF47;
+const uint16_t OBP0 = 0xFF48;
+const uint16_t OBP1 = 0xFF49;
 
 SDL_LCD::SDL_LCD(Memory *memory) : mem(memory), cycles(0) {
   ly = mem->getByte(LY);
@@ -56,16 +58,36 @@ void
 SDL_LCD::redraw() {
   if(mem->vramChanged()) {
     getIntermediate();
+    getObj0Chr();
+    getObj1Chr();
     getBgChr();
     renderBg(bg0, 0x9800);
     renderBg(bg1, 0x9c00);
   }
 
   uint8_t lcdc = mem->getByte(LCDC);
-  uint8_t *bg = ((lcdc & 0x08) == 0x08) ? bg1 : bg0;
 
-  for(int y = 0;y < screenHeight;y++) {
-    memcpy(&screen[y*screenWidth*4], &bg[y*256*4], screenWidth*4);
+  bool drawBg = (lcdc & 0x01) == 0x01;
+  if(drawBg) {
+    uint8_t *bg = ((lcdc & 0x08) == 0x08) ? bg1 : bg0;
+
+    for(int y = 0;y < screenHeight;y++) {
+      memcpy(&screen[y*screenWidth*4], &bg[y*256*4], screenWidth*4);
+    }
+  }
+
+  if((lcdc & 0x02) == 0x02) {
+    OBJ *obj = (OBJ*)mem->getBytes(0xFE00);
+    for(int i = 0;i < 40;i++) {
+      uint8_t *objChr = ((obj[i].attr & 0x10) == 0x10) ? obj1Chr : obj0Chr;
+      uint8_t obj_y = obj[i].y - 16;
+      uint8_t obj_x = obj[i].x - 8;
+      for(int y = 0;y < 8;y++) {
+	memcpy(&screen[((y + obj_y) * screenWidth + obj_x) * 4],
+	       &objChr[obj[i].chr * 256 + y * 32],
+	       32);
+      }
+    }
   }
 
   SDL_UpdateTexture(texture, 0, screen, screenWidth * 4);
@@ -86,6 +108,46 @@ SDL_LCD::getIntermediate() {
       n0 >>= 1;
       n1 >>= 1;
     }
+  }
+}
+
+void
+SDL_LCD::getObj0Chr() {
+  getObj0Palette();
+
+  for(int p = 0;p < 16384;p++) {
+    uint8_t pixel = intermediate[p];
+    obj0Chr[p*4] = obj0Chr[p*4+1] = obj0Chr[p*4+2] = obj0Pal[pixel] * 85;
+    obj0Chr[p*4+3] = SDL_ALPHA_OPAQUE;
+  }
+}
+
+void
+SDL_LCD::getObj0Palette() {
+  uint8_t obp0 = mem->getByte(OBP0);
+  for(int i = 0;i < 4;i++) {
+    obj0Pal[i] = 3 - (obp0 & 3);
+    obp0 >>= 2;
+  }
+}
+
+void
+SDL_LCD::getObj1Chr() {
+  getObj1Palette();
+
+  for(int p = 0;p < 16384;p++) {
+    uint8_t pixel = intermediate[p];
+    obj1Chr[p*4] = obj1Chr[p*4+1] = obj1Chr[p*4+2] = obj1Pal[pixel] * 85;
+    obj1Chr[p*4+3] = SDL_ALPHA_OPAQUE;
+  }
+}
+
+void
+SDL_LCD::getObj1Palette() {
+  uint8_t obp1 = mem->getByte(OBP1);
+  for(int i = 0;i < 4;i++) {
+    obj1Pal[i] = 3 - (obp1 & 3);
+    obp1 >>= 2;
   }
 }
 
