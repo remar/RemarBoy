@@ -56,6 +56,11 @@ Memory::putByte(uint16_t address, uint8_t byte) {
   }
 }
 
+void
+Memory::copyMemory(uint16_t dest, uint16_t src, uint16_t bytes) {
+    memcpy(&mem[dest], &mem[src], bytes);
+}
+
 std::list<int>
 Memory::getVisited() {
   std::list<int> visited;

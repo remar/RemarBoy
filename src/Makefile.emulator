@@ -2,7 +2,7 @@ CXX := g++
 
 CXXFLAGS := -std=c++11 `sdl2-config --cflags`
 
-OBJS = Cart.o SDL_Input.o SDL_LCD.o Memory.o Emulator.o
+OBJS = Cart.o SDL_Input.o SDL_LCD.o Memory.o Emulator.o DMA.o
 
 all: emulator
 

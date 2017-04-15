@@ -15,6 +15,7 @@ public:
   uint16_t getWord(uint16_t address);
   uint8_t getOp(uint16_t address);
   void putByte(uint16_t address, uint8_t byte);
+  void copyMemory(uint16_t dest, uint16_t src, uint16_t bytes);
   std::list<int> getVisited();
   uint8_t* getBytes(uint16_t address);
   bool vramChanged();
