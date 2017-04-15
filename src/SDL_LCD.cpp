@@ -32,6 +32,12 @@ SDL_LCD::SDL_LCD(Memory *memory) : mem(memory), cycles(0) {
 
 void
 SDL_LCD::step() {
+  uint8_t lcdc = mem->getByte(LCDC);
+
+  if((lcdc & 0x80) != 0x80) {
+    return;
+  }
+
   cycles += mem->cycles;
 
   while(cycles > 114) {
