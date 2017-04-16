@@ -321,7 +321,7 @@ def generate_rr(op):
         return make_cb_case(op, "RR (HL)") + [
             indent(2), "temp = mem->getByte(HL.word);", nl(),
             indent(2), "carry = temp & 0x01 == 0x01;", nl(),
-            indent(2), "temp = (temp >> 1) + (AF.low & CF) << 3;", nl(),
+            indent(2), "temp = (temp >> 1) + ((AF.low & CF) << 3);", nl(),
             indent(2), "mem->putByte(HL.word, temp);", nl(),
             indent(2), "AF.low = (carry ? CF : 0) | (temp == 0 ? ZF : 0);", nl()
         ] + make_cb_cycles_and_break(4)
@@ -330,7 +330,7 @@ def generate_rr(op):
         reg_name = get_reg_name(op & 0x07)
         return make_cb_case(op, "RR " + reg_name) + [
             indent(2), "carry = ", reg, " & 0x01 == 0x01;", nl(),
-            indent(2), reg, " = (", reg, " >> 1) + (AF.low & CF) << 3;", nl(),
+            indent(2), reg, " = (", reg, " >> 1) + ((AF.low & CF) << 3);", nl(),
             indent(2), "AF.low = (carry ? CF : 0) | (", reg, " == 0 ? ZF : 0);", nl()
         ] + make_cb_cycles_and_break(2)
 
