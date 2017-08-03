@@ -6,9 +6,12 @@
 class CPU {
 public:
   CPU(Memory* memory);
+  void reset();
   void step();
   void printState();
   int getTotalCycles();
+  void set(std::string name, uint16_t val);
+  uint16_t get(std::string name);
 
 private:
   void doCB();

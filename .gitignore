@@ -6,3 +6,4 @@ remarboy/.settings
 CPU.cpp
 src/remarboy
 src/emulator
+src/cputest

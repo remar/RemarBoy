@@ -11,6 +11,11 @@ const uint8_t HF = 0x20; // Half-carry flag
 const uint8_t CF = 0x10; // Carry flag
 
 CPU::CPU(Memory* memory) : mem(memory) {
+  reset();
+}
+
+void
+CPU::reset() {
   PC = 0x100; // Program starts at 0x100
   SP = 0xfffe;
   IME = true; // TODO: Verify that it's on at start
@@ -377,6 +382,27 @@ CPU::printState() {
 int
 CPU::getTotalCycles() {
   return accum_cycles;
+}
+
+void
+CPU::set(std::string name, uint16_t val) {
+  if(name == "PC") PC = val;
+  else if(name == "SP") SP = val;
+  else if(name == "AF") AF.word = val;
+  else if(name == "BC") BC.word = val;
+  else if(name == "DE") DE.word = val;
+  else if(name == "HL") HL.word = val;
+}
+
+uint16_t
+CPU::get(std::string name) {
+  if(name == "PC") return PC;
+  else if(name == "SP") return SP;
+  else if(name == "AF") return AF.word;
+  else if(name == "BC") return BC.word;
+  else if(name == "DE") return DE.word;
+  else if(name == "HL") return HL.word;
+  else return 0;
 }
 
 void

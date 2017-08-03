@@ -20,7 +20,12 @@ Memory::Memory() : metarom(0) {}
 
 void
 Memory::insertCart(std::string path) {
-  cart = new Cart(path);
+  insertCart(new Cart(path));
+}
+
+void
+Memory::insertCart(Cart *cart) {
+  this->cart = cart;
   cart->writeToMemory(mem, 0);
   cart->writeToMemory(&mem[BANK_SIZE], 1);
 

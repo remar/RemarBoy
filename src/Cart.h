@@ -5,11 +5,12 @@
 
 class Cart {
 public:
+  Cart();
   Cart(std::string path);
   void writeToMemory(uint8_t* memory, int bank);
   int getSize();
 
-private:
+protected:
   uint8_t *data;
   int size;
   long getFileSize(std::string path);

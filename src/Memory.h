@@ -11,6 +11,7 @@ public:
 
   Memory();
   void insertCart(std::string path);
+  void insertCart(Cart *cart);
   uint8_t getByte(uint16_t address);
   uint16_t getWord(uint16_t address);
   uint8_t getOp(uint16_t address);

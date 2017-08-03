@@ -7,6 +7,8 @@
 
 #include "Constants.h"
 
+Cart::Cart() {}
+
 Cart::Cart(std::string path) {
   size = getFileSize(path);
 
