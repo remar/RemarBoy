@@ -575,9 +575,7 @@ def generate_cb_opcodes():
     return ops
 
 def main():
-#    copyfile("CPU.cpp", "CPU.cpp.bak")
-
-    f = open("CPU.pre.cpp", "r")
+    f = open("CPU.pre", "r")
     cpu = f.read().split("\n")
     f.close()
 
