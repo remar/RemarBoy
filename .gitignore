@@ -1,9 +1,4 @@
 *.pyc
 *~
-remarboy/bin
-remarboy/.settings
 *.o
 CPU.cpp
-src/remarboy
-src/emulator
-src/cputest
