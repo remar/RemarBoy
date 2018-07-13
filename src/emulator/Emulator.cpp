@@ -1,6 +1,7 @@
 #include "Memory.h"
 #include "CPU.h"
 #include "DMA.h"
+#include "Timer.h"
 #include "SDL_LCD.h"
 #include "SDL_Input.h"
 
@@ -13,6 +14,7 @@
 Memory *memory;
 CPU *cpu;
 DMA *dma;
+Timer *timer;
 SDL_LCD *lcd;
 SDL_Input *input;
 
@@ -34,6 +36,7 @@ int main(int argc, char *argv[]) {
   memory = new Memory();
   cpu = new CPU(memory);
   dma = new DMA(memory);
+  timer = new Timer(memory);
   lcd = new SDL_LCD(memory);
   input = new SDL_Input(memory);
 
@@ -43,6 +46,7 @@ int main(int argc, char *argv[]) {
   while(!input->quit()) {
     cpu->step();
     dma->step();
+    timer->step();
     lcd->step();
     input->step();
   }
