@@ -2,3 +2,6 @@
 *~
 *.o
 CPU.cpp
+*.d
+src/core/libcore.a
+src/emulator/emulator
